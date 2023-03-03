@@ -1,4 +1,5 @@
 #include "Accelerator.h"
+#include "MEM.h"
 #if DEBUG
     #include "debug.h"
     debug_Vertex_BRAM debug_M10;
@@ -6,7 +7,6 @@
 
 extern int clk;
 extern int rst_rd;
-extern int vertex_updated;
 extern int VERTEX_BRAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
 #if DEBUG
     int last_update_cycle = 0;
@@ -37,12 +37,16 @@ void Vertex_BRAM(int Rd_Addr_Src[], int Rd_Valid_Src[],
                  int Front_Iteration_End[], int Front_Iteration_End_DValid[],
                  int Front_Iteration_ID[],
 
+                 
+                 int vtx_bram_data[], int vtx_bram_data_valid[],
+                 int *vtx_bram_Read_Addr, int *vtx_bram_Read_Addr_Valid,int *vtx_bram_Wr_Addr, int *vtx_bram_Wr_Data, int *vtx_bram_Wr_Addr_Valid,
+
                  int *Src_Recv_Update_V_Value, int *Src_Recv_Update_V_DValid,
                  int *Backend_Active_V_ID, int *Backend_Active_V_Updated, int *Backend_Active_V_Pull_First_Flag, int *Backend_Active_V_DValid, int *Iteration_End, int *Iteration_End_DValid) {
 
-    static int tmp_rd_addr[CORE_NUM], tmp_rd_addr_valid[CORE_NUM];
-    static int tmp_wr_addr[CORE_NUM], tmp_wr_data[CORE_NUM], tmp_wr_addr_valid[CORE_NUM];
-    static int tmp_bram_data[CORE_NUM], tmp_bram_data_valid[CORE_NUM];
+    // static int tmp_rd_addr[CORE_NUM], tmp_rd_addr_valid[CORE_NUM];
+    // static int tmp_wr_addr[CORE_NUM], tmp_wr_data[CORE_NUM], tmp_wr_addr_valid[CORE_NUM];
+    // static int tmp_bram_data[CORE_NUM], tmp_bram_data_valid[CORE_NUM];
 
     for (int i = 0; i < CORE_NUM; ++ i) {
         Vertex_BRAM_Single(i,
@@ -50,17 +54,17 @@ void Vertex_BRAM(int Rd_Addr_Src[], int Rd_Valid_Src[],
                            Wr_Push_Flag_Dst[i], Wr_Addr_Dst[i], Wr_V_Value_Dst[i], Wr_Pull_First_Flag_Dst[i], Wr_Valid_Dst[i],
                            Front_Iteration_End[i], Front_Iteration_End_DValid[i],
                            Front_Iteration_ID[i],
-                           tmp_bram_data[i], tmp_bram_data_valid[i],
+                           vtx_bram_data[i], vtx_bram_data_valid[i],
 
-                           &tmp_rd_addr[i], &tmp_rd_addr_valid[i],
-                           &tmp_wr_addr[i], &tmp_wr_data[i], &tmp_wr_addr_valid[i],
+                           &vtx_bram_Read_Addr[i], &vtx_bram_Read_Addr_Valid[i],
+                           &vtx_bram_Wr_Addr[i], &vtx_bram_Wr_Data[i], &vtx_bram_Wr_Addr_Valid[i],
                            &Src_Recv_Update_V_Value[i], &Src_Recv_Update_V_DValid[i],
                            &Backend_Active_V_ID[i], &Backend_Active_V_Updated[i], &Backend_Active_V_Pull_First_Flag[i], &Backend_Active_V_DValid[i], &Iteration_End[i], &Iteration_End_DValid[i]);
-        BRAM_IP(i,
-                tmp_rd_addr[i], tmp_rd_addr_valid[i],
-                tmp_wr_addr[i], tmp_wr_data[i], tmp_wr_addr_valid[i],
+        // Vertex_bram.BRAM_IP(rst_rd,i,
+        //         tmp_rd_addr[i], tmp_rd_addr_valid[i],
+        //         tmp_wr_addr[i], tmp_wr_data[i], tmp_wr_addr_valid[i],
 
-                &tmp_bram_data[i], &tmp_bram_data_valid[i]);
+        //         &tmp_bram_data[i], &tmp_bram_data_valid[i]);
     }
 }
 
@@ -241,49 +245,6 @@ void Vertex_BRAM_Single(int Core_ID,
     }
 }
 
-void BRAM_IP(int Core_ID,
-             int Tmp_rd_addr, int Tmp_rd_addr_valid,
-             int Tmp_wr_addr, int tmp_wr_data, int Tmp_wr_addr_valid,
-
-             int *Tmp_bram_data, int *Tmp_bram_data_valid) {
-    if (rst_rd) {
-        *Tmp_bram_data = 0;
-        *Tmp_bram_data_valid = 0;
-        vertex_updated = 0;
-    }
-    else {
-        if (Tmp_rd_addr_valid) {
-            if (Tmp_rd_addr == -2) {
-                *Tmp_bram_data = -2;
-            } else {
-                *Tmp_bram_data = VERTEX_BRAM[Core_ID][Tmp_rd_addr];
-            }
-            *Tmp_bram_data_valid = 1;
-        } else {
-            *Tmp_bram_data = 0;
-            *Tmp_bram_data_valid = 0;
-        }
-
-        if (Tmp_wr_addr_valid) {
-            #if DEBUG
-                last_update_cycle = clk;
-            #endif
-            #if (DEBUG && PRINT_CONS)
-                if (Tmp_wr_addr * CORE_NUM + Core_ID == PRINT_ID) {
-                    printf("clk=%d, update vertex bram: id=%d, value=%d\n", clk, PRINT_ID, tmp_wr_data);
-                }
-            #endif
-            if (tmp_wr_data == -1) {
-                printf("catch -1\n");
-                exit (-1);
-            }
-            if(VERTEX_BRAM[Core_ID][Tmp_wr_addr] == -1 || tmp_wr_data < VERTEX_BRAM[Core_ID][Tmp_wr_addr]) {
-                vertex_updated++;
-            }
-            VERTEX_BRAM[Core_ID][Tmp_wr_addr] = tmp_wr_data;
-        }
-    }
-}
 
 void dump_result(int V_Num) {
       FILE *wb_File;
