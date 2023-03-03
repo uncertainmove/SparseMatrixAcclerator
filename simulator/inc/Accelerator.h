@@ -1,7 +1,11 @@
 #ifndef ACC_H
 #define ACC_H
 
-#define DEBUG 1
+#define DEBUG 0
+//change the macro here
+#define PRINT_ID 0
+#include "Macro.h"
+
 #if DEBUG
     int _main(char *off_file, char *edge_file, int root_id, int max_clk);
     #define PRINT_CONS 0
@@ -10,7 +14,8 @@
 #endif
 
 #include <bits/stdc++.h>
-
+#include <queue>
+using namespace std;
 const int FIFO_SIZE = 16;
 const int MAX_TASK_NUM = FIFO_SIZE * 2 / 2;
 const int OM_FIFO_SIZE = 4;
@@ -142,6 +147,25 @@ struct Powerlaw_Vvisit_Set {
     }
 };
 
+struct Network_reg{
+    //omega network 
+    int tmp_om_push_flag_in[OMEGA_DEPTH + 1][CORE_NUM], tmp_om_v_id_in[OMEGA_DEPTH + 1][CORE_NUM], tmp_om_v_value_in[OMEGA_DEPTH + 1][CORE_NUM], tmp_om_pull_first_flag_in[OMEGA_DEPTH + 1][CORE_NUM], tmp_om_v_valid_in[OMEGA_DEPTH + 1][CORE_NUM],
+        tmp_om_iteration_end[OMEGA_DEPTH + 1][CORE_NUM], tmp_om_iteration_end_dvalid[OMEGA_DEPTH + 1][CORE_NUM];
+
+    int tmp_om_stage_full[OMEGA_DEPTH + 1][CORE_NUM];
+
+    int buffer_full_in1_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], buffer_full_in1_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM];
+    int buffer_full_in2_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], buffer_full_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM];
+    
+    //###################### omega network
+    queue<int> push_flag_buffer_in1_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], id_buffer_in1_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], value_buffer_in1_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], pull_first_flag_buffer_in1_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM]; //原OMEGA_DEPTH+1+1 为 OMEGA_DEPTH+1
+    queue<int> push_flag_buffer_in1_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], id_buffer_in1_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], value_buffer_in1_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], pull_first_flag_buffer_in1_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM]; //原OMEGA_DEPTH+1+1 为 OMEGA_DEPTH+1
+    queue<int> push_flag_buffer_in2_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], id_buffer_in2_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], value_buffer_in2_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], pull_first_flag_buffer_in2_out1[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM]; //原OMEGA_DEPTH+1+1 为 OMEGA_DEPTH+1
+    queue<int> push_flag_buffer_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], id_buffer_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], value_buffer_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], pull_first_flag_buffer_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM]; //原OMEGA_DEPTH+1+1 为 OMEGA_DEPTH+1
+    //######################
+
+};
+
 void Initialize_Input_Graph(char *off_file, char *edge_file);
 
 void Initialize_Offset_Uram(int V_Num);
@@ -214,6 +238,7 @@ void Generate_HBM_Edge_Rqst_Global_Signal(int Front_Global_Iteration_ID[], Power
 void Rd_First_Edge_Bram(int Front_Rd_Edge_Addr[], int Front_Push_Flag[], int Front_Active_V_ID[], int Front_Active_V_Value[], int Front_Rd_Edge_Valid[],
                         int Front_Iteration_End[], int Front_Iteration_End_DValid[],
                         int NextStage_Full[],
+                        int edge_bram_data[], int edge_bram_data_valid[],
 
                         int *Stage_Full,
                         int *Push_Flag, int *Active_V_ID, int *Active_V_Value, int *Active_V_Edge, int *Active_V_DValid,
@@ -246,13 +271,13 @@ void Schedule_Global_Signal(int Front_Global_Iteration_ID[], Powerlaw_Vid_Set Fr
 
                            int *Global_Iteration_ID, Powerlaw_Vid_Set *Global_Powerlaw_V_ID, Powerlaw_Vvisit_Set *Global_Powerlaw_V_Visit);
 
-void Omega_Network(int Om1_Front_Push_Flag[], int Om1_Front_Update_V_ID[], int Om1_Front_Update_V_Value[], int Om1_Front_Pull_First_Flag[], int Om1_Front_Update_V_DValid[], int Om1_Front_Iteration_End[], int Om1_Front_Iteration_End_DValid[],
-                   int Om2_Front_Push_Flag[], int Om2_Front_Update_V_ID[], int Om2_Front_Update_V_Value[], int Om2_Front_Pull_First_Flag[], int Om2_Front_Update_V_DValid[], int Om2_Front_Iteration_End[], int Om2_Front_Iteration_End_DValid[],
-                   int Source_Core_Full[],
-
-                   int *Stage_Full_Om1, int *Stage_Full_Om2,
-                   int *Om1_Push_Flag, int *Om1_Update_V_ID, int *Om1_Update_V_Value, int *Om1_Pull_First_Flag, int *Om1_Update_V_DValid, int *Om1_Iteration_End, int *Om1_Iteration_End_DValid,
-                   int *Om2_Push_Flag, int *Om2_Update_V_ID, int *Om2_Update_V_Value, int *Om2_Pull_First_Flag, int *Om2_Update_V_DValid, int *Om2_Iteration_End, int *Om2_Iteration_End_DValid);
+void Network(int Om_Front_Push_Flag[], int Om_Front_Update_V_ID[], int Om_Front_Update_V_Value[], int Om_Front_Pull_First_Flag[], int Om_Front_Update_V_DValid[], int Om_Front_Iteration_End[], int Om_Front_Iteration_End_DValid[],
+            int Next_Stage_Full[],
+            
+            int *Stage_Full_Om,
+            int *Om_Push_Flag, int *Om_Update_V_ID, int *Om_Update_V_Value, int *Om_Pull_First_Flag, int *Om_Update_V_DValid, int *Om_Iteration_End, int *Om_Iteration_End_DValid,
+            Network_reg& Nreg, 
+            int switch_router = 0, int network_num = 0);
 
 void Omega_Network_Global_Signal(int Front_Global_Iteration_ID[], Powerlaw_Vid_Set Front_Global_Powerlaw_V_ID[], Powerlaw_Vvisit_Set Front_Global_Powerlaw_V_Visit[],
 
@@ -272,10 +297,15 @@ void Backend_Core_Global_Signal(int Front_Global_Iteration_ID[], Powerlaw_Vid_Se
 
                                int *Global_Iteration_ID, Powerlaw_Vid_Set *Global_Powerlaw_V_ID, Powerlaw_Vvisit_Set *Global_Powerlaw_V_Visit);
 
+
 void Vertex_BRAM(int Rd_Addr_Src[], int Rd_Valid_Src[],
                  int Wr_Push_Flag_Dst[], int Wr_Addr_Dst[], int Wr_V_Value_Dst[], int Wr_Pull_First_Flag_Dst[], int Wr_Valid_Dst[],
                  int Front_Iteration_End[], int Front_Iteration_End_DValid[],
                  int Front_Iteration_ID[],
+
+                 
+                 int vtx_bram_data[], int vtx_bram_data_valid[],
+                 int *vtx_bram_Read_Addr, int *vtx_bram_Read_Addr_Valid,int *vtx_bram_Wr_Addr, int *vtx_bram_Wr_Data, int *vtx_bram_Wr_Addr_Valid,
 
                  int *Src_Recv_Update_V_Value, int *Src_Recv_Update_V_DValid,
                  int *Backend_Active_V_ID, int *Backend_Active_V_Updated, int *Backend_Active_V_Pull_First_Flag, int *Backend_Active_V_DValid, int *Iteration_End, int *Iteration_End_DValid);
