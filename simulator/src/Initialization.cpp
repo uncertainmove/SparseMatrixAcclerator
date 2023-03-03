@@ -1,6 +1,6 @@
 #include "Accelerator.h"
-
-#define STORE_DATA 1
+#include "MEM.h"
+#define STORE_DATA 0
 
 using namespace std;
 
@@ -8,6 +8,8 @@ extern int Offset_URAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1][2];
 extern vector<int> Edge_MEM[PSEUDO_CHANNEL_NUM];
 //extern int Edge_MEM[PSEUDO_CHANNEL_NUM][MAX_EDGE_ADDR];
 extern int VERTEX_BRAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
+extern BRAM vtx_bram;
+extern BRAM edge_bram;
 extern int Csr_Offset[MAX_VERTEX_NUM + 1];
 extern vector<int> Ori_Edge_MEM;
 extern int VTX_NUM;
@@ -127,8 +129,8 @@ void Initialize_Offset_Uram(int V_Num) {
 }
 
 void Initialize_Vertex_bram(int root_id){
-    memset(VERTEX_BRAM, -1, sizeof(VERTEX_BRAM));
-    VERTEX_BRAM[root_id%CORE_NUM][root_id/CORE_NUM] = 0;
+    memset(vtx_bram.bram, -1, sizeof(vtx_bram.bram));
+    vtx_bram.bram[root_id%CORE_NUM][root_id/CORE_NUM] = 0;
     printf("Initialize Bram Complete\n");
 }
 
@@ -136,7 +138,7 @@ void Initialize_Edge_bram(int V_Num) {
     for (int i = 0; i < V_Num; i++) {
         int Loff = Offset_URAM[i % CORE_NUM][i / CORE_NUM][0], Roff = Offset_URAM[i % CORE_NUM][i / CORE_NUM][1];
         if (Loff == Roff) {
-            First_Edge_BRAM[i % CORE_NUM][i / CORE_NUM] = -1;
+            edge_bram.bram[i % CORE_NUM][i / CORE_NUM] = -1;
         } else {
             int max_edge = Edge_MEM[i % CORE_NUM / GROUP_CORE_NUM][Loff];
             int max_degree = VERTEX_DEGREE[max_edge % CORE_NUM][max_edge / CORE_NUM];
@@ -147,7 +149,7 @@ void Initialize_Edge_bram(int V_Num) {
                     max_degree = VERTEX_DEGREE[edge % CORE_NUM][edge / CORE_NUM];
                 }
             }
-            First_Edge_BRAM[i % CORE_NUM][i / CORE_NUM] = max_edge;
+            edge_bram.bram[i % CORE_NUM][i / CORE_NUM] = max_edge;
         }
     }
     printf("\033[32m[INFO]\033[m Initialize Edge Bram Complete\n");

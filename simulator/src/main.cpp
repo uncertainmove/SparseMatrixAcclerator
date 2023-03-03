@@ -1,6 +1,7 @@
 #include "Accelerator.h"
 #include "debug.h"
-
+#include "MEM.h"
+#include "Framework.h"
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -12,7 +13,7 @@ int MAX_CYCLE = 30000000;
 int clk;
 int rst_rd;
 int rst_root;
-int ROOT_ID;
+int ROOT_ID = 380019;
 int vertex_updated = 0;
 int MAX_ITERATION = 10;
 int M2_max_buffer_size;
@@ -75,14 +76,14 @@ Powerlaw_Vid_Set P4_Global_Powerlaw_V_ID_wr[CORE_NUM];
 Powerlaw_Vvisit_Set P4_Global_Powerlaw_V_Visit_wr[CORE_NUM];
 
 int P5_Stage_Full_rd[CORE_NUM],
-    P5_Rd_HBM_Edge_Addr_rd[PSEUDO_CHANNEL_NUM], P5_Rd_HBM_Edge_Valid_rd[PSEUDO_CHANNEL_NUM],
+    // P5_Rd_HBM_Edge_Addr_rd[PSEUDO_CHANNEL_NUM], P5_Rd_HBM_Edge_Valid_rd[PSEUDO_CHANNEL_NUM],
     P5_Push_Flag_rd[CORE_NUM], P5_Active_V_ID_rd[CORE_NUM], P5_Active_V_Value_rd[CORE_NUM], P5_Active_V_DValid_rd[CORE_NUM],
     P5_Iteration_End_rd[CORE_NUM], P5_Iteration_End_DValid_rd[CORE_NUM];
 int P5_Global_Iteration_ID_rd[CORE_NUM];
 Powerlaw_Vid_Set P5_Global_Powerlaw_V_ID_rd[CORE_NUM];
 Powerlaw_Vvisit_Set P5_Global_Powerlaw_V_Visit_rd[CORE_NUM];
 int P5_Stage_Full_wr[CORE_NUM],
-    P5_Rd_HBM_Edge_Addr_wr[PSEUDO_CHANNEL_NUM], P5_Rd_HBM_Edge_Valid_wr[PSEUDO_CHANNEL_NUM],
+    // P5_Rd_HBM_Edge_Addr_wr[PSEUDO_CHANNEL_NUM], P5_Rd_HBM_Edge_Valid_wr[PSEUDO_CHANNEL_NUM],
     P5_Push_Flag_wr[CORE_NUM], P5_Active_V_ID_wr[CORE_NUM], P5_Active_V_Value_wr[CORE_NUM], P5_Active_V_DValid_wr[CORE_NUM],
     P5_Iteration_End_wr[CORE_NUM], P5_Iteration_End_DValid_wr[CORE_NUM];
 int P5_Global_Iteration_ID_wr[CORE_NUM];
@@ -108,46 +109,129 @@ Cacheline_16 HBM_Controller_Edge_rd[PSEUDO_CHANNEL_NUM];
 int HBM_Controller_Full_wr[PSEUDO_CHANNEL_NUM], HBM_Controller_DValid_wr[PSEUDO_CHANNEL_NUM];
 Cacheline_16 HBM_Controller_Edge_wr[PSEUDO_CHANNEL_NUM];
 
-int P6_Stage_Full1_rd[PSEUDO_CHANNEL_NUM], P6_Stage_Full2_rd[CORE_NUM],
-    P6_Push_Flag_rd[CORE_NUM], P6_Update_V_ID_rd[CORE_NUM], P6_Update_V_Value_rd[CORE_NUM], P6_Pull_First_Flag_rd[CORE_NUM], P6_Update_V_DValid_rd[CORE_NUM],
-    P6_Iteration_End_rd[CORE_NUM], P6_Iteration_End_DValid_rd[CORE_NUM];
+int P6_Stage_Full1_rd[PSEUDO_CHANNEL_NUM], P6_Stage_Full2_rd[CORE_NUM];
+    // P6_Push_Flag_rd[CORE_NUM], P6_Update_V_ID_rd[CORE_NUM], P6_Update_V_Value_rd[CORE_NUM], P6_Pull_First_Flag_rd[CORE_NUM], P6_Update_V_DValid_rd[CORE_NUM],
+    // P6_Iteration_End_rd[CORE_NUM], P6_Iteration_End_DValid_rd[CORE_NUM];
 int P6_Global_Iteration_ID_rd[CORE_NUM];
 Powerlaw_Vid_Set P6_Global_Powerlaw_V_ID_rd[CORE_NUM];
 Powerlaw_Vvisit_Set P6_Global_Powerlaw_V_Visit_rd[CORE_NUM];
-int P6_Stage_Full1_wr[PSEUDO_CHANNEL_NUM], P6_Stage_Full2_wr[CORE_NUM],
-    P6_Push_Flag_wr[CORE_NUM], P6_Update_V_ID_wr[CORE_NUM], P6_Update_V_Value_wr[CORE_NUM], P6_Pull_First_Flag_wr[CORE_NUM], P6_Update_V_DValid_wr[CORE_NUM],
-    P6_Iteration_End_wr[CORE_NUM], P6_Iteration_End_DValid_wr[CORE_NUM];
+int P6_Stage_Full1_wr[PSEUDO_CHANNEL_NUM], P6_Stage_Full2_wr[CORE_NUM];
+    // P6_Push_Flag_wr[CORE_NUM], P6_Update_V_ID_wr[CORE_NUM], P6_Update_V_Value_wr[CORE_NUM], P6_Pull_First_Flag_wr[CORE_NUM], P6_Update_V_DValid_wr[CORE_NUM],
+    // P6_Iteration_End_wr[CORE_NUM], P6_Iteration_End_DValid_wr[CORE_NUM];
 int P6_Global_Iteration_ID_wr[CORE_NUM];
 Powerlaw_Vid_Set P6_Global_Powerlaw_V_ID_wr[CORE_NUM];
 Powerlaw_Vvisit_Set P6_Global_Powerlaw_V_Visit_wr[CORE_NUM];
 
-int Om1_Stage_Full_rd[CORE_NUM], Om2_Stage_Full_rd[CORE_NUM],
-    Om1_Push_Flag_rd[CORE_NUM], Om1_Update_V_ID_rd[CORE_NUM], Om1_Update_V_Value_rd[CORE_NUM], Om1_Update_V_Pull_First_Flag_rd[CORE_NUM], Om1_Update_V_DValid_rd[CORE_NUM], Om1_Iteration_End_rd[CORE_NUM], Om1_Iteration_End_DValid_rd[CORE_NUM],
-    Om2_Push_Flag_rd[CORE_NUM], Om2_Update_V_ID_rd[CORE_NUM], Om2_Update_V_Value_rd[CORE_NUM], Om2_Update_V_Pull_First_Flag_rd[CORE_NUM], Om2_Update_V_DValid_rd[CORE_NUM], Om2_Iteration_End_rd[CORE_NUM], Om2_Iteration_End_DValid_rd[CORE_NUM];
+// int Om1_Stage_Full_rd[CORE_NUM], Om2_Stage_Full_rd[CORE_NUM],
+//     Om1_Push_Flag_rd[CORE_NUM], Om1_Update_V_ID_rd[CORE_NUM], Om1_Update_V_Value_rd[CORE_NUM], Om1_Update_V_Pull_First_Flag_rd[CORE_NUM], Om1_Update_V_DValid_rd[CORE_NUM], Om1_Iteration_End_rd[CORE_NUM], Om1_Iteration_End_DValid_rd[CORE_NUM],
+//     Om2_Push_Flag_rd[CORE_NUM], Om2_Update_V_ID_rd[CORE_NUM], Om2_Update_V_Value_rd[CORE_NUM], Om2_Update_V_Pull_First_Flag_rd[CORE_NUM], Om2_Update_V_DValid_rd[CORE_NUM], Om2_Iteration_End_rd[CORE_NUM], Om2_Iteration_End_DValid_rd[CORE_NUM];
 int Om_Global_Iteration_ID_rd[CORE_NUM];
 Powerlaw_Vid_Set Om_Global_Powerlaw_V_ID_rd[CORE_NUM];
 Powerlaw_Vvisit_Set Om_Global_Powerlaw_V_Visit_rd[CORE_NUM];
-int Om1_Stage_Full_wr[CORE_NUM], Om2_Stage_Full_wr[CORE_NUM],
-    Om1_Push_Flag_wr[CORE_NUM], Om1_Update_V_ID_wr[CORE_NUM], Om1_Update_V_Value_wr[CORE_NUM], Om1_Update_V_Pull_First_Flag_wr[CORE_NUM], Om1_Update_V_DValid_wr[CORE_NUM], Om1_Iteration_End_wr[CORE_NUM], Om1_Iteration_End_DValid_wr[CORE_NUM],
-    Om2_Push_Flag_wr[CORE_NUM], Om2_Update_V_ID_wr[CORE_NUM], Om2_Update_V_Value_wr[CORE_NUM], Om2_Update_V_Pull_First_Flag_wr[CORE_NUM], Om2_Update_V_DValid_wr[CORE_NUM], Om2_Iteration_End_wr[CORE_NUM], Om2_Iteration_End_DValid_wr[CORE_NUM];
+// int Om1_Stage_Full_wr[CORE_NUM], Om2_Stage_Full_wr[CORE_NUM],
+//     Om1_Push_Flag_wr[CORE_NUM], Om1_Update_V_ID_wr[CORE_NUM], Om1_Update_V_Value_wr[CORE_NUM], Om1_Update_V_Pull_First_Flag_wr[CORE_NUM], Om1_Update_V_DValid_wr[CORE_NUM], Om1_Iteration_End_wr[CORE_NUM], Om1_Iteration_End_DValid_wr[CORE_NUM],
+//     Om2_Push_Flag_wr[CORE_NUM], Om2_Update_V_ID_wr[CORE_NUM], Om2_Update_V_Value_wr[CORE_NUM], Om2_Update_V_Pull_First_Flag_wr[CORE_NUM], Om2_Update_V_DValid_wr[CORE_NUM], Om2_Iteration_End_wr[CORE_NUM], Om2_Iteration_End_DValid_wr[CORE_NUM];
 int Om_Global_Iteration_ID_wr[CORE_NUM];
 Powerlaw_Vid_Set Om_Global_Powerlaw_V_ID_wr[CORE_NUM];
 Powerlaw_Vvisit_Set Om_Global_Powerlaw_V_Visit_wr[CORE_NUM];
 
+int P6_Source_Core_Full_rd[CORE_NUM];
+
 int P7_Source_Core_Full_rd[CORE_NUM],
     P7_Rd_Vertex_BRAM_Addr_rd[CORE_NUM], P7_Rd_Vertex_BRAM_Valid_rd[CORE_NUM],
-    P7_Wr_Vertex_Bram_Push_Flag_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Addr_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Data_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Pull_First_Flag_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Valid_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Iteration_End_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Iteration_End_DValid_rd[CORE_NUM],
-    P7_Om2_Send_Push_Flag_rd[CORE_NUM], P7_Om2_Send_Update_V_ID_rd[CORE_NUM], P7_Om2_Send_Update_V_Value_rd[CORE_NUM], P7_Om2_Send_Update_V_Pull_First_Flag_rd[CORE_NUM], P7_Om2_Send_Update_V_DValid_rd[CORE_NUM], P7_Om2_Iteration_End_rd[CORE_NUM], P7_Om2_Iteration_End_DValid_rd[CORE_NUM];
+    P7_Wr_Vertex_Bram_Push_Flag_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Addr_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Data_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Pull_First_Flag_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Valid_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Iteration_End_rd[CORE_NUM], P7_Wr_Vertex_BRAM_Iteration_End_DValid_rd[CORE_NUM];
+    // P7_Om2_Send_Push_Flag_rd[CORE_NUM], P7_Om2_Send_Update_V_ID_rd[CORE_NUM], P7_Om2_Send_Update_V_Value_rd[CORE_NUM], P7_Om2_Send_Update_V_Pull_First_Flag_rd[CORE_NUM], P7_Om2_Send_Update_V_DValid_rd[CORE_NUM], P7_Om2_Iteration_End_rd[CORE_NUM], P7_Om2_Iteration_End_DValid_rd[CORE_NUM];
 int P7_Global_Iteration_ID_rd[CORE_NUM];
 Powerlaw_Vid_Set P7_Global_Powerlaw_V_ID_rd[CORE_NUM];
 Powerlaw_Vvisit_Set P7_Global_Powerlaw_V_Visit_rd[CORE_NUM];
 int P7_Source_Core_Full_wr[CORE_NUM],
     P7_Rd_Vertex_BRAM_Addr_wr[CORE_NUM], P7_Rd_Vertex_BRAM_Valid_wr[CORE_NUM],
-    P7_Wr_Vertex_Bram_Push_Flag_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Addr_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Data_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Pull_First_Flag_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Valid_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Iteration_End_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Iteration_End_DValid_wr[CORE_NUM],
-    P7_Om2_Send_Push_Flag_wr[CORE_NUM], P7_Om2_Send_Update_V_ID_wr[CORE_NUM], P7_Om2_Send_Update_V_Value_wr[CORE_NUM], P7_Om2_Send_Update_V_Pull_First_Flag_wr[CORE_NUM], P7_Om2_Send_Update_V_DValid_wr[CORE_NUM], P7_Om2_Iteration_End_wr[CORE_NUM], P7_Om2_Iteration_End_DValid_wr[CORE_NUM];
+    P7_Wr_Vertex_Bram_Push_Flag_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Addr_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Data_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Pull_First_Flag_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Valid_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Iteration_End_wr[CORE_NUM], P7_Wr_Vertex_BRAM_Iteration_End_DValid_wr[CORE_NUM];
+    // P7_Om2_Send_Push_Flag_wr[CORE_NUM], P7_Om2_Send_Update_V_ID_wr[CORE_NUM], P7_Om2_Send_Update_V_Value_wr[CORE_NUM], P7_Om2_Send_Update_V_Pull_First_Flag_wr[CORE_NUM], P7_Om2_Send_Update_V_DValid_wr[CORE_NUM], P7_Om2_Iteration_End_wr[CORE_NUM], P7_Om2_Iteration_End_DValid_wr[CORE_NUM];
 int P7_Global_Iteration_ID_wr[CORE_NUM];
 Powerlaw_Vid_Set P7_Global_Powerlaw_V_ID_wr[CORE_NUM];
 Powerlaw_Vvisit_Set P7_Global_Powerlaw_V_Visit_wr[CORE_NUM];
+
+BRAM vtx_bram;
+BRAM edge_bram;
+Network_reg Nreg_1;
+Network_reg Nreg_2;
+
+class Info_P6 : public Info {
+public:
+    int P6_Push_Flag[CORE_NUM];
+    int P6_Update_V_ID[CORE_NUM];
+    int P6_Update_V_Value[CORE_NUM] ;
+    int P6_Pull_First_Flag[CORE_NUM];
+    int P6_Update_V_DValid[CORE_NUM] ;
+    int P6_Iteration_End[CORE_NUM];
+    int P6_Iteration_End_DValid[CORE_NUM];
+    virtual void copy(Info* info) {
+        memcpy(this, info, sizeof(*this));
+    }
+ } info_p6_self_rd,info_p6_self_wr;
+
+class Info_P5 : public Info {
+public:
+    int P5_Rd_HBM_Edge_Addr[CORE_NUM];
+    int P5_Rd_HBM_Edge_Valid[CORE_NUM];
+    virtual void copy(Info *info) {
+        memcpy(this, info, sizeof(*this));
+    }
+ } info_p5_self_rd,info_p5_self_wr;
+
+class Info_P7 : public Info{
+public:
+    int P7_Source_Core_Full[CORE_NUM]; 
+    int P7_Om2_Send_Push_Flag[CORE_NUM]; 
+    int P7_Om2_Send_Update_V_ID[CORE_NUM]; 
+    int P7_Om2_Send_Update_V_Value[CORE_NUM]; 
+    int P7_Om2_Send_Update_V_Pull_First_Flag[CORE_NUM]; 
+    int P7_Om2_Send_Update_V_DValid[CORE_NUM]; 
+    int P7_Om2_Iteration_End[CORE_NUM]; 
+    int P7_Om2_Iteration_End_DValid[CORE_NUM]; 
+    virtual void copy(Info *info) {
+        memcpy(this, info, sizeof(*this));
+    }
+}info_p7_self_rd,info_p7_self_wr;
+
+class Info_P_Om1 : public Info{
+public:
+    int Om1_Stage_Full[CORE_NUM];
+    int Om1_Push_Flag[CORE_NUM];
+    int Om1_Update_V_ID[CORE_NUM];
+    int Om1_Update_V_Value[CORE_NUM];
+    int Om1_Update_V_Pull_First_Flag[CORE_NUM];
+    int Om1_Update_V_DValid[CORE_NUM];
+    int Om1_Iteration_End[CORE_NUM];
+    int Om1_Iteration_End_DValid[CORE_NUM];
+    virtual void copy(Info *info) {
+        memcpy(this, info, sizeof(*this));
+    }
+}info_p_om1_self_rd,info_p_om1_self_wr;
+
+class Info_P_Om2 : public Info{
+public:
+    int Om2_Stage_Full[CORE_NUM];
+    int Om2_Push_Flag[CORE_NUM];
+    int Om2_Update_V_ID[CORE_NUM];
+    int Om2_Update_V_Value[CORE_NUM];
+    int Om2_Update_V_Pull_First_Flag[CORE_NUM];
+    int Om2_Update_V_DValid[CORE_NUM];
+    int Om2_Iteration_End[CORE_NUM];
+    int Om2_Iteration_End_DValid[CORE_NUM];
+    virtual void copy(Info *info) {
+        memcpy(this, info, sizeof(*this));
+    }
+}info_p_om2_self_rd,info_p_om2_self_wr;
+
+int vtx_bram_data[CORE_NUM], vtx_bram_data_valid[CORE_NUM];
+int vtx_bram_Read_Addr[CORE_NUM], vtx_bram_Read_Addr_Valid[CORE_NUM],
+    vtx_bram_Wr_Addr[CORE_NUM], vtx_bram_Wr_Data[CORE_NUM], vtx_bram_Wr_Addr_Valid[CORE_NUM];
+
+int edge_bram_data[CORE_NUM], edge_bram_data_valid[CORE_NUM];
+int edge_bram_Read_Addr[CORE_NUM], edge_bram_Read_Addr_Valid[CORE_NUM],
+    edge_bram_Wr_Addr[CORE_NUM], edge_bram_Wr_Data[CORE_NUM], edge_bram_Wr_Addr_Valid[CORE_NUM];
 
 int Vertex_BRAM_Data_rd[CORE_NUM], Vertex_BRAM_DValid_rd[CORE_NUM];
 int Vertex_BRAM_Data_wr[CORE_NUM], Vertex_BRAM_DValid_wr[CORE_NUM];
@@ -157,6 +241,16 @@ int Backend_Active_V_ID_wr[CORE_NUM], Backend_Active_V_Updated_wr[CORE_NUM], Bac
 
 int AIE_Active_V_ID_rd[CORE_NUM], AIE_Active_V_Updated_rd[CORE_NUM], AIE_Active_V_Pull_First_Flag_rd[CORE_NUM], AIE_Active_V_DValid_rd[CORE_NUM], AIE_Iteration_End_rd[CORE_NUM], AIE_Iteration_End_DValid_rd[CORE_NUM];
 int AIE_Active_V_ID_wr[CORE_NUM], AIE_Active_V_Updated_wr[CORE_NUM], AIE_Active_V_Pull_First_Flag_wr[CORE_NUM], AIE_Active_V_DValid_wr[CORE_NUM], AIE_Iteration_End_wr[CORE_NUM], AIE_Iteration_End_DValid_wr[CORE_NUM];
+
+int count_ = 0;
+
+void Compute_Core(Pipe* pipes);
+void Noc(Pipe* pipes);
+void Mem(Pipe* pipes);
+
+void compute_connect(Pipe* pipes);
+void noc_connect(Pipe* pipes);
+void mem_connect(Pipe* pipes);
 
 #if DEBUG
 int _main(char *off_file, char *edge_file, int root_id, int max_clk)
@@ -179,7 +273,9 @@ int main(int argc, char **argv)
     Initialize_Edge_bram(VTX_NUM);
     Initialize_VERTEX_DEGREE(VTX_NUM);
     Initialize_Bitmap(ROOT_ID,VTX_NUM);
-
+    compute_connect(pipe);
+    mem_connect(pipe);
+    noc_connect(pipe);
     for (clk = 0; clk < MAX_CYCLE; ++ clk) {
         // rst_rd must be reset only one clk after the reseting of rst_root
         rst_root = (clk < 99) ? 1 : 0;
@@ -188,11 +284,9 @@ int main(int argc, char **argv)
         if(clk % 500 == 0) {
             int local_print_id = PRINT_ID % CORE_NUM;
             // cout << "clk=" << clk << ", updated=" << vertex_updated << ", " << endl;
-            printf("clk=%d, updated=%d, P1_full=%d, P2_full=%d, P3_full=%d, P4_full=%d, P5_full=%d, P5_2_full=%d, HBM_full=%d, P6_full1=%d, P6_full2=%d, om1_full=%d, om2_full=%d, P7_full=%d\n",
-                clk, vertex_updated, 0, P2_Stage_Full_wr[local_print_id], 0, P4_Stage_Full_wr[local_print_id], P5_Stage_Full_wr[local_print_id], P5_2_Stage_Full_wr[local_print_id], HBM_Interface_Full_wr[local_print_id], P6_Stage_Full1_wr[local_print_id], P6_Stage_Full2_wr[local_print_id], Om1_Stage_Full_wr[local_print_id], Om2_Stage_Full_wr[local_print_id], P7_Source_Core_Full_wr[local_print_id]);
-            printf("clk=%d, updated=%d, P1_end=%d, P2_end=%d, P4_end=%d, P5_end=%d, P5_2_end=%d, P6_end=%d, om1_end=%d, om2_end=%d, P7_bram_end=%d, P7_om2_end=%d, backend_end=%d, aie_end=%d\n",
-                clk, vertex_updated, P1_Iteration_End_wr[local_print_id] && P1_Iteration_End_Dvalid_wr[local_print_id], P2_Iteration_End_wr[local_print_id] && P2_Iteration_End_DValid_wr[local_print_id], P4_Iteration_End_wr[local_print_id] && P4_Iteration_End_DValid_wr[local_print_id], P5_Iteration_End_wr[local_print_id] && P5_Iteration_End_DValid_wr[local_print_id], P5_2_Iteration_End_wr[local_print_id] && P5_2_Iteration_End_DValid_wr[local_print_id], P6_Iteration_End_wr[local_print_id] && P6_Iteration_End_DValid_wr[local_print_id], Om1_Iteration_End_wr[local_print_id] && Om1_Iteration_End_DValid_wr[local_print_id], Om2_Iteration_End_wr[local_print_id] && Om2_Iteration_End_DValid_wr[local_print_id], P7_Wr_Vertex_BRAM_Iteration_End_DValid_wr[local_print_id] && P7_Wr_Vertex_BRAM_Iteration_End_wr[local_print_id], P7_Om2_Iteration_End_wr[local_print_id] && P7_Om2_Iteration_End_DValid_wr[local_print_id], Backend_Iteration_End_wr[local_print_id] && Backend_Iteration_End_DValid_wr[local_print_id], AIE_Iteration_End_wr[local_print_id] && AIE_Iteration_End_DValid_wr[local_print_id]);
-        }
+            printf("clk=%d, updated=%d\n",
+                clk, vertex_updated);//, 0, P2_Stage_Full_wr[local_print_id], 0, P4_Stage_Full_wr[local_print_id], P5_Stage_Full_wr[local_print_id], P5_2_Stage_Full_wr[local_print_id], HBM_Interface_Full_wr[local_print_id], P6_Stage_Full1_wr[local_print_id], P6_Stage_Full2_wr[local_print_id], Om1_Stage_Full_wr[local_print_id], Om2_Stage_Full_wr[local_print_id], P7_Source_Core_Full_wr[local_print_id]);
+         }
         
         #if DEBUG
             if (!rst_rd && iteration_end_flag) {
@@ -208,150 +302,172 @@ int main(int argc, char **argv)
             cout<<endl;
         }*/
 
-        RD_ACTIVE_VERTEX(AIE_Active_V_ID_rd, AIE_Active_V_Updated_rd, AIE_Active_V_Pull_First_Flag_rd, AIE_Active_V_DValid_rd,
-                         AIE_Iteration_End_rd, AIE_Iteration_End_DValid_rd,
-                         P2_Stage_Full_rd,
+        Compute_Core(pipe);
+        Noc(pipe);
+        Mem(pipe);
+        for(int i = 0 ; i<5 ; i++){
+            pipe[i].exec();
+        }
+    }
 
-                         P1_Push_Flag_wr, P1_Active_V_ID_wr, P1_Active_V_Value_wr, P1_Active_V_Pull_First_Flag_wr, P1_Active_V_DValid_wr,
-                         P1_Iteration_End_wr, P1_Iteration_End_Dvalid_wr,
-                         P1_Global_Iteration_ID_wr);
+    return 0;
+}
 
-        RD_ACTIVE_VERTEX_GLOBAL_SIGNAL(AIE_Active_V_ID_rd, AIE_Active_V_Updated_rd, AIE_Active_V_DValid_rd,
-                                       
-                                       P1_Global_Powerlaw_V_ID_wr, P1_Global_Powerlaw_V_Visit_wr);
+void Compute_Core(Pipe* pipes){
+    static Info_P5 self_info_p5;
+    static Info_P6 self_info_p6;
+    static Info_P7 self_info_p7;
+    static Info_P_Om1 self_info_om1;
+    static Info_P_Om2 self_info_om2;
+    
+    pipes[3].write(&self_info_om1);
+    pipes[4].write(&self_info_om2);
+    RD_ACTIVE_VERTEX(AIE_Active_V_ID_rd, AIE_Active_V_Updated_rd, AIE_Active_V_Pull_First_Flag_rd, AIE_Active_V_DValid_rd,
+                        AIE_Iteration_End_rd, AIE_Iteration_End_DValid_rd,
+                        P2_Stage_Full_rd,
 
-        //cout << P1_Push_Flag_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_ID_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_Value_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_DValid_wr[ROOT_ID % CORE_NUM] << endl;
+                        P1_Push_Flag_wr, P1_Active_V_ID_wr, P1_Active_V_Value_wr, P1_Active_V_Pull_First_Flag_wr, P1_Active_V_DValid_wr,
+                        P1_Iteration_End_wr, P1_Iteration_End_Dvalid_wr,
+                        P1_Global_Iteration_ID_wr);
 
-        Read_Active_Vertex_Offset(P1_Push_Flag_rd, P1_Active_V_ID_rd, P1_Active_V_Value_rd, P1_Active_V_Pull_First_Flag_rd, P1_Active_V_DValid_rd,
-                                  P1_Iteration_End_rd, P1_Iteration_End_Dvalid_rd,
-                                  P4_Stage_Full_rd,
+    RD_ACTIVE_VERTEX_GLOBAL_SIGNAL(AIE_Active_V_ID_rd, AIE_Active_V_Updated_rd, AIE_Active_V_DValid_rd,
+                                    
+                                    P1_Global_Powerlaw_V_ID_wr, P1_Global_Powerlaw_V_Visit_wr);
 
-                                  P2_Stage_Full_wr,
-                                  P2_Push_Flag_wr, P2_Active_V_ID_wr, P2_Active_V_Value_wr, P2_Active_V_Offset_Addr_wr, P2_Active_V_Pull_First_Flag_wr, P2_Active_V_DValid_wr,
-                                  P2_Iteration_End_wr, P2_Iteration_End_DValid_wr);
+    //cout << P1_Push_Flag_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_ID_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_Value_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_DValid_wr[ROOT_ID % CORE_NUM] << endl;
 
-        Read_Active_Vertex_Offset_Global_Signal(P1_Global_Iteration_ID_rd, P1_Global_Powerlaw_V_ID_rd, P1_Global_Powerlaw_V_Visit_rd,
-        
-                                                P2_Global_Iteration_ID_wr, P2_Global_Powerlaw_V_ID_wr, P2_Global_Powerlaw_V_Visit_wr);
+    Read_Active_Vertex_Offset(P1_Push_Flag_rd, P1_Active_V_ID_rd, P1_Active_V_Value_rd, P1_Active_V_Pull_First_Flag_rd, P1_Active_V_DValid_rd,
+                                P1_Iteration_End_rd, P1_Iteration_End_Dvalid_rd,
+                                P4_Stage_Full_rd,
+
+                                P2_Stage_Full_wr,
+                                P2_Push_Flag_wr, P2_Active_V_ID_wr, P2_Active_V_Value_wr, P2_Active_V_Offset_Addr_wr, P2_Active_V_Pull_First_Flag_wr, P2_Active_V_DValid_wr,
+                                P2_Iteration_End_wr, P2_Iteration_End_DValid_wr);
+
+    Read_Active_Vertex_Offset_Global_Signal(P1_Global_Iteration_ID_rd, P1_Global_Powerlaw_V_ID_rd, P1_Global_Powerlaw_V_Visit_rd,
+    
+                                            P2_Global_Iteration_ID_wr, P2_Global_Powerlaw_V_ID_wr, P2_Global_Powerlaw_V_Visit_wr);
 
 //        cout << clk << ": " << P2_Stage_Full_wr[ROOT_ID % CORE_NUM] << " " << P2_Push_Flag_wr[ROOT_ID % CORE_NUM] <<  " " << P2_Active_V_ID_wr[ROOT_ID % CORE_NUM] << " " << P2_Active_V_Value_wr[ROOT_ID % CORE_NUM]
 //        << " " << P2_Active_V_Offset_Addr_wr[ROOT_ID % CORE_NUM] << " " << P2_Active_V_DValid_wr[ROOT_ID % CORE_NUM] << endl;
 
-        RD_Offset_Uram(P2_Active_V_Offset_Addr_rd, P2_Active_V_DValid_rd,
+    RD_Offset_Uram(P2_Active_V_Offset_Addr_rd, P2_Active_V_DValid_rd,
 
-                       Offset_Uram_Active_V_LOffset_wr, Offset_Uram_Active_V_ROffset_wr, Offset_Uram_Active_V_DValid_wr);
-        //if(Offset_Uram_Active_V_DValid_wr[ROOT_ID % CORE_NUM]==1)cout << clk << ": " << Offset_Uram_Active_V_LOffset_wr[ROOT_ID % CORE_NUM] << " " << Offset_Uram_Active_V_ROffset_wr[ROOT_ID % CORE_NUM] <<endl;
+                    Offset_Uram_Active_V_LOffset_wr, Offset_Uram_Active_V_ROffset_wr, Offset_Uram_Active_V_DValid_wr);
+    //if(Offset_Uram_Active_V_DValid_wr[ROOT_ID % CORE_NUM]==1)cout << clk << ": " << Offset_Uram_Active_V_LOffset_wr[ROOT_ID % CORE_NUM] << " " << Offset_Uram_Active_V_ROffset_wr[ROOT_ID % CORE_NUM] <<endl;
 
-        RD_Active_Vertex_Edge(P2_Push_Flag_rd, P2_Active_V_ID_rd, P2_Active_V_Value_rd, P2_Active_V_Pull_First_Flag_rd, P2_Active_V_DValid_rd,
-                              P2_Iteration_End_rd, P2_Iteration_End_DValid_rd,
-                              Offset_Uram_Active_V_LOffset_rd, Offset_Uram_Active_V_ROffset_rd, Offset_Uram_Active_V_DValid_rd,
-                              P5_Stage_Full_rd, P5_2_Stage_Full_rd,
+    RD_Active_Vertex_Edge(P2_Push_Flag_rd, P2_Active_V_ID_rd, P2_Active_V_Value_rd, P2_Active_V_Pull_First_Flag_rd, P2_Active_V_DValid_rd,
+                          P2_Iteration_End_rd, P2_Iteration_End_DValid_rd,
+                          Offset_Uram_Active_V_LOffset_rd, Offset_Uram_Active_V_ROffset_rd, Offset_Uram_Active_V_DValid_rd,
+                          P5_Stage_Full_rd, P5_2_Stage_Full_rd,
 
-                              P4_Stage_Full_wr,
-                              P4_Rd_HBM_Edge_Addr_wr, P4_Rd_HBM_Edge_Mask_wr, P4_HBM_Push_Flag_wr,  P4_HBM_Active_V_ID_wr, P4_HBM_Active_V_Value_wr, P4_Rd_HBM_Edge_Valid_wr,
-                              P4_Rd_BRAM_Edge_Addr_wr, P4_BRAM_Push_Flag_wr, P4_BRAM_Active_V_ID_wr, P4_BRAM_Active_V_Value_wr, P4_Rd_BRAM_Edge_Valid_wr,
-                              P4_Iteration_End_wr, P4_Iteration_End_DValid_wr);
+                          P4_Stage_Full_wr,
+                          P4_Rd_HBM_Edge_Addr_wr, P4_Rd_HBM_Edge_Mask_wr, P4_HBM_Push_Flag_wr,  P4_HBM_Active_V_ID_wr, P4_HBM_Active_V_Value_wr, P4_Rd_HBM_Edge_Valid_wr,
+                          P4_Rd_BRAM_Edge_Addr_wr, P4_BRAM_Push_Flag_wr, P4_BRAM_Active_V_ID_wr, P4_BRAM_Active_V_Value_wr, P4_Rd_BRAM_Edge_Valid_wr,
+                          P4_Iteration_End_wr, P4_Iteration_End_DValid_wr);
 
-        RD_Active_Vertex_Edge_Global_Signal(P2_Global_Iteration_ID_rd, P2_Global_Powerlaw_V_ID_rd, P2_Global_Powerlaw_V_Visit_rd,
-        
-                                            P4_Global_Iteration_ID_wr, P4_Global_Powerlaw_V_ID_wr, P4_Global_Powerlaw_V_Visit_wr);
+    RD_Active_Vertex_Edge_Global_Signal(P2_Global_Iteration_ID_rd, P2_Global_Powerlaw_V_ID_rd, P2_Global_Powerlaw_V_Visit_rd,
+    
+                                        P4_Global_Iteration_ID_wr, P4_Global_Powerlaw_V_ID_wr, P4_Global_Powerlaw_V_Visit_wr);
 //        cout << clk << ": " << P4_Stage_Full_wr[28 % CORE_NUM] << " " << P4_HBM_Push_Flag_wr[28 % CORE_NUM] <<  " " << P4_HBM_Active_V_ID_wr[28 % CORE_NUM] << " " << P4_HBM_Active_V_Value_wr[28 % CORE_NUM] << " " << P4_Rd_HBM_Edge_Valid_wr[28 % CORE_NUM]
 //        << " " << P4_Rd_HBM_Edge_Addr_wr[28 % CORE_NUM] << endl;
 //        for(int i=0;i<16;i++)
 //            cout<< P4_Rd_HBM_Edge_Mask_wr[28 % CORE_NUM].flag[i] << " ";
 //        cout<<endl;
 
-        Generate_HBM_Edge_Rqst(P4_Rd_HBM_Edge_Addr_rd, P4_Rd_HBM_Edge_Mask_rd, P4_Rd_HBM_Edge_Valid_rd,
-                               P4_HBM_Push_Flag_rd, P4_HBM_Active_V_ID_rd, P4_HBM_Active_V_Value_rd,
-                               P4_Iteration_End_rd, P4_Iteration_End_DValid_rd,
-                               HBM_Interface_Full_rd, P6_Stage_Full1_rd,
+    Generate_HBM_Edge_Rqst(P4_Rd_HBM_Edge_Addr_rd, P4_Rd_HBM_Edge_Mask_rd, P4_Rd_HBM_Edge_Valid_rd,
+                            P4_HBM_Push_Flag_rd, P4_HBM_Active_V_ID_rd, P4_HBM_Active_V_Value_rd,
+                            P4_Iteration_End_rd, P4_Iteration_End_DValid_rd,
+                            HBM_Interface_Full_rd, P6_Stage_Full1_rd,
 
-                               P5_Stage_Full_wr,
-                               P5_Rd_HBM_Edge_Addr_wr, P5_Rd_HBM_Edge_Valid_wr,
-                               P5_Push_Flag_wr, P5_Active_V_ID_wr, P5_Active_V_Value_wr, P5_Active_V_DValid_wr,
-                               P5_Iteration_End_wr, P5_Iteration_End_DValid_wr);
+                            P5_Stage_Full_wr,
+                            self_info_p5.P5_Rd_HBM_Edge_Addr, self_info_p5.P5_Rd_HBM_Edge_Valid,
+                            P5_Push_Flag_wr, P5_Active_V_ID_wr, P5_Active_V_Value_wr, P5_Active_V_DValid_wr,
+                            P5_Iteration_End_wr, P5_Iteration_End_DValid_wr);
 
-        Generate_HBM_Edge_Rqst_Global_Signal(P4_Global_Iteration_ID_rd, P4_Global_Powerlaw_V_ID_rd, P4_Global_Powerlaw_V_Visit_rd,
-        
-                                             P5_Global_Iteration_ID_wr, P5_Global_Powerlaw_V_ID_wr, P5_Global_Powerlaw_V_Visit_wr);
+    Generate_HBM_Edge_Rqst_Global_Signal(P4_Global_Iteration_ID_rd, P4_Global_Powerlaw_V_ID_rd, P4_Global_Powerlaw_V_Visit_rd,
+    
+                                            P5_Global_Iteration_ID_wr, P5_Global_Powerlaw_V_ID_wr, P5_Global_Powerlaw_V_Visit_wr);
 //        cout << clk << ": " << P5_Stage_Full_wr[28 % CORE_NUM] << " " << P5_Push_Flag_wr[28 % CORE_NUM] <<  " " << P5_Active_V_ID_wr[28 % CORE_NUM] << " " << P5_Active_V_Value_wr[28 % CORE_NUM] << " " << P5_Active_V_DValid_wr[28 % CORE_NUM]
 //        << " " << P5_Rd_HBM_Edge_Addr_wr[(28 % 512) / 16] << " " << P5_Rd_HBM_Edge_Valid_wr[(28 % 512) / 16] << endl;
 
-        Rd_First_Edge_Bram(P4_Rd_BRAM_Edge_Addr_rd, P4_BRAM_Push_Flag_rd, P4_BRAM_Active_V_ID_rd, P4_BRAM_Active_V_Value_rd, P4_Rd_BRAM_Edge_Valid_rd,
-                           P4_Iteration_End_rd, P4_Iteration_End_DValid_rd,
-                           P6_Stage_Full2_rd,
+    Rd_First_Edge_Bram(P4_Rd_BRAM_Edge_Addr_rd, P4_BRAM_Push_Flag_rd, P4_BRAM_Active_V_ID_rd, P4_BRAM_Active_V_Value_rd, P4_Rd_BRAM_Edge_Valid_rd,
+                        P4_Iteration_End_rd, P4_Iteration_End_DValid_rd,
+                        P6_Stage_Full2_rd,
+                        edge_bram_data, edge_bram_data_valid,
 
-                           P5_2_Stage_Full_wr,
-                           P5_2_Push_Flag_wr, P5_2_Active_V_id_wr, P5_2_Active_V_Value_wr, P5_2_Acitve_V_Edge_wr, P5_2_Active_V_DValid_wr,
-                           P5_2_Iteration_End_wr, P5_2_Iteration_End_DValid_wr);
 
-        ///asynchronous FIFO
-        HBM_Interface(P5_Rd_HBM_Edge_Addr_rd, P5_Rd_HBM_Edge_Valid_rd,
-                      HBM_Controller_Edge_rd, HBM_Controller_DValid_rd,
-                      HBM_Controller_Full_rd,
+                        P5_2_Stage_Full_wr,
+                        P5_2_Push_Flag_wr, P5_2_Active_V_id_wr, P5_2_Active_V_Value_wr, P5_2_Acitve_V_Edge_wr, P5_2_Active_V_DValid_wr,
+                        P5_2_Iteration_End_wr, P5_2_Iteration_End_DValid_wr);
 
-                      HBM_Interface_Full_wr,
-                      HBM_Interface_Rd_HBM_Edge_Addr_wr, HBM_Interface_Rd_HBM_Edge_Valid_wr,
-                      HBM_Interface_Active_V_Edge_wr, HBM_Interface_Active_V_Edge_Valid_wr);
+    ///asynchronous FIFO
+    Schedule(P5_Push_Flag_rd, P5_Active_V_ID_rd, P5_Active_V_Value_rd, P5_Active_V_DValid_rd, P5_Iteration_End_rd, P5_Iteration_End_DValid_rd,
+             HBM_Interface_Active_V_Edge_rd, HBM_Interface_Active_V_Edge_Valid_rd,
+             P5_2_Push_Flag_rd, P5_2_Active_V_id_rd, P5_2_Active_V_Value_rd, P5_2_Acitve_V_Edge_rd, P5_2_Active_V_DValid_rd, P5_2_Iteration_End_rd, P5_2_Iteration_End_DValid_rd,
+             P5_Global_Powerlaw_V_ID_rd, P5_Global_Powerlaw_V_Visit_rd,
+             self_info_om1.Om1_Stage_Full,
 
-        HBM_Controller_IP(HBM_Interface_Rd_HBM_Edge_Addr_rd, HBM_Interface_Rd_HBM_Edge_Valid_rd,
+             P6_Stage_Full1_wr, P6_Stage_Full2_wr,
+             self_info_p6.P6_Push_Flag, self_info_p6.P6_Update_V_ID, self_info_p6.P6_Update_V_Value, self_info_p6.P6_Pull_First_Flag, self_info_p6.P6_Update_V_DValid,
+             self_info_p6.P6_Iteration_End, self_info_p6.P6_Iteration_End_DValid);
 
-                          HBM_Controller_Full_wr,
-                          HBM_Controller_Edge_wr, HBM_Controller_DValid_wr);
+    Schedule_Global_Signal(P5_Global_Iteration_ID_rd, P5_Global_Powerlaw_V_ID_rd, P5_Global_Powerlaw_V_Visit_rd,
+    
+                            P6_Global_Iteration_ID_wr, P6_Global_Powerlaw_V_ID_wr, P6_Global_Powerlaw_V_Visit_wr);
 
-        Schedule(P5_Push_Flag_rd, P5_Active_V_ID_rd, P5_Active_V_Value_rd, P5_Active_V_DValid_rd, P5_Iteration_End_rd, P5_Iteration_End_DValid_rd,
-                 HBM_Interface_Active_V_Edge_rd, HBM_Interface_Active_V_Edge_Valid_rd,
-                 P5_2_Push_Flag_rd, P5_2_Active_V_id_rd, P5_2_Active_V_Value_rd, P5_2_Acitve_V_Edge_rd, P5_2_Active_V_DValid_rd, P5_2_Iteration_End_rd, P5_2_Iteration_End_DValid_rd,
-                 P5_Global_Powerlaw_V_ID_rd, P5_Global_Powerlaw_V_Visit_rd,
-                 Om1_Stage_Full_rd,
 
-                 P6_Stage_Full1_wr, P6_Stage_Full2_wr,
-                 P6_Push_Flag_wr, P6_Update_V_ID_wr, P6_Update_V_Value_wr, P6_Pull_First_Flag_wr, P6_Update_V_DValid_wr,
-                 P6_Iteration_End_wr, P6_Iteration_End_DValid_wr);
 
-        Schedule_Global_Signal(P5_Global_Iteration_ID_rd, P5_Global_Powerlaw_V_ID_rd, P5_Global_Powerlaw_V_Visit_rd,
-        
-                               P6_Global_Iteration_ID_wr, P6_Global_Powerlaw_V_ID_wr, P6_Global_Powerlaw_V_Visit_wr);
+    Omega_Network_Global_Signal(P6_Global_Iteration_ID_rd, P6_Global_Powerlaw_V_ID_rd, P6_Global_Powerlaw_V_Visit_rd,
+    
+                                Om_Global_Iteration_ID_wr, Om_Global_Powerlaw_V_ID_wr, Om_Global_Powerlaw_V_Visit_wr);
 
-        Omega_Network(P6_Push_Flag_rd, P6_Update_V_ID_rd, P6_Update_V_Value_rd, P6_Pull_First_Flag_rd, P6_Update_V_DValid_rd, P6_Iteration_End_rd, P6_Iteration_End_DValid_rd,
-                      P7_Om2_Send_Push_Flag_rd, P7_Om2_Send_Update_V_ID_rd, P7_Om2_Send_Update_V_Value_rd, P7_Om2_Send_Update_V_Pull_First_Flag_rd, P7_Om2_Send_Update_V_DValid_rd, P7_Om2_Iteration_End_rd, P7_Om2_Iteration_End_DValid_rd,
-                      P7_Source_Core_Full_rd,
+    // printf("clk:%d,Om1_Push_Flag[0]:%d,Update_V_ID[0]:%d,Update_V_DValid[0]:%d\n",clk,self_info_om1.Om1_Push_Flag[0],self_info_om1.Om1_Update_V_ID[0],self_info_om1.Om1_Update_V_DValid[0]);
 
-                      Om1_Stage_Full_wr, Om2_Stage_Full_wr,
-                      Om1_Push_Flag_wr, Om1_Update_V_ID_wr, Om1_Update_V_Value_wr, Om1_Update_V_Pull_First_Flag_wr, Om1_Update_V_DValid_wr, Om1_Iteration_End_wr, Om1_Iteration_End_DValid_wr,
-                      Om2_Push_Flag_wr, Om2_Update_V_ID_wr, Om2_Update_V_Value_wr, Om2_Update_V_Pull_First_Flag_wr, Om2_Update_V_DValid_wr, Om2_Iteration_End_wr, Om2_Iteration_End_DValid_wr);
+    Backend_Core(self_info_om1.Om1_Push_Flag, self_info_om1.Om1_Update_V_ID, self_info_om1.Om1_Update_V_Value, self_info_om1.Om1_Update_V_Pull_First_Flag, self_info_om1.Om1_Update_V_DValid, self_info_om1.Om1_Iteration_End, self_info_om1.Om1_Iteration_End_DValid,
+                self_info_om2.Om2_Push_Flag, self_info_om2.Om2_Update_V_ID, self_info_om2.Om2_Update_V_Value, self_info_om2.Om2_Update_V_Pull_First_Flag, self_info_om2.Om2_Update_V_DValid, self_info_om2.Om2_Iteration_End, self_info_om2.Om2_Iteration_End_DValid,
+                Vertex_BRAM_Data_rd, Vertex_BRAM_DValid_rd,
+                Om_Global_Iteration_ID_rd,
 
-        Omega_Network_Global_Signal(P6_Global_Iteration_ID_rd, P6_Global_Powerlaw_V_ID_rd, P6_Global_Powerlaw_V_Visit_rd,
-        
-                                    Om_Global_Iteration_ID_wr, Om_Global_Powerlaw_V_ID_wr, Om_Global_Powerlaw_V_Visit_wr);
+                P7_Source_Core_Full_wr,
+                P7_Rd_Vertex_BRAM_Addr_wr, P7_Rd_Vertex_BRAM_Valid_wr,
+                P7_Wr_Vertex_Bram_Push_Flag_wr, P7_Wr_Vertex_BRAM_Addr_wr, P7_Wr_Vertex_BRAM_Data_wr, P7_Wr_Vertex_BRAM_Pull_First_Flag_wr, P7_Wr_Vertex_BRAM_Valid_wr, P7_Wr_Vertex_BRAM_Iteration_End_wr, P7_Wr_Vertex_BRAM_Iteration_End_DValid_wr,
+                self_info_p7.P7_Om2_Send_Push_Flag, self_info_p7.P7_Om2_Send_Update_V_ID, self_info_p7.P7_Om2_Send_Update_V_Value, self_info_p7.P7_Om2_Send_Update_V_Pull_First_Flag, self_info_p7.P7_Om2_Send_Update_V_DValid, self_info_p7.P7_Om2_Iteration_End, self_info_p7.P7_Om2_Iteration_End_DValid);
 
-        Backend_Core(Om1_Push_Flag_rd, Om1_Update_V_ID_rd, Om1_Update_V_Value_rd, Om1_Update_V_Pull_First_Flag_rd, Om1_Update_V_DValid_rd, Om1_Iteration_End_rd, Om1_Iteration_End_DValid_rd,
-                     Om2_Push_Flag_rd, Om2_Update_V_ID_rd, Om2_Update_V_Value_rd, Om2_Update_V_Pull_First_Flag_rd, Om2_Update_V_DValid_rd, Om2_Iteration_End_rd, Om2_Iteration_End_DValid_rd,
-                     Vertex_BRAM_Data_rd, Vertex_BRAM_DValid_rd,
-                     Om_Global_Iteration_ID_rd,
+    Backend_Core_Global_Signal(Om_Global_Iteration_ID_rd, Om_Global_Powerlaw_V_ID_rd, Om_Global_Powerlaw_V_Visit_rd,
+    
+                                P7_Global_Iteration_ID_wr, P7_Global_Powerlaw_V_ID_wr, P7_Global_Powerlaw_V_Visit_wr);
 
-                     P7_Source_Core_Full_wr,
-                     P7_Rd_Vertex_BRAM_Addr_wr, P7_Rd_Vertex_BRAM_Valid_wr,
-                     P7_Wr_Vertex_Bram_Push_Flag_wr, P7_Wr_Vertex_BRAM_Addr_wr, P7_Wr_Vertex_BRAM_Data_wr, P7_Wr_Vertex_BRAM_Pull_First_Flag_wr, P7_Wr_Vertex_BRAM_Valid_wr, P7_Wr_Vertex_BRAM_Iteration_End_wr, P7_Wr_Vertex_BRAM_Iteration_End_DValid_wr,
-                     P7_Om2_Send_Push_Flag_wr, P7_Om2_Send_Update_V_ID_wr, P7_Om2_Send_Update_V_Value_wr, P7_Om2_Send_Update_V_Pull_First_Flag_wr, P7_Om2_Send_Update_V_DValid_wr, P7_Om2_Iteration_End_wr, P7_Om2_Iteration_End_DValid_wr);
+    Vertex_BRAM(P7_Rd_Vertex_BRAM_Addr_rd, P7_Rd_Vertex_BRAM_Valid_rd,
+                P7_Wr_Vertex_Bram_Push_Flag_rd, P7_Wr_Vertex_BRAM_Addr_rd, P7_Wr_Vertex_BRAM_Data_rd, P7_Wr_Vertex_BRAM_Pull_First_Flag_rd, P7_Wr_Vertex_BRAM_Valid_rd,
+                P7_Wr_Vertex_BRAM_Iteration_End_rd, P7_Wr_Vertex_BRAM_Iteration_End_DValid_rd,
+                P7_Global_Iteration_ID_rd,
 
-        Backend_Core_Global_Signal(Om_Global_Iteration_ID_rd, Om_Global_Powerlaw_V_ID_rd, Om_Global_Powerlaw_V_Visit_rd,
-        
-                                   P7_Global_Iteration_ID_wr, P7_Global_Powerlaw_V_ID_wr, P7_Global_Powerlaw_V_Visit_wr);
+                vtx_bram_data, vtx_bram_data_valid,
+                vtx_bram_Read_Addr, vtx_bram_Read_Addr_Valid,vtx_bram_Wr_Addr, vtx_bram_Wr_Data, vtx_bram_Wr_Addr_Valid,
 
-        Vertex_BRAM(P7_Rd_Vertex_BRAM_Addr_rd, P7_Rd_Vertex_BRAM_Valid_rd,
-                    P7_Wr_Vertex_Bram_Push_Flag_rd, P7_Wr_Vertex_BRAM_Addr_rd, P7_Wr_Vertex_BRAM_Data_rd, P7_Wr_Vertex_BRAM_Pull_First_Flag_rd, P7_Wr_Vertex_BRAM_Valid_rd,
-                    P7_Wr_Vertex_BRAM_Iteration_End_rd, P7_Wr_Vertex_BRAM_Iteration_End_DValid_rd,
-                    P7_Global_Iteration_ID_rd,
+                Vertex_BRAM_Data_wr, Vertex_BRAM_DValid_wr,
+                Backend_Active_V_ID_wr, Backend_Active_V_Updated_wr, Backend_Active_V_Pull_First_Flag_wr, Backend_Active_V_DValid_wr, Backend_Iteration_End_wr, Backend_Iteration_End_DValid_wr);
 
-                    Vertex_BRAM_Data_wr, Vertex_BRAM_DValid_wr,
-                    Backend_Active_V_ID_wr, Backend_Active_V_Updated_wr, Backend_Active_V_Pull_First_Flag_wr, Backend_Active_V_DValid_wr, Backend_Iteration_End_wr, Backend_Iteration_End_DValid_wr);
+    for(int i = 0 ; i<CORE_NUM ; i++){
+        if(vtx_bram_data_valid[i]){
+            count_ ++;
+        }
+    }
+    if(clk % 500 == 0){
+        printf("clk:%d count = %d\n",clk,count_);
+    }
 
-        Apply_Iteration_End(Backend_Active_V_ID_rd, Backend_Active_V_Updated_rd, Backend_Active_V_Pull_First_Flag_rd, Backend_Active_V_DValid_rd, Backend_Iteration_End_rd, Backend_Iteration_End_DValid_rd,
+    Apply_Iteration_End(Backend_Active_V_ID_rd, Backend_Active_V_Updated_rd, Backend_Active_V_Pull_First_Flag_rd, Backend_Active_V_DValid_rd, Backend_Iteration_End_rd, Backend_Iteration_End_DValid_rd,
 
-                            AIE_Active_V_ID_wr, AIE_Active_V_Updated_wr, AIE_Active_V_Pull_First_Flag_wr, AIE_Active_V_DValid_wr, AIE_Iteration_End_wr, AIE_Iteration_End_DValid_wr);
+                        AIE_Active_V_ID_wr, AIE_Active_V_Updated_wr, AIE_Active_V_Pull_First_Flag_wr, AIE_Active_V_DValid_wr, AIE_Iteration_End_wr, AIE_Iteration_End_DValid_wr);
 
-        for (int i = 0; i < CORE_NUM; ++ i) {
+    pipes[0].read(&self_info_p6);
+    pipes[1].read(&self_info_p5);
+    pipes[2].read(&self_info_p7);
+    for (int i = 0; i < CORE_NUM; ++ i) {
+            //edge_bram
+            edge_bram_Wr_Addr_Valid[i] = 0;
             // 7
             P1_Push_Flag_rd[i] = P1_Push_Flag_wr[i];
             P1_Active_V_ID_rd[i] = P1_Active_V_ID_wr[i];
@@ -429,42 +545,34 @@ int main(int argc, char **argv)
             HBM_Interface_Active_V_Edge_rd[i] = HBM_Interface_Active_V_Edge_wr[i];
             HBM_Interface_Active_V_Edge_Valid_rd[i] = HBM_Interface_Active_V_Edge_Valid_wr[i];
 
-            // 9 - 1
+            // 9 - 1 - 7(network)
             P6_Stage_Full2_rd[i] = P6_Stage_Full2_wr[i];
-            P6_Push_Flag_rd[i] = P6_Push_Flag_wr[i];
-            P6_Update_V_ID_rd[i] = P6_Update_V_ID_wr[i];
-            P6_Update_V_Value_rd[i] = P6_Update_V_Value_wr[i];
-            P6_Pull_First_Flag_rd[i] = P6_Pull_First_Flag_wr[i];
-            P6_Update_V_DValid_rd[i] = P6_Update_V_DValid_wr[i];
-            P6_Iteration_End_rd[i] = P6_Iteration_End_wr[i];
-            P6_Iteration_End_DValid_rd[i] = P6_Iteration_End_DValid_wr[i];
             P6_Global_Iteration_ID_rd[i] = P6_Global_Iteration_ID_wr[i];
             P6_Global_Powerlaw_V_ID_rd[i] = P6_Global_Powerlaw_V_ID_wr[i];
             P6_Global_Powerlaw_V_Visit_rd[i] = P6_Global_Powerlaw_V_Visit_wr[i];
 
             // 16
-            Om1_Stage_Full_rd[i] = Om1_Stage_Full_wr[i];
-            Om2_Stage_Full_rd[i] = Om2_Stage_Full_wr[i];
-            Om1_Push_Flag_rd[i] = Om1_Push_Flag_wr[i];
-            Om1_Update_V_ID_rd[i] = Om1_Update_V_ID_wr[i];
-            Om1_Update_V_Value_rd[i] = Om1_Update_V_Value_wr[i];
-            Om1_Update_V_Pull_First_Flag_rd[i] = Om1_Update_V_Pull_First_Flag_wr[i];
-            Om1_Update_V_DValid_rd[i] = Om1_Update_V_DValid_wr[i];
-            Om2_Push_Flag_rd[i] = Om2_Push_Flag_wr[i];
-            Om2_Update_V_ID_rd[i] = Om2_Update_V_ID_wr[i];
-            Om2_Update_V_Value_rd[i] = Om2_Update_V_Value_wr[i];
-            Om2_Update_V_Pull_First_Flag_rd[i] = Om2_Update_V_Pull_First_Flag_wr[i];
-            Om2_Update_V_DValid_rd[i] = Om2_Update_V_DValid_wr[i];
-            Om1_Iteration_End_rd[i] = Om1_Iteration_End_wr[i];
-            Om1_Iteration_End_DValid_rd[i] = Om1_Iteration_End_DValid_wr[i];
-            Om2_Iteration_End_rd[i] = Om2_Iteration_End_wr[i];
-            Om2_Iteration_End_DValid_rd[i] = Om2_Iteration_End_DValid_wr[i];
+            // Om1_Stage_Full_rd[i] = Om1_Stage_Full_wr[i];
+            // Om2_Stage_Full_rd[i] = Om2_Stage_Full_wr[i];
+            // Om1_Push_Flag_rd[i] = Om1_Push_Flag_wr[i];
+            // Om1_Update_V_ID_rd[i] = Om1_Update_V_ID_wr[i];
+            // Om1_Update_V_Value_rd[i] = Om1_Update_V_Value_wr[i];
+            // Om1_Update_V_Pull_First_Flag_rd[i] = Om1_Update_V_Pull_First_Flag_wr[i];
+            // Om1_Update_V_DValid_rd[i] = Om1_Update_V_DValid_wr[i];
+            // Om2_Push_Flag_rd[i] = Om2_Push_Flag_wr[i];
+            // Om2_Update_V_ID_rd[i] = Om2_Update_V_ID_wr[i];
+            // Om2_Update_V_Value_rd[i] = Om2_Update_V_Value_wr[i];
+            // Om2_Update_V_Pull_First_Flag_rd[i] = Om2_Update_V_Pull_First_Flag_wr[i];
+            // Om2_Update_V_DValid_rd[i] = Om2_Update_V_DValid_wr[i];
+            // Om1_Iteration_End_rd[i] = Om1_Iteration_End_wr[i];
+            // Om1_Iteration_End_DValid_rd[i] = Om1_Iteration_End_DValid_wr[i];
+            // Om2_Iteration_End_rd[i] = Om2_Iteration_End_wr[i];
+            // Om2_Iteration_End_DValid_rd[i] = Om2_Iteration_End_DValid_wr[i];
             Om_Global_Iteration_ID_rd[i] = Om_Global_Iteration_ID_wr[i];
             Om_Global_Powerlaw_V_ID_rd[i] = Om_Global_Powerlaw_V_ID_wr[i];
             Om_Global_Powerlaw_V_Visit_rd[i] = Om_Global_Powerlaw_V_Visit_wr[i];
 
-            // 17
-            P7_Source_Core_Full_rd[i] = P7_Source_Core_Full_wr[i];
+            // 17 - 2 - 5 -1(Network)
             P7_Rd_Vertex_BRAM_Addr_rd[i] = P7_Rd_Vertex_BRAM_Addr_wr[i];
             P7_Rd_Vertex_BRAM_Valid_rd[i] = P7_Rd_Vertex_BRAM_Valid_wr[i];
             P7_Wr_Vertex_Bram_Push_Flag_rd[i] = P7_Wr_Vertex_Bram_Push_Flag_wr[i];
@@ -472,15 +580,8 @@ int main(int argc, char **argv)
             P7_Wr_Vertex_BRAM_Data_rd[i] = P7_Wr_Vertex_BRAM_Data_wr[i];
             P7_Wr_Vertex_BRAM_Pull_First_Flag_rd[i] = P7_Wr_Vertex_BRAM_Pull_First_Flag_wr[i];
             P7_Wr_Vertex_BRAM_Valid_rd[i] = P7_Wr_Vertex_BRAM_Valid_wr[i];
-            P7_Om2_Send_Push_Flag_rd[i] = P7_Om2_Send_Push_Flag_wr[i];
-            P7_Om2_Send_Update_V_ID_rd[i] = P7_Om2_Send_Update_V_ID_wr[i];
-            P7_Om2_Send_Update_V_Value_rd[i] = P7_Om2_Send_Update_V_Value_wr[i];
-            P7_Om2_Send_Update_V_Pull_First_Flag_rd[i] = P7_Om2_Send_Update_V_Pull_First_Flag_wr[i];
-            P7_Om2_Send_Update_V_DValid_rd[i] = P7_Om2_Send_Update_V_DValid_wr[i];
             P7_Wr_Vertex_BRAM_Iteration_End_rd[i] = P7_Wr_Vertex_BRAM_Iteration_End_wr[i];
             P7_Wr_Vertex_BRAM_Iteration_End_DValid_rd[i] = P7_Wr_Vertex_BRAM_Iteration_End_DValid_wr[i];
-            P7_Om2_Iteration_End_rd[i] = P7_Om2_Iteration_End_wr[i];
-            P7_Om2_Iteration_End_DValid_rd[i] = P7_Om2_Iteration_End_DValid_wr[i];
             P7_Global_Iteration_ID_rd[i] = P7_Global_Iteration_ID_wr[i];
             P7_Global_Powerlaw_V_ID_rd[i] = P7_Global_Powerlaw_V_ID_wr[i];
             P7_Global_Powerlaw_V_Visit_rd[i] = P7_Global_Powerlaw_V_Visit_wr[i];
@@ -506,21 +607,129 @@ int main(int argc, char **argv)
             AIE_Iteration_End_DValid_rd[i] = AIE_Iteration_End_DValid_wr[i];
         }
 
-        for (int i = 0; i < PSEUDO_CHANNEL_NUM; ++ i) {
-            P5_Rd_HBM_Edge_Addr_rd[i] = P5_Rd_HBM_Edge_Addr_wr[i];
-            P5_Rd_HBM_Edge_Valid_rd[i] = P5_Rd_HBM_Edge_Valid_wr[i];
+    for (int i = 0; i < PSEUDO_CHANNEL_NUM; ++ i) {
 
-            HBM_Interface_Full_rd[i] = HBM_Interface_Full_wr[i],
-                    HBM_Interface_Rd_HBM_Edge_Addr_rd[i] = HBM_Interface_Rd_HBM_Edge_Addr_wr[i];
-            HBM_Interface_Rd_HBM_Edge_Valid_rd[i] = HBM_Interface_Rd_HBM_Edge_Valid_wr[i];
-            HBM_Controller_Full_rd[i] = HBM_Controller_Full_wr[i];
-            HBM_Controller_DValid_rd[i] = HBM_Controller_DValid_wr[i];
+        HBM_Interface_Full_rd[i] = HBM_Interface_Full_wr[i];
+        HBM_Controller_Full_rd[i] = HBM_Controller_Full_wr[i];
+        HBM_Controller_DValid_rd[i] = HBM_Controller_DValid_wr[i];
 
-            for (int j = 0; j < GROUP_CORE_NUM; ++ j) HBM_Controller_Edge_rd[i].data[j] = HBM_Controller_Edge_wr[i].data[j];
+        for (int j = 0; j < GROUP_CORE_NUM; ++ j) HBM_Controller_Edge_rd[i].data[j] = HBM_Controller_Edge_wr[i].data[j];
 
-            P6_Stage_Full1_rd[i] = P6_Stage_Full1_wr[i];
-        }
+        P6_Stage_Full1_rd[i] = P6_Stage_Full1_wr[i];
     }
 
-    return 0;
+}
+
+void Noc(Pipe* pipes){
+    static Info_P6 self_info_p6;
+    static Info_P_Om1 self_info_om1;
+    static Info_P_Om2 self_info_om2;
+    static Info_P7 self_info_p7;
+    
+    pipes[0].write(&self_info_p6);
+    pipes[2].write(&self_info_p7);
+
+    Network(self_info_p6.P6_Push_Flag, self_info_p6.P6_Update_V_ID, self_info_p6.P6_Update_V_Value, self_info_p6.P6_Pull_First_Flag, self_info_p6.P6_Update_V_DValid, self_info_p6.P6_Iteration_End, self_info_p6.P6_Iteration_End_DValid,
+            P7_Source_Core_Full_rd,
+
+            self_info_om1.Om1_Stage_Full,
+            self_info_om1.Om1_Push_Flag, self_info_om1.Om1_Update_V_ID, self_info_om1.Om1_Update_V_Value, self_info_om1.Om1_Update_V_Pull_First_Flag, self_info_om1.Om1_Update_V_DValid, self_info_om1.Om1_Iteration_End, self_info_om1.Om1_Iteration_End_DValid,
+            Nreg_1,
+            0,0);
+
+    Network(self_info_p7.P7_Om2_Send_Push_Flag, self_info_p7.P7_Om2_Send_Update_V_ID, self_info_p7.P7_Om2_Send_Update_V_Value, self_info_p7.P7_Om2_Send_Update_V_Pull_First_Flag, self_info_p7.P7_Om2_Send_Update_V_DValid, self_info_p7.P7_Om2_Iteration_End, self_info_p7.P7_Om2_Iteration_End_DValid,
+            P6_Source_Core_Full_rd,
+
+            self_info_om2.Om2_Stage_Full,
+            self_info_om2.Om2_Push_Flag, self_info_om2.Om2_Update_V_ID, self_info_om2.Om2_Update_V_Value, self_info_om2.Om2_Update_V_Pull_First_Flag, self_info_om2.Om2_Update_V_DValid, self_info_om2.Om2_Iteration_End, self_info_om2.Om2_Iteration_End_DValid,
+            Nreg_2,
+            1,0);
+    // self_info_om1.Om1_Push_Flag[0] = rand();
+    // self_info_om1.Om1_Push_Flag[0] = rand();
+    // printf("NOC:clk:%d,Om1_Push_Flag[0]:%d,Update_V_ID[0]:%d,Update_V_DValid[0]:%d\n",clk,self_info_om1.Om1_Push_Flag[0],self_info_om1.Om1_Update_V_ID[0],self_info_om1.Om1_Update_V_DValid[0]);
+    for (int i = 0; i < CORE_NUM; ++ i) {
+        // 9 - 1 - 1 - 3
+        P6_Source_Core_Full_rd[i] = 0;
+        // P6_Push_Flag_rd[i] = P6_Push_Flag_wr[i];
+        // P6_Update_V_ID_rd[i] = P6_Update_V_ID_wr[i];
+        // P6_Update_V_Value_rd[i] = P6_Update_V_Value_wr[i];
+        // P6_Pull_First_Flag_rd[i] = P6_Pull_First_Flag_wr[i];
+        // P6_Update_V_DValid_rd[i] = P6_Update_V_DValid_wr[i];
+        // P6_Iteration_End_rd[i] = P6_Iteration_End_wr[i];
+        // P6_Iteration_End_DValid_rd[i] = P6_Iteration_End_DValid_wr[i];
+
+        // 2 + 5 + 1 
+        // P7_Source_Core_Full_rd[i] = P7_Source_Core_Full_wr[i];
+        // P7_Om2_Send_Push_Flag_rd[i] = P7_Om2_Send_Push_Flag_wr[i];
+        // P7_Om2_Send_Update_V_ID_rd[i] = P7_Om2_Send_Update_V_ID_wr[i];
+        // P7_Om2_Send_Update_V_Value_rd[i] = P7_Om2_Send_Update_V_Value_wr[i];
+        // P7_Om2_Send_Update_V_Pull_First_Flag_rd[i] = P7_Om2_Send_Update_V_Pull_First_Flag_wr[i];
+        // P7_Om2_Send_Update_V_DValid_rd[i] = P7_Om2_Send_Update_V_DValid_wr[i];
+        // P7_Om2_Iteration_End_rd[i] = P7_Om2_Iteration_End_wr[i];
+        // P7_Om2_Iteration_End_DValid_rd[i] = P7_Om2_Iteration_End_DValid_wr[i];
+
+
+    }
+    pipes[3].read(&self_info_om1);
+    pipes[4].read(&self_info_om2);
+}
+
+void Mem( Pipe* pipes ){
+    static Info_P5 self_info_p5;
+    pipes[1].write(&self_info_p5);
+    vtx_bram.BRAM_IP(rst_rd,
+                    vtx_bram_Read_Addr, vtx_bram_Read_Addr_Valid,
+                    vtx_bram_Wr_Addr, vtx_bram_Wr_Data, vtx_bram_Wr_Addr_Valid,
+
+                    vtx_bram_data, vtx_bram_data_valid);
+
+    edge_bram.BRAM_IP(rst_rd,
+                   P4_Rd_BRAM_Edge_Addr_rd, P4_Rd_BRAM_Edge_Valid_rd,
+                   edge_bram_Wr_Addr, edge_bram_Wr_Data, edge_bram_Wr_Addr_Valid,
+
+                   edge_bram_data, edge_bram_data_valid);
+    
+    ///asynchronous FIFO
+    HBM_Interface(self_info_p5.P5_Rd_HBM_Edge_Addr, self_info_p5.P5_Rd_HBM_Edge_Valid,
+                  HBM_Controller_Edge_rd, HBM_Controller_DValid_rd,
+                  HBM_Controller_Full_rd,
+
+                  HBM_Interface_Full_wr,
+                  HBM_Interface_Rd_HBM_Edge_Addr_wr, HBM_Interface_Rd_HBM_Edge_Valid_wr,
+                  HBM_Interface_Active_V_Edge_wr, HBM_Interface_Active_V_Edge_Valid_wr);
+
+
+    HBM_Controller_IP(HBM_Interface_Rd_HBM_Edge_Addr_rd, HBM_Interface_Rd_HBM_Edge_Valid_rd,
+
+                     HBM_Controller_Full_wr,
+                     HBM_Controller_Edge_wr, HBM_Controller_DValid_wr);
+
+    //  connnect
+    for(int i = 0 ; i<CORE_NUM ; i++){
+        edge_bram_Wr_Addr[i] = 0; 
+        edge_bram_Wr_Data[i] = 0; 
+        edge_bram_Wr_Addr_Valid[i] = 0;
+    }
+    for (int i = 0; i < PSEUDO_CHANNEL_NUM; ++ i) {
+        // P5_Rd_HBM_Edge_Addr_rd[i] = P5_Rd_HBM_Edge_Addr_wr[i];
+        // P5_Rd_HBM_Edge_Valid_rd[i] = P5_Rd_HBM_Edge_Valid_wr[i];
+        HBM_Interface_Rd_HBM_Edge_Addr_rd[i] = HBM_Interface_Rd_HBM_Edge_Addr_wr[i];
+        HBM_Interface_Rd_HBM_Edge_Valid_rd[i] = HBM_Interface_Rd_HBM_Edge_Valid_wr[i];
+
+    }
+}
+
+void compute_connect(Pipe* pipes){
+    pipes[0].bind(&info_p6_self_wr,&info_p6_self_rd);
+    pipes[1].bind(&info_p5_self_wr,&info_p5_self_rd);
+    pipes[2].bind(&info_p7_self_wr,&info_p7_self_rd);
+}
+
+void mem_connect(Pipe* pipes){
+
+}
+
+void noc_connect(Pipe* pipes){
+    pipes[3].bind(&info_p_om1_self_wr,&info_p_om1_self_rd);
+    pipes[4].bind(&info_p_om2_self_wr,&info_p_om2_self_rd);
 }
