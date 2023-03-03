@@ -29,7 +29,8 @@ void BRAM_IP(int Core_ID,
 void Rd_First_Edge_Bram(int Front_Rd_Edge_Addr[], int Front_Push_Flag[], int Front_Active_V_ID[], int Front_Active_V_Value[], int Front_Rd_Edge_Valid[],
                         int Front_Iteration_End[], int Front_Iteration_End_DValid[],
                         int NextStage_Full[],
-
+                        int edge_bram_data[], int edge_bram_dvalid[],
+                        
                         int *Stage_Full,
                         int *Push_Flag, int *Active_V_ID, int *Active_V_Value, int *Active_V_Edge, int *Active_V_DValid,
                         int *Iteration_End, int *Iteration_End_DValid) {
@@ -39,7 +40,7 @@ void Rd_First_Edge_Bram(int Front_Rd_Edge_Addr[], int Front_Push_Flag[], int Fro
     for (int i = 0; i < CORE_NUM; ++ i) {
         Rd_First_Edge_Bram_Single(i,
                                   Front_Push_Flag[i], Front_Active_V_ID[i], Front_Active_V_Value[i], Front_Rd_Edge_Valid[i],
-                                  tmp_bram_data[i], tmp_bram_dvalid[i],
+                                  edge_bram_data[i], edge_bram_dvalid[i],
                                   Front_Iteration_End[i], Front_Iteration_End_DValid[i],
                                   NextStage_Full[i],
 
@@ -47,10 +48,10 @@ void Rd_First_Edge_Bram(int Front_Rd_Edge_Addr[], int Front_Push_Flag[], int Fro
                                   &Push_Flag[i], &Active_V_ID[i], &Active_V_Value[i], &Active_V_Edge[i], &Active_V_DValid[i],
                                   &Iteration_End[i], &Iteration_End_DValid[i]);
 
-        BRAM_IP(i,
-                Front_Rd_Edge_Addr[i], Front_Rd_Edge_Valid[i],
+        // BRAM_IP(i,
+        //         Front_Rd_Edge_Addr[i], Front_Rd_Edge_Valid[i],
 
-                &tmp_bram_data[i], &tmp_bram_dvalid[i]);
+        //         &tmp_bram_data[i], &tmp_bram_dvalid[i]);
     }
 }
 

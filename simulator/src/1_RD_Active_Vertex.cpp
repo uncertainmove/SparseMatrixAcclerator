@@ -224,7 +224,7 @@ void RD_ACTIVE_VERTEX_SINGLE(int Core_ID,
                     *Active_V_Value = iteration_id[Core_ID] + 1;
                     *Active_V_Pull_First_Flag = 0;
                     *Active_V_DValid = 1;
-                    printf("next stage full, core=%d, task_num=%d\n", Core_ID, task_num[Core_ID]);
+                    printf("clk:%d next stage full, core=%d, task_num=%d\n", clk, Core_ID, task_num[Core_ID]);
                     exit(1);
                 } else {
                     *Push_Flag = 0;

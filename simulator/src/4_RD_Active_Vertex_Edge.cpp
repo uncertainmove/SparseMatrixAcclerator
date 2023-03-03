@@ -7,6 +7,13 @@
 extern int clk;
 extern int rst_rd;
 
+#define Module_4_expand Core_Input_Interface,int Front_Active_V_LOffset[], int Front_Active_V_Roffset[], int Front_Offset_DValid[],\
+                        int CombineStage_Full[],int BramStage_Full[]
+
+#define expand_4_buffer basic_buffer,v_loffset_buffer[CORE_NUM], v_roffset_buffer[CORE_NUM]
+#define expand_4_buffer_pop basic_buffer_pop v_loffset_buffer[Core_ID].pop();\
+                    v_roffset_buffer[Core_ID].pop();
+
 using namespace std;
 
 void RD_Active_Vertex_Edge_Single(int Core_ID,
@@ -20,10 +27,7 @@ void RD_Active_Vertex_Edge_Single(int Core_ID,
                                   int *Rd_BRAM_Edge_Addr, int *BRAM_Push_Flag, int *BRAM_Active_V_ID, int *BRAM_Active_V_Value, int *Rd_BRAM_Edge_Valid,
                                   int *Iteration_End, int *Iteration_End_DValid);
 
-void RD_Active_Vertex_Edge(int Front_Push_Flag[], int Front_Active_V_ID[], int Front_Active_V_Value[], int Front_Active_V_Pull_First_Flag[], int Front_Active_V_DValid[],
-                           int Front_Iteration_End[], int Front_Iteration_End_DValid[],
-                           int Front_Active_V_LOffset[], int Front_Active_V_Roffset[], int Front_Offset_DValid[],
-                           int CombineStage_Full[], int BramStage_Full[],
+void RD_Active_Vertex_Edge(Module_4_expand,
 
                            int *Stage_Full,
                            int *Rd_HBM_Edge_Addr, BitVector_16 *Rd_HBM_Edge_Mask, int *HBM_Push_Flag, int *HBM_Active_V_ID, int *HBM_Active_V_Value, int *Rd_HBM_Edge_Valid,
@@ -91,8 +95,7 @@ void RD_Active_Vertex_Edge_Single(int Core_ID,
                                   int *Rd_BRAM_Edge_Addr, int *BRAM_Push_Flag, int *BRAM_Active_V_ID, int *BRAM_Active_V_Value, int *Rd_BRAM_Edge_Valid,
                                   int *Iteration_End, int *Iteration_End_DValid) {
 
-    static queue<int> push_flag_buffer[CORE_NUM], v_id_buffer[CORE_NUM], v_value_buffer[CORE_NUM], pull_first_flag_buffer[CORE_NUM],
-                       v_loffset_buffer[CORE_NUM], v_roffset_buffer[CORE_NUM];
+    expand_4_buffer;
     static int v_buffer_empty[CORE_NUM];
     static int o_buffer_empty[CORE_NUM];
 
@@ -174,12 +177,7 @@ void RD_Active_Vertex_Edge_Single(int Core_ID,
                         }
                     #endif
 
-                    push_flag_buffer[Core_ID].pop();
-                    v_id_buffer[Core_ID].pop();
-                    v_value_buffer[Core_ID].pop();
-                    v_loffset_buffer[Core_ID].pop();
-                    v_roffset_buffer[Core_ID].pop();
-                    pull_first_flag_buffer[Core_ID].pop();
+                    expand_4_buffer_pop
                 }
             }
             else {
@@ -202,12 +200,7 @@ void RD_Active_Vertex_Edge_Single(int Core_ID,
                         *Rd_HBM_Edge_Valid = 0;
                         now_loffset[Core_ID] = 1000000000;
 
-                        push_flag_buffer[Core_ID].pop();
-                        v_id_buffer[Core_ID].pop();
-                        v_value_buffer[Core_ID].pop();
-                        v_loffset_buffer[Core_ID].pop();
-                        v_roffset_buffer[Core_ID].pop();
-                        pull_first_flag_buffer[Core_ID].pop();
+                        expand_4_buffer_pop
                     }
                     else if (now_loffset[Core_ID] / CACHELINE_LEN > v_roffset_buffer[Core_ID].front() / CACHELINE_LEN){
                         *Rd_HBM_Edge_Addr = v_loffset_buffer[Core_ID].front() / CACHELINE_LEN;
@@ -225,12 +218,8 @@ void RD_Active_Vertex_Edge_Single(int Core_ID,
                         *Rd_HBM_Edge_Valid = (v_loffset_buffer[Core_ID].front() < v_roffset_buffer[Core_ID].front());
 
                         if (v_loffset_buffer[Core_ID].front() / CACHELINE_LEN == v_roffset_buffer[Core_ID].front() / CACHELINE_LEN) {
-                            push_flag_buffer[Core_ID].pop();
-                            v_id_buffer[Core_ID].pop();
-                            v_value_buffer[Core_ID].pop();
-                            v_loffset_buffer[Core_ID].pop();
-                            v_roffset_buffer[Core_ID].pop();
-                            pull_first_flag_buffer[Core_ID].pop();
+                            
+                            expand_4_buffer_pop
 
                             //now_loffset = v_loffset_buffer[rd_cntr + 1];
                             if (v_loffset_buffer[Core_ID].size() >= 1) {
@@ -259,13 +248,8 @@ void RD_Active_Vertex_Edge_Single(int Core_ID,
                         *Rd_HBM_Edge_Valid = (now_loffset[Core_ID] < v_roffset_buffer[Core_ID].front());
 
                         if (now_loffset[Core_ID] / CACHELINE_LEN == v_roffset_buffer[Core_ID].front() / CACHELINE_LEN) {
-                            push_flag_buffer[Core_ID].pop();
-                            v_id_buffer[Core_ID].pop();
-                            v_value_buffer[Core_ID].pop();
-                            v_loffset_buffer[Core_ID].pop();
-                            v_roffset_buffer[Core_ID].pop();
-                            pull_first_flag_buffer[Core_ID].pop();
-
+                            
+                            expand_4_buffer_pop
                             //now_loffset = v_loffset_buffer[rd_cntr + 1];
                             if (v_loffset_buffer[Core_ID].size() >= 1) {
                                 now_loffset[Core_ID] = v_loffset_buffer[Core_ID].front();
@@ -306,10 +290,8 @@ void RD_Active_Vertex_Edge_Single(int Core_ID,
     }
     else {
         if (Front_Active_V_DValid) {
-            push_flag_buffer[Core_ID].push(Front_Push_Flag);
-            v_id_buffer[Core_ID].push(Front_Active_V_ID);
-            v_value_buffer[Core_ID].push(Front_Active_V_Value);
-            pull_first_flag_buffer[Core_ID].push(Front_Active_V_Pull_First_Flag);
+            basic_buffer_push(Front_Push_Flag,Front_Active_V_ID,Front_Active_V_Value,Front_Active_V_Pull_First_Flag)
+            
         }
     }
 

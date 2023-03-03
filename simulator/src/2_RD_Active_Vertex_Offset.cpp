@@ -4,6 +4,8 @@
     debug_RD_ACTIVE_VERTEX_OFFSET debug_M2;
 #endif
 
+#define Module_2_expand Core_Input_Interface,int NextStage_Full[]
+
 extern int clk;
 extern int rst_rd;
 
@@ -19,9 +21,7 @@ void Read_Active_Vertex_Offset_Single(int Core_ID,
                                       int *Active_V_ID, int *Active_V_Value, int *RD_Active_V_Offset_Addr, int *Active_V_Pull_First_Flag, int *Active_V_DValid,
                                       int *Iteration_End, int *Iteration_End_DValid);
 
-void Read_Active_Vertex_Offset(int Front_Push_Flag[], int Front_Active_V_ID[], int Front_Active_V_Value[], int Front_Active_V_Pull_First_Flag[], int Front_Active_V_DValid[],
-                               int Front_Iteration_End[], int Front_Iteration_End_DValid[],
-                               int NextStage_Full[],
+void Read_Active_Vertex_Offset(Module_2_expand,
 
                                int *Stage_Full,
                                int *Push_Flag, int *Active_V_ID, int *Active_V_Value, int *RD_Active_V_Offset_Addr, int *Active_V_Pull_First_Flag, int *Active_V_DValid,
@@ -84,7 +84,8 @@ void Read_Active_Vertex_Offset_Single(int Core_ID,
                                       int *Push_Flag, int *Active_V_ID, int *Active_V_Value, int *RD_Active_V_Offset_Addr, int *Active_V_Pull_First_Flag, int *Active_V_DValid,
                                       int *Iteration_End, int *Iteration_End_DValid) {
 
-    static queue<int> push_flag_buffer[CORE_NUM], v_id_buffer[CORE_NUM], v_value_buffer[CORE_NUM], pull_first_flag_buffer[CORE_NUM];
+    basic_buffer;
+    //static queue<int> push_flag_buffer[CORE_NUM], v_id_buffer[CORE_NUM], v_value_buffer[CORE_NUM], pull_first_flag_buffer[CORE_NUM];
     static int v_buffer_empty[CORE_NUM], v_buffer_full[CORE_NUM];
 
     #if DEBUG
@@ -107,10 +108,7 @@ void Read_Active_Vertex_Offset_Single(int Core_ID,
     }
     else {
         if (Front_Active_V_DValid) {
-            push_flag_buffer[Core_ID].push(Front_Push_Flag);
-            v_id_buffer[Core_ID].push(Front_Active_V_ID);
-            v_value_buffer[Core_ID].push(Front_Active_V_Value);
-            pull_first_flag_buffer[Core_ID].push(Front_Active_V_Pull_First_Flag);
+            basic_buffer_push(Front_Push_Flag,Front_Active_V_ID,Front_Active_V_Value,Front_Active_V_Pull_First_Flag)
         }
     }
 
@@ -142,11 +140,8 @@ void Read_Active_Vertex_Offset_Single(int Core_ID,
                     printf("clk=%d, rd_active_addr=%d, push_flag=%d, active_v_id=%d, active_v_value=%d, active_v_pull_first_flag=%d, active_v_dvalid=%d\n", clk, *RD_Active_V_Offset_Addr, *Push_Flag, *Active_V_ID, *Active_V_Value, *Active_V_Pull_First_Flag, *Active_V_DValid);
                 }
             #endif
-
-            push_flag_buffer[Core_ID].pop();
-            v_id_buffer[Core_ID].pop();
-            v_value_buffer[Core_ID].pop();
-            pull_first_flag_buffer[Core_ID].pop();
+            
+            basic_buffer_pop
         }
     }
 
