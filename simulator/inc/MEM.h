@@ -185,38 +185,3 @@ typedef struct BitVector_16{
         printf("\n");
     }
 }BitVector_16;
-
-// struct HBM{
-// private:
-//     vector<int> HBM_MEM[PSEUDO_CHANNEL_NUM];
-// public:
-//     void init(){
-
-//     }
-//     void HBM_Controller_IP(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
-//                         int *HBM_Controller_Full,
-//                         Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid,
-//                         int rst_rd) {
-//         for(int Channel_ID = 0; Channel_ID < PSEUDO_CHANNEL_NUM; ++ Channel_ID) {
-//             if (rst_rd) {
-//                 HBM_Controller_Full[Channel_ID] = 0;
-//                 for (int i = 0; i < CACHELINE_LEN; ++ i) HBM_Controller_Edge[Channel_ID].data[i] = 0;
-//                 HBM_Controller_DValid[Channel_ID] = 0;
-//             }
-//             else {
-//                 HBM_Controller_Full[Channel_ID] = 0;
-//                 if (Rd_HBM_Edge_Valid[Channel_ID]) {
-//                     for (int i = 0; i < CACHELINE_LEN; ++ i) {
-//                         // printf("%d\n", Rd_HBM_Edge_Addr[Channel_ID]);
-//                         HBM_Controller_Edge[Channel_ID].data[i] = Edge_MEM[Channel_ID][Rd_HBM_Edge_Addr[Channel_ID] * CACHELINE_LEN + i];
-//                     }
-//                     HBM_Controller_DValid[Channel_ID] = 1;
-//                 }
-//                 else{
-//                     for (int i = 0; i < CACHELINE_LEN; ++ i) HBM_Controller_Edge[Channel_ID].data[i] = 0;
-//                     HBM_Controller_DValid[Channel_ID] = 0;
-//                 }
-//             }
-//         }
-//     }
-// };
