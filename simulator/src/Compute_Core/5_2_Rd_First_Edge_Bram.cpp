@@ -7,7 +7,6 @@
 extern int clk;
 extern int rst_rd;
 
-extern int First_Edge_BRAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
 
 using namespace std;
 
@@ -48,10 +47,6 @@ void Rd_First_Edge_Bram(int Front_Rd_Edge_Addr[], int Front_Push_Flag[], int Fro
                                   &Push_Flag[i], &Active_V_ID[i], &Active_V_Value[i], &Active_V_Edge[i], &Active_V_DValid[i],
                                   &Iteration_End[i], &Iteration_End_DValid[i]);
 
-        // BRAM_IP(i,
-        //         Front_Rd_Edge_Addr[i], Front_Rd_Edge_Valid[i],
-
-        //         &tmp_bram_data[i], &tmp_bram_dvalid[i]);
     }
 }
 
@@ -149,16 +144,3 @@ void Rd_First_Edge_Bram_Single(int Core_ID,
     *Stage_Full = (v_id_buffer[Core_ID].size() >= FIFO_SIZE);
 }
 
-void BRAM_IP(int Core_ID,
-             int Front_Rd_Edge_Addr, int Front_Rd_Edge_Valid,
-
-             int *Bram_Data, int *Bram_DValid) {
-    if (rst_rd || Front_Rd_Edge_Valid == 0) {
-        *Bram_Data = 0;
-        *Bram_DValid = 0;
-    }
-    else {
-        *Bram_Data = First_Edge_BRAM[Core_ID][Front_Rd_Edge_Addr];
-        *Bram_DValid = 1;
-    }
-}

@@ -15,6 +15,8 @@ using namespace std;
                    int *Stage_Full_Om,\
                    int *Om_Push_Flag, int *Om_Update_V_ID, int *Om_Update_V_Value, int *Om_Pull_First_Flag, int *Om_Update_V_DValid, int *Om_Iteration_End, int *Om_Iteration_End_DValid
 
+
+
 void Omega_Network_Single(int Omega_Depth_ID, int Omega_Switch_ID,
                             int Push_Flag1, int V_ID_In1, int V_Value_In1, int Pull_First_Flag1, int V_Valid_In1, int Iteration_End_In1, int Iteration_End_DValid_In1,
                             int Push_Flag2, int V_ID_In2, int V_Value_In2, int Pull_First_Flag2, int V_Valid_In2, int Iteration_End_In2, int Iteration_End_DValid_In2,

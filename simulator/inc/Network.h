@@ -1,8 +1,9 @@
-#include "Accelerator.h"
-#if DEBUG
-    #include "debug.h"
-    debug_Omega_Network debug_M8;
+#ifndef PARA_H
+#include "para.h"
 #endif
+
+#include <queue>
+#include <cstdio>
 
 extern int clk;
 extern int rst_rd;
