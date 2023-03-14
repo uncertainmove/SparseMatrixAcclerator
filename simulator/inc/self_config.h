@@ -7,7 +7,7 @@ class Info_P1 :public Info{
 public:
     int P1_Global_Iteration_ID[CORE_NUM];
     virtual void copy(Info* info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P1*>(info));
     }
  } ;
 
@@ -21,7 +21,7 @@ public:
     int P6_Iteration_End[CORE_NUM];
     int P6_Iteration_End_DValid[CORE_NUM];
     virtual void copy(Info* info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P6*>(info));
     }
  } ;
 
@@ -30,7 +30,7 @@ public:
     int P5_Rd_HBM_Edge_Addr[CORE_NUM];
     int P5_Rd_HBM_Edge_Valid[CORE_NUM];
     virtual void copy(Info *info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P5*>(info));
     }
  } ;
 
@@ -45,7 +45,7 @@ public:
     int P7_Om2_Iteration_End[CORE_NUM]; 
     int P7_Om2_Iteration_End_DValid[CORE_NUM]; 
     virtual void copy(Info *info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P7*>(info));
     }
 };
 
@@ -60,7 +60,7 @@ public:
     int Om1_Iteration_End[CORE_NUM];
     int Om1_Iteration_End_DValid[CORE_NUM];
     virtual void copy(Info *info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P_Om1*>(info));
     }
 };
 
@@ -75,7 +75,7 @@ public:
     int Om2_Iteration_End[CORE_NUM];
     int Om2_Iteration_End_DValid[CORE_NUM];
     virtual void copy(Info *info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P_Om2*>(info));
     }
 };
 
@@ -85,7 +85,7 @@ public:
     int AIE_Active_V_Updated[CORE_NUM];
     int AIE_Active_V_DValid[CORE_NUM];
     virtual void copy(Info *info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P_AIE_Global*>(info));
     }
 };
 
@@ -95,7 +95,7 @@ public:
     int HBM_Interface_Active_V_Edge[CORE_NUM];
     int HBM_Interface_Active_V_Edge_Valid[CORE_NUM];
     virtual void copy(Info *info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P_HBM*>(info));
     }
 };
 
@@ -106,7 +106,7 @@ public:
     int Om_Global_Iteration_ID[CORE_NUM];
     int P7_Global_Iteration_ID[CORE_NUM];
     virtual void copy(Info *info) {
-        memcpy(this, info, sizeof(*this));
+        *this = *(dynamic_cast<Info_P_Global*>(info));
     }
 };
 

@@ -1,6 +1,8 @@
 // #include "Network.h"
 #include "Accelerator.h"
+#include <iostream>
 int count_;
+extern int clk;
 
 extern int vtx_bram_data[CORE_NUM], vtx_bram_data_valid[CORE_NUM],vtx_bram_Read_Addr[CORE_NUM], vtx_bram_Read_Addr_Valid[CORE_NUM],
            vtx_bram_Wr_Addr[CORE_NUM], vtx_bram_Wr_Data[CORE_NUM], vtx_bram_Wr_Addr_Valid[CORE_NUM];
@@ -112,9 +114,7 @@ void Compute_Core(Pipe* pipes){
     pipes[3].write(&self_info_om1);
     pipes[4].write(&self_info_om2);
     pipes[5].write(&self_info_p_aie_global_receive);
-
     pipes[7].write(&self_info_hbm);
-
     pipes[8].write(&self_p_global);
     RD_ACTIVE_VERTEX(self_info_p_aie_global_receive.AIE_Active_V_ID, self_info_p_aie_global_receive.AIE_Active_V_Updated, AIE_Active_V_Pull_First_Flag_rd, self_info_p_aie_global_receive.AIE_Active_V_DValid,
                     AIE_Iteration_End_rd, AIE_Iteration_End_DValid_rd,
@@ -125,8 +125,6 @@ void Compute_Core(Pipe* pipes){
                     self_info_p1.P1_Global_Iteration_ID);
 
 
-    //cout << P1_Push_Flag_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_ID_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_Value_wr[ROOT_ID % CORE_NUM] << " " << P1_Active_V_DValid_wr[ROOT_ID % CORE_NUM] << endl;
-
     Read_Active_Vertex_Offset(P1_Push_Flag_rd, P1_Active_V_ID_rd, P1_Active_V_Value_rd, P1_Active_V_Pull_First_Flag_rd, P1_Active_V_DValid_rd,
                                 P1_Iteration_End_rd, P1_Iteration_End_Dvalid_rd,
                                 P4_Stage_Full_rd,
@@ -136,13 +134,9 @@ void Compute_Core(Pipe* pipes){
                                 P2_Iteration_End_wr, P2_Iteration_End_DValid_wr);
 
     
-//        cout << clk << ": " << P2_Stage_Full_wr[ROOT_ID % CORE_NUM] << " " << P2_Push_Flag_wr[ROOT_ID % CORE_NUM] <<  " " << P2_Active_V_ID_wr[ROOT_ID % CORE_NUM] << " " << P2_Active_V_Value_wr[ROOT_ID % CORE_NUM]
-//        << " " << P2_Active_V_Offset_Addr_wr[ROOT_ID % CORE_NUM] << " " << P2_Active_V_DValid_wr[ROOT_ID % CORE_NUM] << endl;
-
     RD_Offset_Uram(P2_Active_V_Offset_Addr_rd, P2_Active_V_DValid_rd,
 
                     Offset_Uram_Active_V_LOffset_wr, Offset_Uram_Active_V_ROffset_wr, Offset_Uram_Active_V_DValid_wr);
-    //if(Offset_Uram_Active_V_DValid_wr[ROOT_ID % CORE_NUM]==1)cout << clk << ": " << Offset_Uram_Active_V_LOffset_wr[ROOT_ID % CORE_NUM] << " " << Offset_Uram_Active_V_ROffset_wr[ROOT_ID % CORE_NUM] <<endl;
 
     RD_Active_Vertex_Edge(P2_Push_Flag_rd, P2_Active_V_ID_rd, P2_Active_V_Value_rd, P2_Active_V_Pull_First_Flag_rd, P2_Active_V_DValid_rd,
                           P2_Iteration_End_rd, P2_Iteration_End_DValid_rd,
@@ -172,7 +166,6 @@ void Compute_Core(Pipe* pipes){
                         P6_Stage_Full2_rd,
                         edge_bram_data, edge_bram_data_valid,
 
-
                         P5_2_Stage_Full_wr,
                         P5_2_Push_Flag_wr, P5_2_Active_V_id_wr, P5_2_Active_V_Value_wr, P5_2_Acitve_V_Edge_wr, P5_2_Active_V_DValid_wr,
                         P5_2_Iteration_End_wr, P5_2_Iteration_End_DValid_wr);
@@ -188,15 +181,14 @@ void Compute_Core(Pipe* pipes){
              self_info_p6.P6_Push_Flag, self_info_p6.P6_Update_V_ID, self_info_p6.P6_Update_V_Value, self_info_p6.P6_Pull_First_Flag, self_info_p6.P6_Update_V_DValid,
              self_info_p6.P6_Iteration_End, self_info_p6.P6_Iteration_End_DValid);
 
-    
-    // printf("clk:%d,Om1_Push_Flag[0]:%d,Update_V_ID[0]:%d,Update_V_DValid[0]:%d\n",clk,self_info_om1.Om1_Push_Flag[0],self_info_om1.Om1_Update_V_ID[0],self_info_om1.Om1_Update_V_DValid[0]);
+
 
     Backend_Core(self_info_om1.Om1_Push_Flag, self_info_om1.Om1_Update_V_ID, self_info_om1.Om1_Update_V_Value, self_info_om1.Om1_Update_V_Pull_First_Flag, self_info_om1.Om1_Update_V_DValid, self_info_om1.Om1_Iteration_End, self_info_om1.Om1_Iteration_End_DValid,
                 self_info_om2.Om2_Push_Flag, self_info_om2.Om2_Update_V_ID, self_info_om2.Om2_Update_V_Value, self_info_om2.Om2_Update_V_Pull_First_Flag, self_info_om2.Om2_Update_V_DValid, self_info_om2.Om2_Iteration_End, self_info_om2.Om2_Iteration_End_DValid,
                 Vertex_BRAM_Data_rd, Vertex_BRAM_DValid_rd,
                 self_p_global.Om_Global_Iteration_ID,
 
-                P7_Source_Core_Full_wr,
+                self_info_p7.P7_Source_Core_Full,
                 P7_Rd_Vertex_BRAM_Addr_wr, P7_Rd_Vertex_BRAM_Valid_wr,
                 P7_Wr_Vertex_Bram_Push_Flag_wr, P7_Wr_Vertex_BRAM_Addr_wr, P7_Wr_Vertex_BRAM_Data_wr, P7_Wr_Vertex_BRAM_Pull_First_Flag_wr, P7_Wr_Vertex_BRAM_Valid_wr, P7_Wr_Vertex_BRAM_Iteration_End_wr, P7_Wr_Vertex_BRAM_Iteration_End_DValid_wr,
                 self_info_p7.P7_Om2_Send_Push_Flag, self_info_p7.P7_Om2_Send_Update_V_ID, self_info_p7.P7_Om2_Send_Update_V_Value, self_info_p7.P7_Om2_Send_Update_V_Pull_First_Flag, self_info_p7.P7_Om2_Send_Update_V_DValid, self_info_p7.P7_Om2_Iteration_End, self_info_p7.P7_Om2_Iteration_End_DValid);
@@ -212,6 +204,7 @@ void Compute_Core(Pipe* pipes){
 
                 Vertex_BRAM_Data_wr, Vertex_BRAM_DValid_wr,
                 Backend_Active_V_ID_wr, Backend_Active_V_Updated_wr, Backend_Active_V_Pull_First_Flag_wr, Backend_Active_V_DValid_wr, Backend_Iteration_End_wr, Backend_Iteration_End_DValid_wr);
+
 
     for(int i = 0 ; i<CORE_NUM ; i++){
         if(vtx_bram_data_valid[i]){
@@ -230,7 +223,6 @@ void Compute_Core(Pipe* pipes){
     pipes[1].read(&self_info_p5);
     pipes[2].read(&self_info_p7);
     pipes[5].read(&self_info_p_aie_global);
-
     pipes[6].read(&self_info_p1);
     for (int i = 0; i < CORE_NUM; ++ i) {
             //edge_bram
