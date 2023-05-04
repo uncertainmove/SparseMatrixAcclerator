@@ -1,8 +1,9 @@
-#include "Accelerator.h"
-#if DEBUG
-    #include "debug.h"
-    debug_Omega_Network debug_M8;
+#ifndef PARA_H
+#include "para.h"
 #endif
+
+#include <queue>
+#include <cstdio>
 
 extern int clk;
 extern int rst_rd;
@@ -32,3 +33,4 @@ struct Network_reg{
     queue<int> push_flag_buffer_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], id_buffer_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], value_buffer_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM], pull_first_flag_buffer_in2_out2[OMEGA_DEPTH+1][OMEGA_SWITCH_NUM]; //原OMEGA_DEPTH+1+1 为 OMEGA_DEPTH+1
     //######################
 };
+

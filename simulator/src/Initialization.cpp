@@ -1,20 +1,18 @@
 #include "Accelerator.h"
-#include "MEM.h"
+// #include "MEM.h"
 #define STORE_DATA 0
 
 using namespace std;
 
 extern int Offset_URAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1][2];
 extern vector<int> Edge_MEM[PSEUDO_CHANNEL_NUM];
-//extern int Edge_MEM[PSEUDO_CHANNEL_NUM][MAX_EDGE_ADDR];
-extern int VERTEX_BRAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
+// extern int Edge_MEM[PSEUDO_CHANNEL_NUM][MAX_EDGE_ADDR];
 extern BRAM vtx_bram;
 extern BRAM edge_bram;
 extern int Csr_Offset[MAX_VERTEX_NUM + 1];
 extern vector<int> Ori_Edge_MEM;
 extern int VTX_NUM;
 extern int EDGE_NUM;
-extern int First_Edge_BRAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
 extern int VERTEX_DEGREE[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
 extern bitmap Init_Bitmap[CORE_NUM][BitMap_Compressed_NUM + 1];
 
@@ -129,7 +127,11 @@ void Initialize_Offset_Uram(int V_Num) {
 }
 
 void Initialize_Vertex_bram(int root_id){
-    memset(vtx_bram.bram, -1, sizeof(vtx_bram.bram));
+    for(int i = 0 ; i<CORE_NUM ; i++){
+        for(int j = 0 ; j<vtx_bram.len ; j++){
+            vtx_bram.bram[i][j] = -1;
+        }
+    }
     vtx_bram.bram[root_id%CORE_NUM][root_id/CORE_NUM] = 0;
     printf("Initialize Bram Complete\n");
 }
