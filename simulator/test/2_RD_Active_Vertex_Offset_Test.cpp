@@ -1,27 +1,20 @@
-#include "gtest/gtest.h"
-#include "Accelerator.h"
-#include "debug.h"
+#include "../3rd/googletest/googletest/include/gtest/gtest.h"
+#include "../inc/Accelerator.h"
+#include "../inc/debug.h"
 
 #include <iostream>
 
 using namespace std;
 
 extern int rst_rd;
-extern int ROOT_ID;
-extern debug_RD_ACTIVE_VERTEX_OFFSET debug_M2;
-
-#if DEBUG
-
+int ROOT_ID;
+extern debug_RD_ACTIVE_VERTEX_OFFSET_Container debug_M2;
+#define debug 1
+#ifdef debug
 class Read_Active_Vertex_Offset_Test : public testing::Test {
 public:
     // input signal
-    int front_push_flag[CORE_NUM] = {0};
-    int front_active_v_id[CORE_NUM] = {0};
-    int front_active_v_value[CORE_NUM] = {0};
-    int front_active_v_pull_first_flag[CORE_NUM] = {0};
-    int front_active_v_dvalid[CORE_NUM] = {0};
-    int front_iteration_end[CORE_NUM] = {0};
-    int front_iteration_end_dvalid[CORE_NUM] = {0};
+    Info_P12P2 self_info_p12p2;
     int nextstage_full[CORE_NUM] = {0};
     // output signal
     int stage_full[CORE_NUM];
@@ -35,28 +28,24 @@ public:
     int iteration_end_dvalid[CORE_NUM];
 
     virtual void SetUp() {
-        ASSERT_EQ(DEBUG, 1);
+        ASSERT_EQ(debug, 1);
     }
     void init_input_flag() {
         for (int i = 0; i < CORE_NUM; i++) {
-            front_push_flag[i] = 0;
-            front_active_v_id[i] = 0;
-            front_active_v_value[i] = 0;
-            front_active_v_pull_first_flag[i] = 0;
-            front_active_v_dvalid[i] = 0;
-            front_iteration_end[i] = 0;
-            front_iteration_end_dvalid[i] = 0;
+            self_info_p12p2.P1_Active_V_ID[i] = 0;
+            self_info_p12p2.P1_Push_Flag[i] = 0;
+            self_info_p12p2.P1_Active_V_Value[i] = 0;
+            self_info_p12p2.P1_Active_V_Pull_First_Flag[i] = 0;
+            self_info_p12p2.P1_Active_V_DValid[i] = 0;
+            self_info_p12p2.P1_Iteration_End[i] = 0;
+            self_info_p12p2.P1_Iteration_End_Dvalid[i] = 0;
+
             nextstage_full[i] = 0;
         }
     }
     void init_local_reg() {
-        for (int i = 0; i < CORE_NUM; i++) {
-            queue<int> empty1, empty2, empty3, empty4;
-            swap(debug_M2._push_flag_buffer[i], empty1);
-            swap(debug_M2._v_id_buffer[i], empty2);
-            swap(debug_M2._v_value_buffer[i], empty3);
-            swap(debug_M2._pull_first_flag_buffer[i], empty4);
-        }
+        for (int i = 0; i < CORE_NUM; i++)
+            debug_M2._v_container[i].clear();
     }
     void reset_module() {
         // reset
@@ -67,26 +56,14 @@ public:
         init_local_reg();
         run_module(cycle);
         rst_rd = 0;
-        for (int i = 0; i < CORE_NUM; i++) {
-            ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(0));
-            ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(0));
-            ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(0));
-            ASSERT_EQ(stage_full[i], 0);
-            ASSERT_EQ(push_flag[i], -1);
-            ASSERT_EQ(active_v_id[i], 0);
-            ASSERT_EQ(active_v_value[i], 0);
-            ASSERT_EQ(rd_active_v_offset_addr[i], 0);
-            ASSERT_EQ(active_v_dvalid[i], 0);
-            ASSERT_EQ(iteration_end[i], 0);
-            ASSERT_EQ(iteration_end_dvalid[i], 0);
-        }
+        for (int i = 0; i < CORE_NUM; i++)
+            ASSERT_EQ(debug_M2._v_container[i].size(), size_t(0));
     }
     // Warning: you must set signal at first, then call this function
     void run_module(int cycle) {
         for (int i = 0; i < cycle; i++) {
             Read_Active_Vertex_Offset (
-                front_push_flag, front_active_v_id, front_active_v_value, front_active_v_pull_first_flag, front_active_v_dvalid,
-                front_iteration_end, front_iteration_end_dvalid,
+                self_info_p12p2,
                 nextstage_full,
 
                 stage_full,
@@ -111,10 +88,7 @@ TEST_F(Read_Active_Vertex_Offset_Test, test_PushPull_given_Rst_then_LocalBufferI
     run_module(1);
     // check
     for (int i = 0; i < CORE_NUM; i++) {
-        ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._pull_first_flag_buffer[i].size(), size_t(0));
+        ASSERT_EQ(debug_M2._v_container[i].size(), size_t(0));
         ASSERT_EQ(stage_full[i], 0);
         ASSERT_EQ(push_flag[i], -1);
         ASSERT_EQ(active_v_id[i], 0);
@@ -136,17 +110,16 @@ TEST_F(Read_Active_Vertex_Offset_Test, test_Push_given_InputActiveId_then_Output
     // write queue once
     init_input_flag();
     for (int i = 0; i < CORE_NUM; i++) {
-        front_push_flag[i] = 1;
-        front_active_v_id[i] = i;
-        front_active_v_value[i] = 1;
-        front_active_v_dvalid[i] = 1;
+        self_info_p12p2.P1_Active_V_ID[i] = i;
+        self_info_p12p2.P1_Push_Flag[i] = 1;
+        self_info_p12p2.P1_Active_V_Value[i] = 1;
+        self_info_p12p2.P1_Active_V_DValid[i] = 1;
     }
     run_module(1);
     // check
     for (int i = 0; i < CORE_NUM; i++) {
-        ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(1));
-        ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(1));
-        ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(1));
+        ASSERT_EQ(debug_M2._v_container[i].size(), size_t(1));
+
         ASSERT_EQ(stage_full[i], 0);
         ASSERT_EQ(push_flag[i], -1);
         ASSERT_EQ(active_v_id[i], 0);
@@ -163,9 +136,8 @@ TEST_F(Read_Active_Vertex_Offset_Test, test_Push_given_InputActiveId_then_Output
     // check output
     for (int i = 0; i < CORE_NUM; i++) {
         // check internal reg
-        ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(0));
+        ASSERT_EQ(debug_M2._v_container[i].size(), size_t(0));
+
         ASSERT_EQ(stage_full[i], 0);
         ASSERT_EQ(push_flag[i], 1);
         ASSERT_EQ(active_v_id[i], i);
@@ -187,19 +159,18 @@ TEST_F(Read_Active_Vertex_Offset_Test, test_FirstEdgePull_given_InputActiveId_th
     // write queue once
     init_input_flag();
     for (int i = 0; i < CORE_NUM; i++) {
-        front_push_flag[i] = 0;
-        front_active_v_id[i] = i;
-        front_active_v_value[i] = 1;
-        front_active_v_dvalid[i] = 1;
-        front_active_v_pull_first_flag[i] = 1;
+        self_info_p12p2.P1_Active_V_ID[i] = i;
+        self_info_p12p2.P1_Push_Flag[i] = 0;
+        self_info_p12p2.P1_Active_V_Value[i] = 1;
+        self_info_p12p2.P1_Active_V_DValid[i] = 1;
+        self_info_p12p2.P1_Active_V_Pull_First_Flag[i] = 1;
     }
     run_module(1);
     // check
     for (int i = 0; i < CORE_NUM; i++) {
-        ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(1));
-        ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(1));
-        ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(1));
-        ASSERT_EQ(debug_M2._pull_first_flag_buffer[i].size(), size_t(1));
+
+        ASSERT_EQ(debug_M2._v_container[i].size(), size_t(1));
+
         ASSERT_EQ(stage_full[i], 0);
         ASSERT_EQ(push_flag[i], -1);
         ASSERT_EQ(active_v_id[i], 0);
@@ -216,9 +187,9 @@ TEST_F(Read_Active_Vertex_Offset_Test, test_FirstEdgePull_given_InputActiveId_th
     // check output
     for (int i = 0; i < CORE_NUM; i++) {
         // check internal reg
-        ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(0));
+        
+        ASSERT_EQ(debug_M2._v_container[i].size(), size_t(0));
+
         ASSERT_EQ(stage_full[i], 0);
         ASSERT_EQ(push_flag[i], 0);
         ASSERT_EQ(active_v_id[i], i);
@@ -240,19 +211,17 @@ TEST_F(Read_Active_Vertex_Offset_Test, test_NotFirstEdgePull_given_InputActiveId
     // write queue once
     init_input_flag();
     for (int i = 0; i < CORE_NUM; i++) {
-        front_push_flag[i] = 0;
-        front_active_v_id[i] = i;
-        front_active_v_value[i] = 1;
-        front_active_v_dvalid[i] = 1;
-        front_active_v_pull_first_flag[i] = 0;
+        self_info_p12p2.P1_Active_V_ID[i] = i;
+        self_info_p12p2.P1_Push_Flag[i] = 0;
+        self_info_p12p2.P1_Active_V_Value[i] = 1;
+        self_info_p12p2.P1_Active_V_DValid[i] = 1;
+        self_info_p12p2.P1_Active_V_Pull_First_Flag[i] = 0;
     }
     run_module(1);
     // check
     for (int i = 0; i < CORE_NUM; i++) {
-        ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(1));
-        ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(1));
-        ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(1));
-        ASSERT_EQ(debug_M2._pull_first_flag_buffer[i].size(), size_t(1));
+        ASSERT_EQ(debug_M2._v_container[i].size(), size_t(1));
+
         ASSERT_EQ(stage_full[i], 0);
         ASSERT_EQ(push_flag[i], -1);
         ASSERT_EQ(active_v_id[i], 0);
@@ -269,9 +238,8 @@ TEST_F(Read_Active_Vertex_Offset_Test, test_NotFirstEdgePull_given_InputActiveId
     // check output
     for (int i = 0; i < CORE_NUM; i++) {
         // check internal reg
-        ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(0));
+        ASSERT_EQ(debug_M2._v_container[i].size(), size_t(0));
+
         ASSERT_EQ(stage_full[i], 0);
         ASSERT_EQ(push_flag[i], 0);
         ASSERT_EQ(active_v_id[i], i);
@@ -293,15 +261,14 @@ TEST_F(Read_Active_Vertex_Offset_Test, test_Push_given_IterationEnd_while_Buffer
     // write queue once
     init_input_flag();
     for (int i = 0; i < CORE_NUM; i++) {
-        front_iteration_end[i] = 1;
-        front_iteration_end_dvalid[i] = 1;
+        self_info_p12p2.P1_Iteration_End[i] = 1;
+        self_info_p12p2.P1_Iteration_End_Dvalid[i] = 1;
     }
     run_module(1);
     // check
     for (int i = 0; i < CORE_NUM; i++) {
-        ASSERT_EQ(debug_M2._push_flag_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_id_buffer[i].size(), size_t(0));
-        ASSERT_EQ(debug_M2._v_value_buffer[i].size(), size_t(0));
+        ASSERT_EQ(debug_M2._v_container[i].size(), size_t(0));
+
         ASSERT_EQ(stage_full[i], 0);
         ASSERT_EQ(push_flag[i], -1);
         ASSERT_EQ(active_v_id[i], 0);
