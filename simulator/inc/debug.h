@@ -26,6 +26,13 @@ public:
     queue<int> *_pull_first_flag_buffer;
 };
 
+class debug_RD_ACTIVE_VERTEX_OFFSET_Container {
+public:
+    
+    queue_container<int> *_v_container;
+    value_container<int> *_Front_V_container,*_V_container,*_Active_V_container;
+};
+
 class debug_RD_Offset_Uram {
 };
 
@@ -41,6 +48,7 @@ public:
     int *_now_loffest;
     int *_init_flag;
 };
+
 
 class debug_Rd_First_Edge_Bram {
 public:
@@ -124,3 +132,18 @@ void write_array_to_file (string prefix, FILE* fp, int array[], int size);
 void write_bitvector_to_file (string prefix, FILE* fp, BitVector_16 array[], int size);
 
 #endif
+
+#ifndef debuf_frame
+#define debug_frame
+/*debug frame*/
+#define LOGFUNC(...) (printf(__VA_ARGS__))
+#define LOGSTRINGS(fm, ...) printf(fm,__VA_ARGS__)
+#define edebug(format, ...) fprintf (stderr, format, ##__VA_ARGS__)
+#ifdef debug
+    #define dcout std::cout
+#else
+    #define dcout 0 && std::cout
+#endif
+#endif
+
+// #define exp_debug
