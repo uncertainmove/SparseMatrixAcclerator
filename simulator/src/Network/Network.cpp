@@ -9,13 +9,6 @@ extern int rst_rd;
 
 using namespace std;
 
-#define Network_Para int Om_Front_Push_Flag[], int Om_Front_Update_V_ID[], int Om_Front_Update_V_Value[], int Om_Front_Pull_First_Flag[], int Om_Front_Update_V_DValid[], int Om_Front_Iteration_End[], int Om_Front_Iteration_End_DValid[],\
-                   int Next_Stage_Full[],\
-                    \
-                   int *Stage_Full_Om,\
-                   int *Om_Push_Flag, int *Om_Update_V_ID, int *Om_Update_V_Value, int *Om_Pull_First_Flag, int *Om_Update_V_DValid, int *Om_Iteration_End, int *Om_Iteration_End_DValid
-
-
 
 void Omega_Network_Single(int Omega_Depth_ID, int Omega_Switch_ID,
                             int Push_Flag1, int V_ID_In1, int V_Value_In1, int Pull_First_Flag1, int V_Valid_In1, int Iteration_End_In1, int Iteration_End_DValid_In1,
@@ -35,12 +28,14 @@ void Omega_Network(int Om_Front_Push_Flag[], int Om_Front_Update_V_ID[], int Om_
                    int *Om_Push_Flag, int *Om_Update_V_ID, int *Om_Update_V_Value, int *Om_Pull_First_Flag, int *Om_Update_V_DValid, int *Om_Iteration_End, int *Om_Iteration_End_DValid, Network_reg& Nreg,
                    int switch_router);
 
+
+
 void Network(int Om_Front_Push_Flag[], int Om_Front_Update_V_ID[], int Om_Front_Update_V_Value[], int Om_Front_Pull_First_Flag[], int Om_Front_Update_V_DValid[], int Om_Front_Iteration_End[], int Om_Front_Iteration_End_DValid[],
              int Next_Stage_Full[],
              int *Stage_Full_Om,
              int *Om_Push_Flag, int *Om_Update_V_ID, int *Om_Update_V_Value, int *Om_Pull_First_Flag, int *Om_Update_V_DValid, int *Om_Iteration_End, int *Om_Iteration_End_DValid, Network_reg& Nreg, 
              int switch_router, int network_num){
-    if( network_num ==  0)
+    if( network_num ==  0){
         Omega_Network(Om_Front_Push_Flag, Om_Front_Update_V_ID, Om_Front_Update_V_Value, Om_Front_Pull_First_Flag, Om_Front_Update_V_DValid, Om_Front_Iteration_End, Om_Front_Iteration_End_DValid,
                     Next_Stage_Full,
 
@@ -48,6 +43,9 @@ void Network(int Om_Front_Push_Flag[], int Om_Front_Update_V_ID[], int Om_Front_
                     Om_Push_Flag, Om_Update_V_ID, Om_Update_V_Value, Om_Pull_First_Flag, Om_Update_V_DValid, Om_Iteration_End, Om_Iteration_End_DValid,
 
                     Nreg, switch_router);
+    }else{
+        
+    }
 
 }
 
@@ -373,3 +371,5 @@ void Omega_Network_Global_Signal(int Front_Global_Iteration_ID[], Powerlaw_Vid_S
         }
     }
 }
+
+

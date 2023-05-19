@@ -142,6 +142,13 @@ void Network(int Om_Front_Push_Flag[], int Om_Front_Update_V_ID[], int Om_Front_
             Network_reg& Nreg, 
             int switch_router = 0, int network_num = 0);
 
+void Hyperx_Network(int Hy1_Front_Push_Flag[], int Hy1_Front_Update_V_ID[], int Hy1_Front_Update_V_Value[], int Hy1_Front_Pull_First_Flag[], int Hy1_Front_Update_V_DValid[], int Hy1_Front_Iteration_End[], int Hy1_Front_Iteration_End_DValid[],
+                   int Hy2_Front_Push_Flag[], int Hy2_Front_Update_V_ID[], int Hy2_Front_Update_V_Value[], int Hy2_Front_Pull_First_Flag[], int Hy2_Front_Update_V_DValid[], int Hy2_Front_Iteration_End[], int Hy2_Front_Iteration_End_DValid[],
+                   int Source_Core_Full[],
+
+                   int *Hy1_Push_Flag, int *Hy1_Update_V_ID, int *Hy1_Update_V_Value, int *Hy1_Pull_First_Flag, int *Hy1_Update_V_DValid, int *Hy1_Iteration_End, int *Hy1_Iteration_End_DValid, int *Stage_Full_Hy1,
+                   int *Hy2_Push_Flag, int *Hy2_Update_V_ID, int *Hy2_Update_V_Value, int *Hy2_Pull_First_Flag, int *Hy2_Update_V_DValid, int *Hy2_Iteration_End, int *Hy2_Iteration_End_DValid, int *Stage_Full_Hy2);
+
 void Omega_Network_Global_Signal(int Front_Global_Iteration_ID[], Powerlaw_Vid_Set Front_Global_Powerlaw_V_ID[], Powerlaw_Vvisit_Set Front_Global_Powerlaw_V_Visit[],
 
                                   int *Global_Iteration_ID, Powerlaw_Vid_Set *Global_Powerlaw_V_ID, Powerlaw_Vvisit_Set *Global_Powerlaw_V_Visit);

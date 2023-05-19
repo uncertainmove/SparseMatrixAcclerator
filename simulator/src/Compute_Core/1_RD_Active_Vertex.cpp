@@ -159,9 +159,9 @@ void RD_ACTIVE_VERTEX_SINGLE(int Core_ID,
     }
     while (max_length > 1) {
         max_length /= 2;
-        for (int i = 0; i < max_length; ++ i) {
+        for (int i = 0; i < max_length; ++ i) { // 从vis_bitmap当前页选出位置最小的标记为0的点的位置
             pull_active_bitmap_index[i] = (pull_active_bitmap[2 * i] == 0) ? pull_active_bitmap_index[2 * i] : pull_active_bitmap_index[2 * i + 1];
-            pull_active_bitmap[i] = pull_active_bitmap[2 * i] & pull_active_bitmap[2 * i + 1];
+            pull_active_bitmap[i] = pull_active_bitmap[2 * i] & pull_active_bitmap[2 * i + 1]; // 0 说明存在标记为0的点
             /*
             if (vis_bitmap_now[Core_ID].v[0] == 1 && pull_active_bitmap[2 * i + 1] == 1) {
                 printf("%d\n", pull_active_bitmap_index[i]);
@@ -247,6 +247,7 @@ void RD_ACTIVE_VERTEX_SINGLE(int Core_ID,
                 }
                 else {
                     //pull does not end and any vertex in current bitmap line is not visited
+                    // pull 有效 当前页存在用于pull_first的点
                     if (vis_bitmap_index[Core_ID] < BitMap_Compressed_NUM && pull_first_active_vertex_bitmap == 0 && task_num[Core_ID] < MAX_TASK_NUM) {
                         *Push_Flag = now_push_flag;
                         *Active_V_ID = (vis_bitmap_index[Core_ID] * BitMap_Compressed_Length + pull_first_active_vertex_index) * CORE_NUM + Core_ID;
@@ -322,6 +323,8 @@ void RD_ACTIVE_VERTEX_SINGLE(int Core_ID,
                         printf("mode=%d, iteration=%d, vertex_updated=%d, next_q_size=%d, clk=%d\n", now_push_flag, iteration_id[Core_ID], vertex_updated, next_q_size, clk);
                     }
                 #endif
+                if(Core_ID == 0)
+                printf("iteratoin %d end at clk:%d\n",iteration_id[Core_ID],clk);
                 iteration_id[Core_ID] ++;
                 iteration_end[Core_ID] = 0;
                 //memset(task_visit,0,sizeof task_visit);
@@ -357,10 +360,10 @@ void RD_ACTIVE_VERTEX_SINGLE(int Core_ID,
             }
             else {
                 //pull does not end
-                if (init_bitmap_id[Core_ID] == BitMap_Compressed_NUM) {
+                if (init_bitmap_id[Core_ID] == BitMap_Compressed_NUM) {//初始化完成，一般来说，rst_rd = 0这段时间可以完成init_bitmap
                     if (vis_bitmap_index[Core_ID] < init_bitmap_id[Core_ID]) {
                         // if (Core_ID == 0) printf("%d %d\n", vis_bitmap_index[Core_ID], init_bitmap_id[Core_ID]);
-                        if (pull_first_active_vertex_bitmap == 1) {
+                        if (pull_first_active_vertex_bitmap == 1) {// 当前vis_bitmap页已经完成pull任务
                             vis_bitmap_now[Core_ID] = vis_bitmap[Core_ID][vis_bitmap_index[Core_ID] + 1];
                             vis_bitmap_index[Core_ID] ++;
                             // if (Core_ID == 0) printf("set_vis_index=%d\n", vis_bitmap_index[Core_ID]);
@@ -400,13 +403,15 @@ void RD_ACTIVE_VERTEX_SINGLE(int Core_ID,
             for (int i = 0; i < BitMap_Compressed_Length; ++ i) {
                 if ((root_core_id == Core_ID && root_bitmap_id1 == init_bitmap_id[Core_ID] && root_bitmap_id2 == i) ||
                         Init_Bitmap[Core_ID][init_bitmap_id[Core_ID]].v[i]){
+                    // Init_Bitmap标记图中度非零且非根节点的点为0，其他点为1
                     vis_bitmap[Core_ID][init_bitmap_id[Core_ID]].v[i] = 1;
+                    // 将根节点以及孤立点标1
                 }
                 else {
                     vis_bitmap[Core_ID][init_bitmap_id[Core_ID]].v[i] = 0;
                 }
             }
-            init_bitmap_id[Core_ID] ++;
+            init_bitmap_id[Core_ID] ++;//对vis_bitmap每页进行初始化，每次初始化一页
         }
         //update the active queue & bitmap
         else if (!rst_rd) {

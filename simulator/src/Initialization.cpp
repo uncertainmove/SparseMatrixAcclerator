@@ -137,6 +137,11 @@ void Initialize_Vertex_bram(int root_id){
 }
 
 void Initialize_Edge_bram(int V_Num) {
+    for(int i = 0 ; i<CORE_NUM; i++){
+        for(int j = 0 ; j<MAX_VERTEX_NUM / CORE_NUM + 1; j++){
+            VERTEX_DEGREE[i][j] = 0;
+        }
+    }
     for (int i = 0; i < V_Num; i++) {
         int Loff = Offset_URAM[i % CORE_NUM][i / CORE_NUM][0], Roff = Offset_URAM[i % CORE_NUM][i / CORE_NUM][1];
         if (Loff == Roff) {
@@ -166,7 +171,8 @@ void Initialize_VERTEX_DEGREE(int V_Num) {
 }
 
 void Initialize_Bitmap(int root_id, int V_Num) {
-    for (int i = 0; i < 1024 * 1024; i++) {
+    // for (int i = 0; i < 1024 * 1024; i++) {
+    for (int i = 0; i < 96*343*32; i++) {
         if (i < V_Num && i != root_id && VERTEX_DEGREE[i % CORE_NUM][i / CORE_NUM]) {
             Init_Bitmap[i % CORE_NUM][(i / CORE_NUM) / BitMap_Compressed_Length].v[(i / CORE_NUM) % BitMap_Compressed_Length] = 0;
         } else {
