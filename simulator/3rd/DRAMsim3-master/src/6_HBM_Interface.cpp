@@ -9,6 +9,8 @@
 extern int clk;
 extern int rst_rd;
 
+int visit_mp[PSEUDO_CHANNEL_NUM];
+
 bool call_back_called_0 = false;
 bool call_back_called_1 = false;
 bool call_back_called_2 = false;
@@ -212,12 +214,166 @@ void HBM_Controller_IP(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
     static queue<uint64_t> transaction_addr_buffer[PSEUDO_CHANNEL_NUM];
     static int _count = 0,_total = 0;
 
-    static dramsim3::MemorySystem dramsys_0("../configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_0,dummy_call_back_0);
-    static dramsim3::MemorySystem dramsys_1("../configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_1,dummy_call_back_1);
-    static dramsim3::MemorySystem dramsys_2("../configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_2,dummy_call_back_2);
-    static dramsim3::MemorySystem dramsys_3("../configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_3,dummy_call_back_3);
+    static dramsim3::MemorySystem dramsys_0("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_0,dummy_call_back_0);
+    static dramsim3::Config dramsys_config("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".");
 
-    static dramsim3::Config dramsys_config("../configs/HBM2_4Gb_x128.ini", ".");
+
+    // channel
+    // hex_addr >>= config_.shift_bits;  //
+    // hex_addr >>= shift_bits;
+    // int channel = (hex_addr >> ch_pos) & ch_mask;
+    // int rank = (hex_addr >> ra_pos) & ra_mask;
+    // int bg = (hex_addr >> bg_pos) & bg_mask;
+    // int ba = (hex_addr >> ba_pos) & ba_mask;
+    // int ro = (hex_addr >> ro_pos) & ro_mask;
+    // int co = (hex_addr >> co_pos) & co_mask;
+    
+    // request_size_bytes = bus_width / 8 * BL;  bus_width = 128  ; BL = 4;
+    // shift_bits = LogBase2(request_size_bytes); // shift_bits = 6
+    int tmp_shift_bits = dramsys_config.shift_bits;
+    int tmp_ch_pos = dramsys_config.ch_pos;
+    int tmp_ch_mask = dramsys_config.ch_mask;
+    // if( clk == 0 ){
+    //     printf("shift_bits:%d,ch_pos:%d,ch_mask:%ld,ra_pos:%d,ra_mask:%ld,bg_pos:%d,bg_mask:%ld,ro_pos:%d,ro_mask:%ld,co_pos:%d,co_mask:%ld\n",dramsys_config.shift_bits,
+    //     dramsys_config.ch_pos,dramsys_config.ch_mask,dramsys_config.ra_pos,dramsys_config.ra_mask,dramsys_config.bg_pos,dramsys_config.bg_mask,dramsys_config.ro_pos,
+    //     dramsys_config.ro_mask,dramsys_config.co_pos,dramsys_config.co_mask);
+    // }
+    // if(clk == 79180){
+    //     for(int k = 0 ; k<PSEUDO_CHANNEL_NUM; k++){
+    //         printf("visit channel:%d visit times:%d\n",k,visit_mp[k]);
+    //     }
+    //     exit(1);
+    // }
+
+    for(int Channel_ID = 0; Channel_ID < PSEUDO_CHANNEL_NUM; ++ Channel_ID){
+        if(rst_rd){
+
+            // visit_mp[Channel_ID] = 0;
+        }
+        else{
+            if(Rd_HBM_Edge_Valid[Channel_ID]){
+                transaction_addr_buffer[Channel_ID].push(Rd_HBM_Edge_Addr[Channel_ID]);
+            }
+        }
+    }
+
+    for(int dram_tick = 0 ; dram_tick<10 ; dram_tick++){
+        for(int Channel_ID = 0; Channel_ID < PSEUDO_CHANNEL_NUM; ++ Channel_ID){
+            if(rst_rd){
+
+            }
+            else{
+                if(!transaction_addr_buffer[Channel_ID].empty()){
+                    
+                    uint64_t tmp_address = ((uint64_t(Channel_ID)<<11)+((transaction_addr_buffer[Channel_ID].front()&((1<<5)-1))<<6)+((transaction_addr_buffer[Channel_ID].front()>>5)<<16));//21bit
+                    bool ok;
+                    // Map[channel][addr] += 1;
+                    // printf("done 0 channel:%ld address:%ld\n",uint64_t(Channel_ID),tmp_address);
+                    ok = dramsys_0.AddTransaction(tmp_address,false);
+                
+                    if(ok){
+                        transaction_addr_buffer[Channel_ID].pop();
+                        _count ++;
+                        _total ++;
+                    }
+                    // printf("add transaction: Channel_ID:%d HBM_Addr:%d\n",Channel_ID,Rd_HBM_Edge_Addr[Channel_ID]);
+                }
+                rd_hbm_edge_addr[Channel_ID] = 0;
+                rd_hbm_edge_valid[Channel_ID] = 0;
+                rd_hbm_channel[Channel_ID] = 0 ;
+            }
+        }
+        //clock default to be the same with cpuclock;if not , use cpuclock/clock to make sure
+        // printf("begin to clock\n");
+        
+        dramsys_0.ClockTick();
+    }
+
+    if(call_back_called_0 || !addr_queue_0.empty()){
+
+        while(!addr_queue_0.empty()){
+            // uint64_t tmp_channel = (addr_queue.front() >> 21) & ((1<<5)-1);
+            // uint64_t tmp_addr = (addr_queue.front()) & ((1 << 21) - 1);
+            uint64_t tmp_channel = (addr_queue_0.front() >> 11) & ((1<<3)-1);
+            // uint64_t tmp_channel = ((addr_queue_0.front() >> 11) & ((1<<5)-1));
+            uint64_t tmp_addr = ((addr_queue_0.front() >> 6) & ((1 << 5) - 1))+(((addr_queue_0.front() >> 16) & ((1 << 16) - 1))<<5);
+            if(!rd_hbm_channel[tmp_channel]){
+                rd_hbm_channel[tmp_channel] = 1;
+                rd_hbm_edge_addr[tmp_channel] = tmp_addr;
+                rd_hbm_edge_valid[tmp_channel] = 1;
+                addr_queue_0.pop();
+                _count--;
+            }else{
+                addr_buffer.push(addr_queue_0.front());
+                addr_queue_0.pop();
+            }
+            // printf("finish transaction: Channel_ID:%ld HBM_Addr:%ld\n",tmp_channel,tmp_addr);
+        }
+
+        while(!addr_buffer.empty()){
+            addr_queue_0.push(addr_buffer.front());
+            addr_buffer.pop();
+        }
+        call_back_called_0 = false;
+    }
+
+    
+
+    int len = 0;
+    for(int i = 0 ; i<PSEUDO_CHANNEL_NUM ; i++){
+        len += transaction_addr_buffer[i].size();
+    }
+
+    if(clk % 500 == 0){
+        printf("dram exist visit:%d,visit_queue_length:%d,total_visit_times:%d\n",_count,len,_total);
+    }
+    // if(clk % 500 == 0){
+    //     printf("count : %d,addr_queue_empty:%d\n",_count,addr_queue_0.empty());
+    //     if(!addr_queue.empty() && clk > 14000){
+    //         uint64_t tmp_channel = (addr_queue.front() >> 11) & ((1<<5)-1);
+    //         uint64_t tmp_addr = ((addr_queue.front() >> 6) & ((1 << 5) - 1))+(((addr_queue.front() >> 18) & ((1 << 16) - 1))<<5);
+    //         printf("tmp_channel:%ld,tmp_addr:%ld\n",tmp_channel,tmp_addr);
+    //     }
+    // }
+
+    for(int Channel_ID = 0; Channel_ID < PSEUDO_CHANNEL_NUM; ++ Channel_ID) {
+        if (rst_rd) {
+            HBM_Controller_Full[Channel_ID] = 0;
+            for (int i = 0; i < CACHELINE_LEN; ++ i) HBM_Controller_Edge[Channel_ID].data[i] = 0;
+            HBM_Controller_DValid[Channel_ID] = 0;
+        }
+        else {
+            HBM_Controller_Full[Channel_ID] = 0;
+            if (rd_hbm_edge_valid[Channel_ID]) {
+                for (int i = 0; i < CACHELINE_LEN; ++ i) {
+                    // printf("%d\n", Rd_HBM_Edge_Addr[Channel_ID]);
+                    HBM_Controller_Edge[Channel_ID].data[i] = Edge_MEM[Channel_ID][rd_hbm_edge_addr[Channel_ID] * CACHELINE_LEN + i];
+                }
+                HBM_Controller_DValid[Channel_ID] = 1;
+            }
+            else{
+                for (int i = 0; i < CACHELINE_LEN; ++ i) HBM_Controller_Edge[Channel_ID].data[i] = 0;
+                HBM_Controller_DValid[Channel_ID] = 0;
+            }
+        }
+    }
+}
+
+void HBM_Controller_IP_with_4_HBMs(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
+
+                       int *HBM_Controller_Full,
+                       Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid) {
+    static int rd_hbm_edge_addr[PSEUDO_CHANNEL_NUM], rd_hbm_edge_valid[PSEUDO_CHANNEL_NUM];
+    static int rd_hbm_channel[PSEUDO_CHANNEL_NUM];
+    static queue<uint64_t> transaction_addr_buffer[PSEUDO_CHANNEL_NUM];
+    static int _count = 0,_total = 0;
+
+    static dramsim3::MemorySystem dramsys_0("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_0,dummy_call_back_0);
+    static dramsim3::MemorySystem dramsys_1("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_1,dummy_call_back_1);
+    static dramsim3::MemorySystem dramsys_2("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_2,dummy_call_back_2);
+    static dramsim3::MemorySystem dramsys_3("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_3,dummy_call_back_3);
+
+    static dramsim3::Config dramsys_config("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".");
 
 
     // channel
@@ -421,3 +577,33 @@ void HBM_Controller_IP(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
         }
     }
 }
+
+
+
+void HBM_Controller_IP_without_HBM(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
+
+                       int *HBM_Controller_Full,
+                       Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid) {
+    for(int Channel_ID = 0; Channel_ID < PSEUDO_CHANNEL_NUM; ++ Channel_ID) {
+        if (rst_rd) {
+            HBM_Controller_Full[Channel_ID] = 0;
+            for (int i = 0; i < CACHELINE_LEN; ++ i) HBM_Controller_Edge[Channel_ID].data[i] = 0;
+            HBM_Controller_DValid[Channel_ID] = 0;
+        }
+        else {
+            HBM_Controller_Full[Channel_ID] = 0;
+            if (Rd_HBM_Edge_Valid[Channel_ID]) {
+                for (int i = 0; i < CACHELINE_LEN; ++ i) {
+                    // printf("%d\n", Rd_HBM_Edge_Addr[Channel_ID]);
+                    HBM_Controller_Edge[Channel_ID].data[i] = Edge_MEM[Channel_ID][Rd_HBM_Edge_Addr[Channel_ID] * CACHELINE_LEN + i];
+                }
+                HBM_Controller_DValid[Channel_ID] = 1;
+            }
+            else{
+                for (int i = 0; i < CACHELINE_LEN; ++ i) HBM_Controller_Edge[Channel_ID].data[i] = 0;
+                HBM_Controller_DValid[Channel_ID] = 0;
+            }
+        }
+    }
+}
+
