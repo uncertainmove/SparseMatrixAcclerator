@@ -1,6 +1,9 @@
 #include "gtest/gtest.h"
-#include "Accelerator.h"
 #include "debug.h"
+#include "memory.h"
+#include "parameter.h"
+#include "structure.h"
+#include "util.h"
 
 #include <iostream>
 
@@ -9,7 +12,6 @@ using namespace std;
 #if DEBUG
 
 extern int rst_rd;
-extern int ROOT_ID;
 extern debug_HBM_Interface debug_M6;
 extern int Edge_MEM[PSEUDO_CHANNEL_NUM][MAX_EDGE_ADDR];
 

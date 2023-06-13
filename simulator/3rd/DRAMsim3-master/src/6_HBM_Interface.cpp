@@ -1,13 +1,17 @@
-#include "Accelerator.h"
-// #include "./../ext/headers/args.hxx"
+#include "memory.h"
+#include "parameter.h"
 #include "cpu.h"
+#include "debug.h"
+
 #if DEBUG
-    #include "debug.h"
     debug_HBM_Interface debug_M6;
 #endif
 
+using namespace std;
+
 extern int clk;
 extern int rst_rd;
+extern vector<int> Edge_MEM[PSEUDO_CHANNEL_NUM];
 
 int visit_mp[PSEUDO_CHANNEL_NUM];
 
@@ -47,59 +51,53 @@ void dummy_call_back_3(uint64_t addr) {
     return;
 }
 
-// dramsim3::MemorySystem dramsys_0("/home/sunsss/acc/SparseMatrixAccelerator_now_use/SparseMatrixAcclerator/simulator/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_0,dummy_call_back_0);
-// dramsim3::MemorySystem dramsys_1("/home/sunsss/acc/SparseMatrixAccelerator_now_use/SparseMatrixAcclerator/simulator/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_1,dummy_call_back_1);
-// dramsim3::MemorySystem dramsys_2("/home/sunsss/acc/SparseMatrixAccelerator_now_use/SparseMatrixAcclerator/simulator/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_2,dummy_call_back_2);
-// dramsim3::MemorySystem dramsys_3("/home/sunsss/acc/SparseMatrixAccelerator_now_use/SparseMatrixAcclerator/simulator/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_3,dummy_call_back_3);
+void HBM_Interface_Send_Rqst_Single(
+    int Channel_ID,
+    int Front_Rd_HBM_Edge_Addr, int Front_Rd_HBM_Edge_Valid,
+    int HBM_Controller_Full,
 
-// dramsim3::Config dramsys_config("/home/sunsss/acc/SparseMatrixAccelerator_now_use/SparseMatrixAcclerator/simulator/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".");
+    int *Stage_Full,
+    int *Rd_HBM_Edge_Addr, int *Rd_HBM_Edge_Valid);
 
+void HBM_Controller_IP(
+    int Channel_ID,
+    int Rd_HBM_Edge_Addr, int Rd_HBM_Edge_Valid,
 
-using namespace std;
+    int *HBM_Controller_Full,
+    Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid);
 
-extern vector<int> Edge_MEM[PSEUDO_CHANNEL_NUM];
+void HBM_Interface_Recv_Edge_Single(
+    int Channel_ID,
+    Cacheline_16 HBM_Controller_Edge, int HBM_Controller_DValid,
 
-void HBM_Interface_Send_Rqst_Single(int Channel_ID,
-                                    int Front_Rd_HBM_Edge_Addr, int Front_Rd_HBM_Edge_Valid,
-                                    int HBM_Controller_Full,
+    Cacheline_16 *Active_V_Edge, int *Active_V_Edge_Valid);
 
-                                    int *Stage_Full,
-                                    int *Rd_HBM_Edge_Addr, int *Rd_HBM_Edge_Valid);
+void HBM_Interface(
+        int Front_Rd_HBM_Edge_Addr[], int Front_Rd_HBM_Edge_Valid[],
+        Cacheline_16 HBM_Controller_Edge[], int HBM_Controller_DValid[],
+        int HBM_Controller_Full[],
 
-void HBM_Controller_IP(int Channel_ID,
-                       int Rd_HBM_Edge_Addr, int Rd_HBM_Edge_Valid,
-
-                       int *HBM_Controller_Full,
-                       Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid);
-
-void HBM_Interface_Recv_Edge_Single(int Channel_ID,
-                                    Cacheline_16 HBM_Controller_Edge, int HBM_Controller_DValid,
-
-                                    Cacheline_16 *Active_V_Edge, int *Active_V_Edge_Valid);
-
-void HBM_Interface(int Front_Rd_HBM_Edge_Addr[], int Front_Rd_HBM_Edge_Valid[],
-                   Cacheline_16 HBM_Controller_Edge[], int HBM_Controller_DValid[],
-                   int HBM_Controller_Full[],
-
-                   int *Stage_Full,
-                   int *Rd_HBM_Edge_Addr, int *Rd_HBM_Edge_Valid,
-                   int *Active_V_Edge, int *Active_V_Edge_Valid) {
+        int *Stage_Full,
+        int *Rd_HBM_Edge_Addr, int *Rd_HBM_Edge_Valid,
+        int *Active_V_Edge, int *Active_V_Edge_Valid) {
 
     for (int i = 0; i < PSEUDO_CHANNEL_NUM; i++) {
         Cacheline_16 tmp_active_v_edge;
         int tmp_active_v_edge_valid;
 
-        HBM_Interface_Send_Rqst_Single(i,
-                                       Front_Rd_HBM_Edge_Addr[i], Front_Rd_HBM_Edge_Valid[i],
-                                       HBM_Controller_Full[i],
+        HBM_Interface_Send_Rqst_Single(
+            i,
+            Front_Rd_HBM_Edge_Addr[i], Front_Rd_HBM_Edge_Valid[i],
+            HBM_Controller_Full[i],
 
-                                       &Stage_Full[i],
-                                       &Rd_HBM_Edge_Addr[i], &Rd_HBM_Edge_Valid[i]);
+            &Stage_Full[i],
+            &Rd_HBM_Edge_Addr[i], &Rd_HBM_Edge_Valid[i]);
 
-        HBM_Interface_Recv_Edge_Single(i,
-                                       HBM_Controller_Edge[i], HBM_Controller_DValid[i],
+        HBM_Interface_Recv_Edge_Single(
+            i,
+            HBM_Controller_Edge[i], HBM_Controller_DValid[i],
 
-                                       &tmp_active_v_edge, &tmp_active_v_edge_valid);
+            &tmp_active_v_edge, &tmp_active_v_edge_valid);
 
         for (int j = 0; j < CACHELINE_LEN; ++ j) {
             Active_V_Edge[i * GROUP_CORE_NUM + j] = tmp_active_v_edge.data[j];
@@ -108,12 +106,13 @@ void HBM_Interface(int Front_Rd_HBM_Edge_Addr[], int Front_Rd_HBM_Edge_Valid[],
     }
 }
 
-void HBM_Interface_Send_Rqst_Single(int Channel_ID,
-                                    int Front_Rd_HBM_Edge_Addr, int Front_Rd_HBM_Edge_Valid,
-                                    int HBM_Controller_Full,
+void HBM_Interface_Send_Rqst_Single(
+    int Channel_ID,
+    int Front_Rd_HBM_Edge_Addr, int Front_Rd_HBM_Edge_Valid,
+    int HBM_Controller_Full,
 
-                                    int *Stage_Full,
-                                    int *Rd_HBM_Edge_Addr, int *Rd_HBM_Edge_Valid) {
+    int *Stage_Full,
+    int *Rd_HBM_Edge_Addr, int *Rd_HBM_Edge_Valid) {
 
     ///asynchronous FIFO
     static queue<int> edge_addr_buffer[PSEUDO_CHANNEL_NUM];
@@ -157,10 +156,11 @@ void HBM_Interface_Send_Rqst_Single(int Channel_ID,
     *Stage_Full = (edge_addr_buffer[Channel_ID].size() >= FIFO_SIZE);
 }
 
-void HBM_Interface_Recv_Edge_Single(int Channel_ID,
-                                    Cacheline_16 HBM_Controller_Edge, int HBM_Controller_DValid,
+void HBM_Interface_Recv_Edge_Single(
+        int Channel_ID,
+        Cacheline_16 HBM_Controller_Edge, int HBM_Controller_DValid,
 
-                                    Cacheline_16 *Active_V_Edge, int *Active_V_Edge_Valid) {
+        Cacheline_16 *Active_V_Edge, int *Active_V_Edge_Valid) {
 
     ///asynchronous FIFO
     static queue<Cacheline_16> edge_buffer[PSEUDO_CHANNEL_NUM];
@@ -205,17 +205,18 @@ void HBM_Interface_Recv_Edge_Single(int Channel_ID,
     }
 }
 
-void HBM_Controller_IP(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
+void HBM_Controller_IP_1_channel(
+        int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
 
-                       int *HBM_Controller_Full,
-                       Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid) {
+        int *HBM_Controller_Full,
+        Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid) {
     static int rd_hbm_edge_addr[PSEUDO_CHANNEL_NUM], rd_hbm_edge_valid[PSEUDO_CHANNEL_NUM];
     static int rd_hbm_channel[PSEUDO_CHANNEL_NUM];
     static queue<uint64_t> transaction_addr_buffer[PSEUDO_CHANNEL_NUM];
     static int _count = 0,_total = 0;
 
-    static dramsim3::MemorySystem dramsys_0("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_0,dummy_call_back_0);
-    static dramsim3::Config dramsys_config("/home/syf/code/project/SparseMatrixAcclerator/simulator/3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".");
+    static dramsim3::MemorySystem dramsys_0("../3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".", dummy_call_back_0,dummy_call_back_0);
+    static dramsim3::Config dramsys_config("../3rd/DRAMsim3-master/configs/HBM2_4Gb_x128.ini", ".");
 
 
     // channel
@@ -325,7 +326,7 @@ void HBM_Controller_IP(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
     }
 
     if(clk % 500 == 0){
-        printf("dram exist visit:%d,visit_queue_length:%d,total_visit_times:%d\n",_count,len,_total);
+        // printf("dram exist visit:%d,visit_queue_length:%d,total_visit_times:%d\n",_count,len,_total);
     }
     // if(clk % 500 == 0){
     //     printf("count : %d,addr_queue_empty:%d\n",_count,addr_queue_0.empty());
@@ -359,10 +360,11 @@ void HBM_Controller_IP(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
     }
 }
 
-void HBM_Controller_IP_with_4_HBMs(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
+void HBM_Controller_IP_with_4_HBMs(
+        int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
 
-                       int *HBM_Controller_Full,
-                       Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid) {
+        int *HBM_Controller_Full,
+        Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid) {
     static int rd_hbm_edge_addr[PSEUDO_CHANNEL_NUM], rd_hbm_edge_valid[PSEUDO_CHANNEL_NUM];
     static int rd_hbm_channel[PSEUDO_CHANNEL_NUM];
     static queue<uint64_t> transaction_addr_buffer[PSEUDO_CHANNEL_NUM];
@@ -580,10 +582,11 @@ void HBM_Controller_IP_with_4_HBMs(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid
 
 
 
-void HBM_Controller_IP_without_HBM(int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
+void HBM_Controller_IP(
+        int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
 
-                       int *HBM_Controller_Full,
-                       Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid) {
+        int *HBM_Controller_Full,
+        Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid) {
     for(int Channel_ID = 0; Channel_ID < PSEUDO_CHANNEL_NUM; ++ Channel_ID) {
         if (rst_rd) {
             HBM_Controller_Full[Channel_ID] = 0;

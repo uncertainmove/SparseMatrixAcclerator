@@ -1,23 +1,29 @@
-#include "Accelerator.h"
-// #include "MEM.h"
-#define STORE_DATA 0
+#include "accelerator.h"
+#include "parameter.h"
 
 using namespace std;
 
+extern V_VALUE_TP DELTA1_BRAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
+extern V_VALUE_TP DELTA2_BRAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
 extern int Offset_URAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1][2];
-extern vector<int> Edge_MEM[PSEUDO_CHANNEL_NUM];
-// extern int Edge_MEM[PSEUDO_CHANNEL_NUM][MAX_EDGE_ADDR];
-extern BRAM vtx_bram;
-extern BRAM edge_bram;
-extern int Csr_Offset[MAX_VERTEX_NUM + 1];
-extern vector<int> Ori_Edge_MEM;
-extern int VTX_NUM;
-extern int EDGE_NUM;
-extern int VERTEX_DEGREE[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
-extern bitmap Init_Bitmap[CORE_NUM][BitMap_Compressed_NUM + 1];
+extern V_VALUE_TP PR_URAM[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1][2];
+extern int VTX_NUM, EDGE_NUM;
+
+int Csr_Offset[MAX_VERTEX_NUM + 1];
+vector<int> Ori_Edge_MEM;
+vector<int> Edge_MEM[PSEUDO_CHANNEL_NUM];
+
+int VERTEX_DEGREE[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
 
 vector<pair<int, int>> no_self_edge_vec;
 vector<int> edge_sort_degree;
+
+int ori_pr(vector<V_VALUE_TP>& pr_res) {
+    return 0;
+}
+
+void Validation_Vertex_bram(int root_id) {
+}
 
 void Initialize_Input_Graph(char *off_file, char *edge_file) {
     ifstream in_off,in_list;
@@ -50,10 +56,12 @@ void Initialize_Input_Graph(char *off_file, char *edge_file) {
         for (int off = Csr_Offset[vid]; off < Csr_Offset[vid + 1]; off++) {
             int dst_id = 0;
             in_list >> dst_id;
+            /*
             if (vid == dst_id) {
                 delete_edge++;
                 continue; // skip self-edge
             }
+            */
             no_self_edge_vec.push_back(pair<int, int>(vid, dst_id));
         }
     }
@@ -107,10 +115,6 @@ void Initialize_Input_Graph(char *off_file, char *edge_file) {
 }
 
 void Initialize_Offset_Uram(int V_Num) {
-    // for (int i = 0; i < V_Num; i++) {
-    //     Offset_URAM[i % CORE_NUM][i / CORE_NUM][0] = Csr_Offset[i];
-    //     Offset_URAM[i % CORE_NUM][i / CORE_NUM][1] = Csr_Offset[i + 1] - 1;
-    // }
     for (int i = 0; i < V_Num; i++) {
         if (i % GROUP_CORE_NUM == 0 && i / CORE_NUM == 0) {
             Offset_URAM[i % CORE_NUM][i / CORE_NUM][0] = 0;
@@ -126,57 +130,28 @@ void Initialize_Offset_Uram(int V_Num) {
     printf("Initialize Offset Complete\n");
 }
 
-void Initialize_Vertex_bram(int root_id){
-    for(int i = 0 ; i<CORE_NUM ; i++){
-        for(int j = 0 ; j<vtx_bram.len ; j++){
-            vtx_bram.bram[i][j] = -1;
+void Initialize_Delta_Bram(){
+    for(int i = 0; i < CORE_NUM; i++){
+        for(int j = 0; j < MAX_VERTEX_NUM / CORE_NUM + 1; j++){
+            DELTA1_BRAM[i][j] = ONE_OVER_N;
+            DELTA2_BRAM[i][j] = ADDED_CONST - ONE_OVER_N;
         }
     }
-    vtx_bram.bram[root_id%CORE_NUM][root_id/CORE_NUM] = 0;
-    printf("Initialize Bram Complete\n");
+    printf("Initialize Delta Bram Complete\n");
 }
 
-void Initialize_Edge_bram(int V_Num) {
-    for(int i = 0 ; i<CORE_NUM; i++){
-        for(int j = 0 ; j<MAX_VERTEX_NUM / CORE_NUM + 1; j++){
-            VERTEX_DEGREE[i][j] = 0;
+void Initialize_PR_Uram(){
+    for(int i = 0; i < CORE_NUM; i++){
+        for(int j = 0; j < MAX_VERTEX_NUM / CORE_NUM + 1; j++){
+            PR_URAM[i][j][0] = ADDED_CONST;
         }
     }
-    for (int i = 0; i < V_Num; i++) {
-        int Loff = Offset_URAM[i % CORE_NUM][i / CORE_NUM][0], Roff = Offset_URAM[i % CORE_NUM][i / CORE_NUM][1];
-        if (Loff == Roff) {
-            edge_bram.bram[i % CORE_NUM][i / CORE_NUM] = -1;
-        } else {
-            int max_edge = Edge_MEM[i % CORE_NUM / GROUP_CORE_NUM][Loff];
-            int max_degree = VERTEX_DEGREE[max_edge % CORE_NUM][max_edge / CORE_NUM];
-            for (int j = Loff; j < Roff; j++) {
-                int edge = Edge_MEM[i % CORE_NUM / GROUP_CORE_NUM][j];
-                if (VERTEX_DEGREE[edge % CORE_NUM][edge / CORE_NUM] > max_degree) {
-                    max_edge = edge;
-                    max_degree = VERTEX_DEGREE[edge % CORE_NUM][edge / CORE_NUM];
-                }
-            }
-            edge_bram.bram[i % CORE_NUM][i / CORE_NUM] = max_edge;
-        }
-    }
-    printf("\033[32m[INFO]\033[m Initialize Edge Bram Complete\n");
-    return;
+    printf("Initialize PR Uram Complete\n");
 }
 
-void Initialize_VERTEX_DEGREE(int V_Num) {
+void Initialize_Vertex_Degree(int V_Num) {
     for (int i = 0; i < V_Num; i++) {
         int Loff = Offset_URAM[i % CORE_NUM][i / CORE_NUM][0], Roff = Offset_URAM[i % CORE_NUM][i / CORE_NUM][1];
         VERTEX_DEGREE[i % CORE_NUM][i / CORE_NUM] = Roff - Loff;
-    }
-}
-
-void Initialize_Bitmap(int root_id, int V_Num) {
-    // for (int i = 0; i < 1024 * 1024; i++) {
-    for (int i = 0; i < 96*343*32; i++) {
-        if (i < V_Num && i != root_id && VERTEX_DEGREE[i % CORE_NUM][i / CORE_NUM]) {
-            Init_Bitmap[i % CORE_NUM][(i / CORE_NUM) / BitMap_Compressed_Length].v[(i / CORE_NUM) % BitMap_Compressed_Length] = 0;
-        } else {
-            Init_Bitmap[i % CORE_NUM][(i / CORE_NUM) / BitMap_Compressed_Length].v[(i / CORE_NUM) % BitMap_Compressed_Length] = 1;
-        }
     }
 }
