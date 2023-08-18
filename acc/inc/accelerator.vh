@@ -1,0 +1,63 @@
+/*********************************************
+* do not change
+**********************************************/
+`define HBM_AWIDTH      32
+`define HBM_DWIDTH      512
+`define HBM_EDGE_MASK   16
+`define CACHELINE_LEN   16
+`define CACHELINE_LEN_WIDTH 4
+`define BITMAP_COMPRESSED_LENGTH    32
+`define BITMAP_COMPRESSED_LENGTH_WIDTH  5
+
+/*********************************************
+* change vtx_num and edge_num to check different graph
+*********************************************/
+`define VTX_NUM         1048576
+`define VTX_NUM_WIDTH   20
+`define EDGE_NUM        31400738
+`define EDGE_NUM_WIDTH  25
+
+/*********************************************
+* change core_num and channel_num and bitmap_compressed_num to do simulation
+**********************************************/
+`define CORE_NUM        64
+`define CORE_NUM_WIDTH  6
+`define PSEUDO_CHANNEL_NUM  4
+`define BITMAP_COMPRESSED_NUM       VTX_NUM / (CORE_NUM * BITMAP_COMPRESSED_LENGTH) + 1 // 513
+`define BITMAP_COMPRESSED_NUM_WIDTH 10
+
+/*************************************************
+* do not change
+*************************************************/
+`define DAMPING             32'h3f59999a
+`define ONE_OVER_N          32'h35800000
+`define E1                  32'h33d6df95
+`define E2                  32'h3c23d70a
+`define ADDED_CONST         32'h3419999a
+
+`define ITERATION_WIDTH     4
+`define V_ID_WIDTH          `VTX_NUM_WIDTH
+`define V_VALUE_WIDTH       32 // half float
+`define V_OFF_AWIDTH        (`VTX_NUM_WIDTH - `CORE_NUM_WIDTH + 1)
+`define V_OFF_DWIDTH        `EDGE_NUM_WIDTH
+
+`define GROUP_CORE_NUM          16
+`define GROUP_CORE_NUM_WIDTH    4
+`define HBM_DWIDTH_PER_CORE     (`HBM_DWIDTH / `GROUP_CORE_NUM)
+
+`define DELTA_BRAM_AWIDTH       `V_OFF_AWIDTH
+`define DELTA_BRAM_DWIDTH       (`V_VALUE_WIDTH + `ITERATION_WIDTH)
+`define PR_URAM_AWIDTH          `V_OFF_AWIDTH
+`define PR_URAM_DWIDTH          32
+
+`define HPX_ROW_NUM    `PSEUDO_CHANNEL_NUM // row
+`define HPX_ROW_NUM_WIDTH 2
+`define HPX_COLUMN_NUM  `GROUP_CORE_NUM // col
+`define HPX_COLUMN_NUM_WIDTH 4
+
+`define FIFO_SIZE           16
+`define FIFO_SIZE_WIDTH     4
+`define HPX_FIFO_SIZE       16
+`define HPX_FIFO_SIZE_WIDTH 4
+
+`define MAX_ITERATION_NUM 14

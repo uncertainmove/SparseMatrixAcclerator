@@ -1,0 +1,492 @@
+//
+// Created by test on 2023/5/22.
+//
+#include "Accelerator.h"
+#if DEBUG
+#include "debug.h"
+    debug_HyperX_Network debug_M8;
+#endif
+
+extern int clk;
+extern int rst_rd;
+
+using namespace std;
+
+
+void HyperX_Network_1_Single_P(int X_ID, int Y_ID, int CORE_ID,
+                            int Push_Flag_In, int V_ID_In, int V_Value_In, int Pull_First_Flag_In, int V_Valid_In, int Iteration_End_In, int Iteration_End_DValid_In,
+                            int Push_Flag_Hor, int V_ID_In_Hor, int V_Value_In_Hor, int Pull_First_Flag_Hor, int V_Valid_In_Hor, int Hor_select,
+                            int Push_Flag_Ver, int V_ID_In_Ver, int V_Value_In_Ver, int Pull_First_Flag_Ver, int V_Valid_In_Ver, int Ver_select,
+                            int Next_Stage_Full_In,
+
+                            int *Stage_Full_In, int *Stage_Full_Hor, int *Stage_Full_Ver, int *Size_In, int *Size_Hor,
+                            int *Hy1_Push_Flag_Out, int *Hy1_V_ID_Out, int *Hy1_V_Value_Out, int *Hy1_Pull_First_Flag, int *Hy1_V_Valid_Out, int *Hy1_Iteration_End_Out, int *Hy1_Iteration_End_DValid_Out,
+                            int *Hy1_Push_Flag_Out_Hor, int *Hy1_V_ID_Out_Hor, int *Hy1_V_Value_Out_Hor, int *Hy1_Pull_First_Flag_Hor, int *Hy1_V_Valid_Out_Hor,
+                            int *Hy1_Push_Flag_Out_Ver, int *Hy1_V_ID_Out_Ver, int *Hy1_V_Value_Out_Ver, int *Hy1_Pull_First_Flag_Ver, int *Hy1_V_Valid_Out_Ver);
+
+void HyperX_Network_2_Single_P(int X_ID, int Y_ID, int CORE_ID,
+                             int Push_Flag_In, int V_ID_In, int V_Value_In, int Pull_First_Flag_In, int V_Valid_In, int Iteration_End_In, int Iteration_End_DValid_In,
+                             int Push_Flag_Hor, int V_ID_In_Hor, int V_Value_In_Hor, int Pull_First_Flag_Hor, int V_Valid_In_Hor, int Hor_select,
+                             int Push_Flag_Ver, int V_ID_In_Ver, int V_Value_In_Ver, int Pull_First_Flag_Ver, int V_Valid_In_Ver, int Ver_select,
+                             int Next_Stage_Full_In,
+
+                             int *Stage_Full_In, int *Stage_Full_Hor, int *Stage_Full_Ver, int *Size_In, int *Size_Hor,
+                             int *Hy2_Push_Flag_Out, int *Hy2_V_ID_Out, int *Hy2_V_Value_Out, int *Hy2_Pull_First_Flag, int *Hy2_V_Valid_Out, int *Hy2_Iteration_End_Out, int *Hy2_Iteration_End_DValid_Out,
+                             int *Hy2_Push_Flag_Out_Hor, int *Hy2_V_ID_Out_Hor, int *Hy2_V_Value_Out_Hor, int *Hy2_Pull_First_Flag_Hor, int *Hy2_V_Valid_Out_Hor,
+                             int *Hy2_Push_Flag_Out_Ver, int *Hy2_V_ID_Out_Ver, int *Hy2_V_Value_Out_Ver, int *Hy2_Pull_First_Flag_Ver, int *Hy2_V_Valid_Out_Ver);
+
+
+void HyperX_Network_P(int Hy1_Front_Push_Flag[], int Hy1_Front_Update_V_ID[], int Hy1_Front_Update_V_Value[], int Hy1_Front_Pull_First_Flag[], int Hy1_Front_Update_V_DValid[], int Hy1_Front_Iteration_End[], int Hy1_Front_Iteration_End_DValid[],
+                   int Hy2_Front_Push_Flag[], int Hy2_Front_Update_V_ID[], int Hy2_Front_Update_V_Value[], int Hy2_Front_Pull_First_Flag[], int Hy2_Front_Update_V_DValid[], int Hy2_Front_Iteration_End[], int Hy2_Front_Iteration_End_DValid[],
+                   int Source_Core_Full[],
+
+                   int *Stage_Full_Hy1, int *Stage_Full_Hy2,
+                   int *Hy1_Push_Flag, int *Hy1_Update_V_ID, int *Hy1_Update_V_Value, int *Hy1_Pull_First_Flag, int *Hy1_Update_V_DValid, int *Hy1_Iteration_End, int *Hy1_Iteration_End_DValid,
+                   int *Hy2_Push_Flag, int *Hy2_Update_V_ID, int *Hy2_Update_V_Value, int *Hy2_Pull_First_Flag, int *Hy2_Update_V_DValid, int *Hy2_Iteration_End, int *Hy2_Iteration_End_DValid) {
+
+    static int tmp_Hy1_push_flag_hor[CORE_NUM], tmp_Hy1_v_id_hor[CORE_NUM], tmp_Hy1_v_value_hor[CORE_NUM], tmp_Hy1_pull_first_flag_hor[CORE_NUM], tmp_Hy1_v_valid_hor[CORE_NUM], tmp_Hy1_full_hor[CORE_NUM];
+    static int tmp_Hy1_push_flag_ver[CORE_NUM], tmp_Hy1_v_id_ver[CORE_NUM], tmp_Hy1_v_value_ver[CORE_NUM], tmp_Hy1_pull_first_flag_ver[CORE_NUM], tmp_Hy1_v_valid_ver[CORE_NUM], tmp_Hy1_full_ver[CORE_NUM];
+    static int Hy1_push_flag_hor[CORE_NUM], Hy1_v_id_hor[CORE_NUM], Hy1_v_value_hor[CORE_NUM], Hy1_pull_first_flag_hor[CORE_NUM], Hy1_v_valid_hor[CORE_NUM], Hy1_hor_select[CORE_NUM];
+    static int Hy1_push_flag_ver[CORE_NUM], Hy1_v_id_ver[CORE_NUM], Hy1_v_value_ver[CORE_NUM], Hy1_pull_first_flag_ver[CORE_NUM], Hy1_v_valid_ver[CORE_NUM], Hy1_ver_select[CORE_NUM];
+
+    static int tmp_Hy2_push_flag_hor[CORE_NUM], tmp_Hy2_v_id_hor[CORE_NUM], tmp_Hy2_v_value_hor[CORE_NUM], tmp_Hy2_pull_first_flag_hor[CORE_NUM], tmp_Hy2_v_valid_hor[CORE_NUM], tmp_Hy2_full_hor[CORE_NUM];
+    static int tmp_Hy2_push_flag_ver[CORE_NUM], tmp_Hy2_v_id_ver[CORE_NUM], tmp_Hy2_v_value_ver[CORE_NUM], tmp_Hy2_pull_first_flag_ver[CORE_NUM], tmp_Hy2_v_valid_ver[CORE_NUM], tmp_Hy2_full_ver[CORE_NUM];
+    static int Hy2_push_flag_hor[CORE_NUM], Hy2_v_id_hor[CORE_NUM], Hy2_v_value_hor[CORE_NUM], Hy2_pull_first_flag_hor[CORE_NUM], Hy2_v_valid_hor[CORE_NUM], Hy2_hor_select[CORE_NUM];
+    static int Hy2_push_flag_ver[CORE_NUM], Hy2_v_id_ver[CORE_NUM], Hy2_v_value_ver[CORE_NUM], Hy2_pull_first_flag_ver[CORE_NUM], Hy2_v_valid_ver[CORE_NUM], Hy2_ver_select[CORE_NUM];
+    
+    static int tmp_Hy1_in_size[CORE_NUM], tmp_Hy1_hor_size[CORE_NUM], tmp_Hy2_in_size[CORE_NUM], tmp_Hy2_hor_size[CORE_NUM];
+
+// 动态优先级仲裁
+    for( int i = 0; i < VERTICAL_NUM; ++ i){
+        for( int j = 0; j < HORIZONTAL_NUM; ++ j) {
+            Hy1_hor_select[i*HORIZONTAL_NUM+j] = 0;
+        }
+        for( int j = 0; j < HORIZONTAL_NUM; ++ j) {
+            int k = 0;
+            bool flag = false;
+            while(!tmp_Hy1_full_hor[i*HORIZONTAL_NUM+j] && k<HORIZONTAL_NUM){
+                if(tmp_Hy1_v_valid_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM]){
+                    if(tmp_Hy1_v_id_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM]%HORIZONTAL_NUM==j && tmp_Hy1_push_flag_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM]){
+                        flag = true;
+                        break;
+                    }
+                    else if(tmp_Hy1_v_value_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM]%HORIZONTAL_NUM==j && !tmp_Hy1_push_flag_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM]){
+                        flag = true;
+                        break;
+                    }
+                }
+                k++;
+            }
+            if(flag){
+                Hy1_push_flag_hor[i*HORIZONTAL_NUM+j] = tmp_Hy1_push_flag_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM];
+                Hy1_v_id_hor[i*HORIZONTAL_NUM+j] = tmp_Hy1_v_id_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM];
+                Hy1_v_value_hor[i*HORIZONTAL_NUM+j] = tmp_Hy1_v_value_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM];
+                Hy1_pull_first_flag_hor[i*HORIZONTAL_NUM+j] = tmp_Hy1_pull_first_flag_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM];
+                Hy1_v_valid_hor[i*HORIZONTAL_NUM+j] = 1;
+                Hy1_hor_select[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM] = 1;
+            }
+            else{
+                Hy1_push_flag_hor[i*HORIZONTAL_NUM+j] = 0;
+                Hy1_v_id_hor[i*HORIZONTAL_NUM+j] = 0;
+                Hy1_v_value_hor[i*HORIZONTAL_NUM+j] = 0;
+                Hy1_pull_first_flag_hor[i*HORIZONTAL_NUM+j] = 0;
+                Hy1_v_valid_hor[i*HORIZONTAL_NUM+j] = 0;
+            }
+        }
+    }
+    for( int i = 0; i < HORIZONTAL_NUM; ++ i){
+        for( int j = 0; j < VERTICAL_NUM; ++ j) {
+            Hy1_ver_select[i*VERTICAL_NUM+j] = 0;
+        }
+        for( int j = 0; j < VERTICAL_NUM; ++ j) {
+            int k = 0;
+            bool flag = false;
+            while(!tmp_Hy1_full_ver[i*VERTICAL_NUM+j] && k<VERTICAL_NUM){
+                if(tmp_Hy1_v_valid_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM]){
+                    if(tmp_Hy1_v_id_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM]%CORE_NUM/HORIZONTAL_NUM==j && tmp_Hy1_push_flag_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM]){
+                        flag = true;
+                        break;
+                    }
+                    else if(tmp_Hy1_v_value_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM]%CORE_NUM/HORIZONTAL_NUM==j && !tmp_Hy1_push_flag_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM]){
+                        flag = true;
+                        break;
+                    }
+                }
+                k++;
+            }
+            if(flag){
+                Hy1_push_flag_ver[i*VERTICAL_NUM+j] = tmp_Hy1_push_flag_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM];
+                Hy1_v_id_ver[i*VERTICAL_NUM+j] = tmp_Hy1_v_id_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM];
+                Hy1_v_value_ver[i*VERTICAL_NUM+j] = tmp_Hy1_v_value_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM];
+                Hy1_pull_first_flag_ver[i*VERTICAL_NUM+j] = tmp_Hy1_pull_first_flag_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM];
+                Hy1_v_valid_ver[i*VERTICAL_NUM+j] = 1;
+                Hy1_ver_select[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM] = 1;
+            }
+            else{
+                Hy1_push_flag_ver[i*VERTICAL_NUM+j] = 0;
+                Hy1_v_id_ver[i*VERTICAL_NUM+j] = 0;
+                Hy1_v_value_ver[i*VERTICAL_NUM+j] = 0;
+                Hy1_pull_first_flag_ver[i*VERTICAL_NUM+j] = 0;
+                Hy1_v_valid_ver[i*VERTICAL_NUM+j] = 0;
+            }
+        }
+    }
+
+
+    for( int i = 0; i < VERTICAL_NUM; ++ i){
+        for( int j = 0; j < HORIZONTAL_NUM; ++ j) {
+            Hy2_hor_select[i*HORIZONTAL_NUM+j] = 0;
+        }
+        for( int j = 0; j < HORIZONTAL_NUM; ++ j) {
+            int k = 0;
+            bool flag = false;
+            while(!tmp_Hy2_full_hor[i*HORIZONTAL_NUM+j] && k<HORIZONTAL_NUM){
+                if(tmp_Hy2_v_id_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM]%HORIZONTAL_NUM==j && tmp_Hy2_v_valid_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM]){
+                    flag = true;
+                    break;
+                }
+                k++;
+            }
+            if(flag){
+                Hy2_push_flag_hor[i*HORIZONTAL_NUM+j] = tmp_Hy2_push_flag_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM];
+                Hy2_v_id_hor[i*HORIZONTAL_NUM+j] = tmp_Hy2_v_id_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM];
+                Hy2_v_value_hor[i*HORIZONTAL_NUM+j] = tmp_Hy2_v_value_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM];
+                Hy2_pull_first_flag_hor[i*HORIZONTAL_NUM+j] = tmp_Hy2_pull_first_flag_hor[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM];
+                Hy2_v_valid_hor[i*HORIZONTAL_NUM+j] = 1;
+                Hy2_hor_select[i*HORIZONTAL_NUM+(k+clk)%HORIZONTAL_NUM] = 1;
+            }
+            else{
+                Hy2_push_flag_hor[i*HORIZONTAL_NUM+j] = 0;
+                Hy2_v_id_hor[i*HORIZONTAL_NUM+j] = 0;
+                Hy2_v_value_hor[i*HORIZONTAL_NUM+j] = 0;
+                Hy2_pull_first_flag_hor[i*HORIZONTAL_NUM+j] = 0;
+                Hy2_v_valid_hor[i*HORIZONTAL_NUM+j] = 0;
+            }
+        }
+    }
+    for( int i = 0; i < HORIZONTAL_NUM; ++ i){
+        for( int j = 0; j < VERTICAL_NUM; ++ j) {
+            Hy2_ver_select[i*VERTICAL_NUM+j] = 0;
+        }
+        for( int j = 0; j < VERTICAL_NUM; ++ j) {
+            int k = 0;
+            bool flag = false;
+            while(!tmp_Hy2_full_ver[i*VERTICAL_NUM+j] && k<VERTICAL_NUM){
+                if(tmp_Hy2_v_id_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM]%CORE_NUM/HORIZONTAL_NUM==j && tmp_Hy2_v_valid_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM]){
+                    flag = true;
+                    break;
+                }
+                k++;
+            }
+            if(flag){
+                Hy2_push_flag_ver[i*VERTICAL_NUM+j] = tmp_Hy2_push_flag_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM];
+                Hy2_v_id_ver[i*VERTICAL_NUM+j] = tmp_Hy2_v_id_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM];
+                Hy2_v_value_ver[i*VERTICAL_NUM+j] = tmp_Hy2_v_value_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM];
+                Hy2_pull_first_flag_ver[i*VERTICAL_NUM+j] = tmp_Hy2_pull_first_flag_ver[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM];
+                Hy2_v_valid_ver[i*VERTICAL_NUM+j] = 1;
+                Hy2_ver_select[i*VERTICAL_NUM+(k+clk)%VERTICAL_NUM] = 1;
+            }
+            else{
+                Hy2_push_flag_ver[i*VERTICAL_NUM+j] = 0;
+                Hy2_v_id_ver[i*VERTICAL_NUM+j] = 0;
+                Hy2_v_value_ver[i*VERTICAL_NUM+j] = 0;
+                Hy2_pull_first_flag_ver[i*VERTICAL_NUM+j] = 0;
+                Hy2_v_valid_ver[i*VERTICAL_NUM+j] = 0;
+            }
+        }
+    }
+
+    for (int i = 0; i < CORE_NUM; ++ i) {
+        HyperX_Network_1_Single_P(i%HORIZONTAL_NUM, i/HORIZONTAL_NUM, i,
+                                  Hy1_Front_Push_Flag[i], Hy1_Front_Update_V_ID[i], Hy1_Front_Update_V_Value[i], Hy1_Front_Pull_First_Flag[i], Hy1_Front_Update_V_DValid[i], Hy1_Front_Iteration_End[i], Hy1_Front_Iteration_End_DValid[i],
+                                  Hy1_push_flag_hor[i], Hy1_v_id_hor[i], Hy1_v_value_hor[i], Hy1_pull_first_flag_hor[i], Hy1_v_valid_hor[i], Hy1_hor_select[i],
+                                  Hy1_push_flag_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy1_v_id_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy1_v_value_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy1_pull_first_flag_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy1_v_valid_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy1_ver_select[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)],
+                                  Source_Core_Full[i],
+
+                                  &Stage_Full_Hy1[i], &tmp_Hy1_full_hor[i], &tmp_Hy1_full_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy1_in_size[i], &tmp_Hy1_hor_size[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)],
+                                  &Hy1_Push_Flag[i], &Hy1_Update_V_ID[i], &Hy1_Update_V_Value[i], &Hy1_Pull_First_Flag[i], &Hy1_Update_V_DValid[i], &Hy1_Iteration_End[i], &Hy1_Iteration_End_DValid[i],
+                                  &tmp_Hy1_push_flag_hor[i], &tmp_Hy1_v_id_hor[i], &tmp_Hy1_v_value_hor[i], &tmp_Hy1_pull_first_flag_hor[i], &tmp_Hy1_v_valid_hor[i],
+                                  &tmp_Hy1_push_flag_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy1_v_id_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy1_v_value_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy1_pull_first_flag_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy1_v_valid_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)]);
+
+        HyperX_Network_2_Single_P(i%HORIZONTAL_NUM, i/HORIZONTAL_NUM, i,
+                                  Hy2_Front_Push_Flag[i], Hy2_Front_Update_V_ID[i], Hy2_Front_Update_V_Value[i], Hy2_Front_Pull_First_Flag[i], Hy2_Front_Update_V_DValid[i], Hy2_Front_Iteration_End[i], Hy2_Front_Iteration_End_DValid[i],
+                                  Hy2_push_flag_hor[i], Hy2_v_id_hor[i], Hy2_v_value_hor[i], Hy2_pull_first_flag_hor[i], Hy2_v_valid_hor[i], Hy2_hor_select[i],
+                                  Hy2_push_flag_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy2_v_id_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy2_v_value_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy2_pull_first_flag_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy2_v_valid_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], Hy2_ver_select[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)],
+                                  Source_Core_Full[i],
+
+                                  &Stage_Full_Hy2[i], &tmp_Hy2_full_hor[i], &tmp_Hy2_full_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy2_in_size[i], &tmp_Hy2_hor_size[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)],
+                                  &Hy2_Push_Flag[i], &Hy2_Update_V_ID[i], &Hy2_Update_V_Value[i], &Hy2_Pull_First_Flag[i], &Hy2_Update_V_DValid[i], &Hy2_Iteration_End[i], &Hy2_Iteration_End_DValid[i],
+                                  &tmp_Hy2_push_flag_hor[i], &tmp_Hy2_v_id_hor[i], &tmp_Hy2_v_value_hor[i], &tmp_Hy2_pull_first_flag_hor[i], &tmp_Hy2_v_valid_hor[i],
+                                  &tmp_Hy2_push_flag_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy2_v_id_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy2_v_value_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy2_pull_first_flag_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)], &tmp_Hy2_v_valid_ver[((i%HORIZONTAL_NUM)*VERTICAL_NUM+i/HORIZONTAL_NUM)]);
+    }
+
+}
+
+// fifo
+ void HyperX_Network_1_Single_P(int X_ID, int Y_ID, int CORE_ID,
+                               int Push_Flag_In, int V_ID_In, int V_Value_In, int Pull_First_Flag_In, int V_Valid_In, int Iteration_End_In, int Iteration_End_DValid_In,
+                               int Push_Flag_Hor, int V_ID_In_Hor, int V_Value_In_Hor, int Pull_First_Flag_Hor, int V_Valid_In_Hor, int Hor_select,
+                               int Push_Flag_Ver, int V_ID_In_Ver, int V_Value_In_Ver, int Pull_First_Flag_Ver, int V_Valid_In_Ver, int Ver_select,
+                               int Next_Stage_Full_In,
+
+                               int *Stage_Full_In, int *Stage_Full_Hor, int *Stage_Full_Ver, int *Size_In, int *Size_Hor,
+                               int *Hy1_Push_Flag_Out, int *Hy1_V_ID_Out, int *Hy1_V_Value_Out, int *Hy1_Pull_First_Flag, int *Hy1_V_Valid_Out, int *Hy1_Iteration_End_Out, int *Hy1_Iteration_End_DValid_Out,
+                               int *Hy1_Push_Flag_Out_Hor, int *Hy1_V_ID_Out_Hor, int *Hy1_V_Value_Out_Hor, int *Hy1_Pull_First_Flag_Hor, int *Hy1_V_Valid_Out_Hor,
+                               int *Hy1_Push_Flag_Out_Ver, int *Hy1_V_ID_Out_Ver, int *Hy1_V_Value_Out_Ver, int *Hy1_Pull_First_Flag_Ver, int *Hy1_V_Valid_Out_Ver){
+    static queue<int> push_flag_buffer_in[CORE_NUM], id_buffer_in[CORE_NUM], value_buffer_in[CORE_NUM], pull_first_flag_buffer_in[CORE_NUM];
+    static queue<int> push_flag_buffer_hor[CORE_NUM], id_buffer_hor[CORE_NUM], value_buffer_hor[CORE_NUM], pull_first_flag_buffer_hor[CORE_NUM];
+    static queue<int> push_flag_buffer_ver[CORE_NUM], id_buffer_ver[CORE_NUM], value_buffer_ver[CORE_NUM], pull_first_flag_buffer_ver[CORE_NUM];
+    static int buffer_empty_in[CORE_NUM], buffer_empty_hor[CORE_NUM], buffer_empty_ver[CORE_NUM];
+    static int buffer_full_in[CORE_NUM], buffer_full_hor[CORE_NUM], buffer_full_ver[CORE_NUM];
+
+    if(Hor_select){
+        push_flag_buffer_in[CORE_ID].pop();
+        id_buffer_in[CORE_ID].pop();
+        value_buffer_in[CORE_ID].pop();
+        pull_first_flag_buffer_in[CORE_ID].pop();
+    }
+    if(Ver_select){
+        push_flag_buffer_hor[CORE_ID].pop();
+        id_buffer_hor[CORE_ID].pop();
+        value_buffer_hor[CORE_ID].pop();
+        pull_first_flag_buffer_hor[CORE_ID].pop();
+    }
+
+    buffer_empty_in[CORE_ID] = id_buffer_in[CORE_ID].empty();
+    buffer_empty_hor[CORE_ID] = id_buffer_hor[CORE_ID].empty();
+    buffer_empty_ver[CORE_ID] = id_buffer_ver[CORE_ID].empty();
+
+    buffer_full_in[CORE_ID] = id_buffer_in[CORE_ID].size() >= 16;
+    buffer_full_hor[CORE_ID] = id_buffer_hor[CORE_ID].size() >= 16;
+    buffer_full_ver[CORE_ID] = id_buffer_ver[CORE_ID].size() >= 16;
+
+    *Stage_Full_In = buffer_full_in[CORE_ID];
+    *Stage_Full_Hor = buffer_full_hor[CORE_ID];
+    *Stage_Full_Ver = buffer_full_ver[CORE_ID];
+    *Size_In = id_buffer_in[CORE_ID].size();
+    *Size_Hor = id_buffer_hor[CORE_ID].size();
+
+    bool ver_out, in_hor, hor_ver;
+
+    ver_out = !buffer_empty_ver[CORE_ID] && !Next_Stage_Full_In; //&& id_buffer_ver[CORE_ID].front()%CORE_NUM == CORE_ID;
+    in_hor = !buffer_empty_in[CORE_ID]; //&& id_buffer_in[CORE_ID].front()%HORIZONTAL_NUM != X_ID;
+    hor_ver = !buffer_empty_hor[CORE_ID]; //&& id_buffer_hor[CORE_ID].front()%CORE_NUM/HORIZONTAL_NUM != Y_ID;
+
+    *Hy1_Push_Flag_Out_Hor = in_hor ? push_flag_buffer_in[CORE_ID].front() : 0;
+    *Hy1_V_ID_Out_Hor = in_hor ? id_buffer_in[CORE_ID].front() : 0;
+    *Hy1_V_Value_Out_Hor = in_hor ? value_buffer_in[CORE_ID].front() : 0;
+    *Hy1_Pull_First_Flag_Hor = in_hor ? pull_first_flag_buffer_in[CORE_ID].front() : 0;
+    *Hy1_V_Valid_Out_Hor = in_hor ? 1 : 0;
+
+    *Hy1_Push_Flag_Out_Ver = hor_ver ? push_flag_buffer_hor[CORE_ID].front() : 0;
+    *Hy1_V_ID_Out_Ver = hor_ver ? id_buffer_hor[CORE_ID].front() : 0;
+    *Hy1_V_Value_Out_Ver = hor_ver ? value_buffer_hor[CORE_ID].front() : 0;
+    *Hy1_Pull_First_Flag_Ver = hor_ver ? pull_first_flag_buffer_hor[CORE_ID].front() : 0;
+    *Hy1_V_Valid_Out_Ver = hor_ver ? 1 : 0;
+
+    if(rst_rd){
+        queue<int> emptyQueue;
+        if(!push_flag_buffer_in[CORE_ID].empty()) push_flag_buffer_in[CORE_ID].swap(emptyQueue);
+        if(!id_buffer_in[CORE_ID].empty()) id_buffer_in[CORE_ID].swap(emptyQueue);
+        if(!value_buffer_in[CORE_ID].empty()) value_buffer_in[CORE_ID].swap(emptyQueue);
+        if(!pull_first_flag_buffer_in[CORE_ID].empty()) pull_first_flag_buffer_in[CORE_ID].swap(emptyQueue);
+        if(!push_flag_buffer_hor[CORE_ID].empty()) push_flag_buffer_hor[CORE_ID].swap(emptyQueue);
+        if(!id_buffer_hor[CORE_ID].empty()) id_buffer_hor[CORE_ID].swap(emptyQueue);
+        if(!value_buffer_hor[CORE_ID].empty()) value_buffer_hor[CORE_ID].swap(emptyQueue);
+        if(!pull_first_flag_buffer_hor[CORE_ID].empty()) pull_first_flag_buffer_hor[CORE_ID].swap(emptyQueue);
+        if(!push_flag_buffer_ver[CORE_ID].empty()) push_flag_buffer_ver[CORE_ID].swap(emptyQueue);
+        if(!id_buffer_ver[CORE_ID].empty()) id_buffer_ver[CORE_ID].swap(emptyQueue);
+        if(!value_buffer_ver[CORE_ID].empty()) value_buffer_ver[CORE_ID].swap(emptyQueue);
+        if(!pull_first_flag_buffer_ver[CORE_ID].empty()) pull_first_flag_buffer_ver[CORE_ID].swap(emptyQueue);
+    }
+    else{
+        if(V_Valid_In){
+            push_flag_buffer_in[CORE_ID].push(Push_Flag_In);
+            id_buffer_in[CORE_ID].push(V_ID_In);
+            value_buffer_in[CORE_ID].push(V_Value_In);
+            pull_first_flag_buffer_in[CORE_ID].push(Pull_First_Flag_In);
+        }
+        if(V_Valid_In_Hor){
+            push_flag_buffer_hor[CORE_ID].push(Push_Flag_Hor);
+            id_buffer_hor[CORE_ID].push(V_ID_In_Hor);
+            value_buffer_hor[CORE_ID].push(V_Value_In_Hor);
+            pull_first_flag_buffer_hor[CORE_ID].push(Pull_First_Flag_Hor);
+        }
+        if(V_Valid_In_Ver){
+            push_flag_buffer_ver[CORE_ID].push(Push_Flag_Ver);
+            id_buffer_ver[CORE_ID].push(V_ID_In_Ver);
+            value_buffer_ver[CORE_ID].push(V_Value_In_Ver);
+            pull_first_flag_buffer_ver[CORE_ID].push(Pull_First_Flag_Ver);
+        }
+    }
+
+    if(rst_rd) {
+        *Hy1_Push_Flag_Out = 0;
+        *Hy1_V_ID_Out = 0;
+        *Hy1_V_Value_Out = 0;
+        *Hy1_Pull_First_Flag = 0;
+        *Hy1_V_Valid_Out = 0;
+    }
+    else if (ver_out) {
+        *Hy1_Push_Flag_Out = push_flag_buffer_ver[CORE_ID].front();
+        *Hy1_V_ID_Out = id_buffer_ver[CORE_ID].front();
+        *Hy1_V_Value_Out = value_buffer_ver[CORE_ID].front();
+        *Hy1_Pull_First_Flag = pull_first_flag_buffer_ver[CORE_ID].front();
+        *Hy1_V_Valid_Out = 1;
+
+        push_flag_buffer_ver[CORE_ID].pop();
+        id_buffer_ver[CORE_ID].pop();
+        value_buffer_ver[CORE_ID].pop();
+        pull_first_flag_buffer_ver[CORE_ID].pop();
+    }
+    else {
+        *Hy1_Push_Flag_Out = 0;
+        *Hy1_V_ID_Out = 0;
+        *Hy1_V_Value_Out = 0;
+        *Hy1_Pull_First_Flag = 0;
+        *Hy1_V_Valid_Out = 0;
+    }
+
+    if (buffer_empty_in[CORE_ID] && buffer_empty_hor[CORE_ID] && buffer_empty_ver[CORE_ID] && !V_Valid_In && !V_Valid_In_Hor && !V_Valid_In_Ver && Iteration_End_In && Iteration_End_DValid_In) {
+        *Hy1_Iteration_End_Out = 1;
+        *Hy1_Iteration_End_DValid_Out = 1;
+    }
+    else {
+        *Hy1_Iteration_End_Out = 0;
+        *Hy1_Iteration_End_DValid_Out = 0;
+    }
+
+}
+
+void HyperX_Network_2_Single_P(int X_ID, int Y_ID, int CORE_ID,
+                               int Push_Flag_In, int V_ID_In, int V_Value_In, int Pull_First_Flag_In, int V_Valid_In, int Iteration_End_In, int Iteration_End_DValid_In,
+                               int Push_Flag_Hor, int V_ID_In_Hor, int V_Value_In_Hor, int Pull_First_Flag_Hor, int V_Valid_In_Hor, int Hor_select,
+                               int Push_Flag_Ver, int V_ID_In_Ver, int V_Value_In_Ver, int Pull_First_Flag_Ver, int V_Valid_In_Ver, int Ver_select,
+                               int Next_Stage_Full_In,
+
+                               int *Stage_Full_In, int *Stage_Full_Hor, int *Stage_Full_Ver, int *Size_In, int *Size_Hor,
+                               int *Hy2_Push_Flag_Out, int *Hy2_V_ID_Out, int *Hy2_V_Value_Out, int *Hy2_Pull_First_Flag, int *Hy2_V_Valid_Out, int *Hy2_Iteration_End_Out, int *Hy2_Iteration_End_DValid_Out,
+                               int *Hy2_Push_Flag_Out_Hor, int *Hy2_V_ID_Out_Hor, int *Hy2_V_Value_Out_Hor, int *Hy2_Pull_First_Flag_Hor, int *Hy2_V_Valid_Out_Hor,
+                               int *Hy2_Push_Flag_Out_Ver, int *Hy2_V_ID_Out_Ver, int *Hy2_V_Value_Out_Ver, int *Hy2_Pull_First_Flag_Ver, int *Hy2_V_Valid_Out_Ver){
+    static queue<int> push_flag_buffer_in[CORE_NUM], id_buffer_in[CORE_NUM], value_buffer_in[CORE_NUM], pull_first_flag_buffer_in[CORE_NUM];
+    static queue<int> push_flag_buffer_hor[CORE_NUM], id_buffer_hor[CORE_NUM], value_buffer_hor[CORE_NUM], pull_first_flag_buffer_hor[CORE_NUM];
+    static queue<int> push_flag_buffer_ver[CORE_NUM], id_buffer_ver[CORE_NUM], value_buffer_ver[CORE_NUM], pull_first_flag_buffer_ver[CORE_NUM];
+    static int buffer_empty_in[CORE_NUM], buffer_empty_hor[CORE_NUM], buffer_empty_ver[CORE_NUM];
+    static int buffer_full_in[CORE_NUM], buffer_full_hor[CORE_NUM], buffer_full_ver[CORE_NUM];
+    if(Hor_select){
+        push_flag_buffer_in[CORE_ID].pop();
+        id_buffer_in[CORE_ID].pop();
+        value_buffer_in[CORE_ID].pop();
+        pull_first_flag_buffer_in[CORE_ID].pop();
+    }
+    if(Ver_select){
+        push_flag_buffer_hor[CORE_ID].pop();
+        id_buffer_hor[CORE_ID].pop();
+        value_buffer_hor[CORE_ID].pop();
+        pull_first_flag_buffer_hor[CORE_ID].pop();
+    }
+
+    buffer_empty_in[CORE_ID] = id_buffer_in[CORE_ID].empty();
+    buffer_empty_hor[CORE_ID] = id_buffer_hor[CORE_ID].empty();
+    buffer_empty_ver[CORE_ID] = id_buffer_ver[CORE_ID].empty();
+
+    buffer_full_in[CORE_ID] = id_buffer_in[CORE_ID].size() >= 16;
+    buffer_full_hor[CORE_ID] = id_buffer_hor[CORE_ID].size() >= 16;
+    buffer_full_ver[CORE_ID] = id_buffer_ver[CORE_ID].size() >= 16;
+
+    *Stage_Full_In = buffer_full_in[CORE_ID];
+    *Stage_Full_Hor = buffer_full_hor[CORE_ID];
+    *Stage_Full_Ver = buffer_full_ver[CORE_ID];
+    *Size_In = id_buffer_in[CORE_ID].size();
+    *Size_Hor = id_buffer_hor[CORE_ID].size();
+
+    bool ver_out, in_hor, hor_ver;
+
+    ver_out = !buffer_empty_ver[CORE_ID] && !Next_Stage_Full_In; //&& id_buffer_ver[CORE_ID].front()%CORE_NUM == CORE_ID;
+    in_hor = !buffer_empty_in[CORE_ID]; //&& id_buffer_in[CORE_ID].front()%HORIZONTAL_NUM != X_ID;
+    hor_ver = !buffer_empty_hor[CORE_ID]; //&& id_buffer_hor[CORE_ID].front()%CORE_NUM/HORIZONTAL_NUM != Y_ID;
+
+    *Hy2_Push_Flag_Out_Hor = in_hor ? push_flag_buffer_in[CORE_ID].front() : 0;
+    *Hy2_V_ID_Out_Hor = in_hor ? id_buffer_in[CORE_ID].front() : 0;
+    *Hy2_V_Value_Out_Hor = in_hor ? value_buffer_in[CORE_ID].front() : 0;
+    *Hy2_Pull_First_Flag_Hor = in_hor ? pull_first_flag_buffer_in[CORE_ID].front() : 0;
+    *Hy2_V_Valid_Out_Hor = in_hor ? 1 : 0;
+    *Hy2_Push_Flag_Out_Ver = hor_ver ? push_flag_buffer_hor[CORE_ID].front() : 0;
+    *Hy2_V_ID_Out_Ver = hor_ver ? id_buffer_hor[CORE_ID].front() : 0;
+    *Hy2_V_Value_Out_Ver = hor_ver ? value_buffer_hor[CORE_ID].front() : 0;
+    *Hy2_Pull_First_Flag_Ver = hor_ver ? pull_first_flag_buffer_hor[CORE_ID].front() : 0;
+    *Hy2_V_Valid_Out_Ver = hor_ver ? 1 : 0;
+
+    if(rst_rd){
+        queue<int> emptyQueue;
+        if(!push_flag_buffer_in[CORE_ID].empty()) push_flag_buffer_in[CORE_ID].swap(emptyQueue);
+        if(!id_buffer_in[CORE_ID].empty()) id_buffer_in[CORE_ID].swap(emptyQueue);
+        if(!value_buffer_in[CORE_ID].empty()) value_buffer_in[CORE_ID].swap(emptyQueue);
+        if(!pull_first_flag_buffer_in[CORE_ID].empty()) pull_first_flag_buffer_in[CORE_ID].swap(emptyQueue);
+        if(!push_flag_buffer_hor[CORE_ID].empty()) push_flag_buffer_hor[CORE_ID].swap(emptyQueue);
+        if(!id_buffer_hor[CORE_ID].empty()) id_buffer_hor[CORE_ID].swap(emptyQueue);
+        if(!value_buffer_hor[CORE_ID].empty()) value_buffer_hor[CORE_ID].swap(emptyQueue);
+        if(!pull_first_flag_buffer_hor[CORE_ID].empty()) pull_first_flag_buffer_hor[CORE_ID].swap(emptyQueue);
+        if(!push_flag_buffer_ver[CORE_ID].empty()) push_flag_buffer_ver[CORE_ID].swap(emptyQueue);
+        if(!id_buffer_ver[CORE_ID].empty()) id_buffer_ver[CORE_ID].swap(emptyQueue);
+        if(!value_buffer_ver[CORE_ID].empty()) value_buffer_ver[CORE_ID].swap(emptyQueue);
+        if(!pull_first_flag_buffer_ver[CORE_ID].empty()) pull_first_flag_buffer_ver[CORE_ID].swap(emptyQueue);
+    }
+    else{
+        if(V_Valid_In){
+            push_flag_buffer_in[CORE_ID].push(Push_Flag_In);
+            id_buffer_in[CORE_ID].push(V_ID_In);
+            value_buffer_in[CORE_ID].push(V_Value_In);
+            pull_first_flag_buffer_in[CORE_ID].push(Pull_First_Flag_In);
+        }
+        if(V_Valid_In_Hor){
+            push_flag_buffer_hor[CORE_ID].push(Push_Flag_Hor);
+            id_buffer_hor[CORE_ID].push(V_ID_In_Hor);
+            value_buffer_hor[CORE_ID].push(V_Value_In_Hor);
+            pull_first_flag_buffer_hor[CORE_ID].push(Pull_First_Flag_Hor);
+        }
+        if(V_Valid_In_Ver){
+            push_flag_buffer_ver[CORE_ID].push(Push_Flag_Ver);
+            id_buffer_ver[CORE_ID].push(V_ID_In_Ver);
+            value_buffer_ver[CORE_ID].push(V_Value_In_Ver);
+            pull_first_flag_buffer_ver[CORE_ID].push(Pull_First_Flag_Ver);
+        }
+    }
+
+    if(rst_rd) {
+        *Hy2_Push_Flag_Out = 0;
+        *Hy2_V_ID_Out = 0;
+        *Hy2_V_Value_Out = 0;
+        *Hy2_Pull_First_Flag = 0;
+        *Hy2_V_Valid_Out = 0;
+    }
+    else if (ver_out) {
+        *Hy2_Push_Flag_Out = push_flag_buffer_ver[CORE_ID].front();
+        *Hy2_V_ID_Out = id_buffer_ver[CORE_ID].front();
+        *Hy2_V_Value_Out = value_buffer_ver[CORE_ID].front();
+        *Hy2_Pull_First_Flag = pull_first_flag_buffer_ver[CORE_ID].front();
+        *Hy2_V_Valid_Out = 1;
+
+        push_flag_buffer_ver[CORE_ID].pop();
+        id_buffer_ver[CORE_ID].pop();
+        value_buffer_ver[CORE_ID].pop();
+        pull_first_flag_buffer_ver[CORE_ID].pop();
+    }
+    else {
+        *Hy2_Push_Flag_Out = 0;
+        *Hy2_V_ID_Out = 0;
+        *Hy2_V_Value_Out = 0;
+        *Hy2_Pull_First_Flag = 0;
+        *Hy2_V_Valid_Out = 0;
+    }
+
+    if (buffer_empty_in[CORE_ID] && buffer_empty_hor[CORE_ID] && buffer_empty_ver[CORE_ID] && !V_Valid_In && !V_Valid_In_Hor && !V_Valid_In_Ver && Iteration_End_In && Iteration_End_DValid_In) {
+        *Hy2_Iteration_End_Out = 1;
+        *Hy2_Iteration_End_DValid_Out = 1;
+    }
+    else {
+        *Hy2_Iteration_End_Out = 0;
+        *Hy2_Iteration_End_DValid_Out = 0;
+    }
+
+}

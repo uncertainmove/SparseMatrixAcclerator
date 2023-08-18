@@ -9,6 +9,13 @@
 
 using namespace std;
 
+#define DEBUG_MSG(t, msg) do {  \
+    if (t) {                    \
+        cout << msg << endl;    \
+        exit(-1);               \
+    }                           \
+} while (0)
+
 class debug_RD_ACTIVE_VERTEX {
 public:
     int *_iteration_id;
@@ -60,12 +67,12 @@ public:
 
 class debug_Noc {
 public:
-    queue<int> (*_vertical_v_id_buffer)[HPX_HORIZONTAL_NUM];
-    queue<V_VALUE_TP> (*_vertical_v_value_buffer)[HPX_HORIZONTAL_NUM];
-    queue<int> (*_horizontal_v_id_buffer)[HPX_HORIZONTAL_NUM];
-    queue<V_VALUE_TP> (*_horizontal_v_value_buffer)[HPX_HORIZONTAL_NUM];
-    queue<int> (*_v_id_buffer)[HPX_HORIZONTAL_NUM];
-    queue<V_VALUE_TP> (*_v_value_buffer)[HPX_HORIZONTAL_NUM];
+    queue<int> (*_column_v_id_buffer)[HPX_COLUMN_NUM];
+    queue<V_VALUE_TP> (*_column_v_value_buffer)[HPX_COLUMN_NUM];
+    queue<int> (*_row_v_id_buffer)[HPX_COLUMN_NUM];
+    queue<V_VALUE_TP> (*_row_v_value_buffer)[HPX_COLUMN_NUM];
+    queue<int> (*_v_id_buffer)[HPX_COLUMN_NUM];
+    queue<V_VALUE_TP> (*_v_value_buffer)[HPX_COLUMN_NUM];
 };
 
 class debug_Backend_Core_Process {

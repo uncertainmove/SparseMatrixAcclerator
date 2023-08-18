@@ -64,7 +64,6 @@ void RD_ACTIVE_VERTEX_SINGLE(
     ///local data structures. static int -> reg, int -> wire
     //control signal
     static int iteration_id[CORE_NUM];
-    static int init_bitmap_id[CORE_NUM];
     static int iteration_end[CORE_NUM];
 
     //pull mode: active vertex map, each element represents 32 vertices
@@ -78,7 +77,6 @@ void RD_ACTIVE_VERTEX_SINGLE(
 
     #if DEBUG
         debug_M1._iteration_id = iteration_id;
-        debug_M1._init_bitmap_id = init_bitmap_id;
         debug_M1._iteration_end = iteration_end;
         debug_M1._vis_bitmap = vis_bitmap;
         debug_M1._vis_bitmap_index = vis_bitmap_index;
@@ -113,7 +111,7 @@ void RD_ACTIVE_VERTEX_SINGLE(
     int active_vertex_bitmap = pull_active_bitmap[0];
 
     //Send active vertex to the next pipeline stage
-    if (rst_rd || init_bitmap_id[Core_ID] < BitMap_Compressed_NUM) {
+    if (rst_rd) {
 
         *Active_V_ID = 0;
         *Active_V_DValid = 0;
@@ -186,50 +184,41 @@ void RD_ACTIVE_VERTEX_SINGLE(
         vis_bitmap_now[Core_ID] = vis_bitmap[Core_ID][now_bitmap_id][0];
         vis_bitmap_index[Core_ID] = 0;
 
-        init_bitmap_id[Core_ID] = 0;
+        for (int i = 0; i < BitMap_Compressed_NUM; ++i) {
+            for (int j = 0; j < BitMap_Compressed_Length; ++j) {
+                vis_bitmap[Core_ID][now_bitmap_id][i].v[j] = 1;
+                vis_bitmap[Core_ID][next_bitmap_id][i].v[j] = 1;
+            }
+        }
     } else {
-        if (init_bitmap_id[Core_ID] < BitMap_Compressed_NUM) {
-            //initialize every element of the bitmap line selected in each cycle
-            for (int i = 0; i < BitMap_Compressed_Length; ++ i) {
-                vis_bitmap[Core_ID][now_bitmap_id][init_bitmap_id[Core_ID]].v[i] = 1;
-                vis_bitmap[Core_ID][next_bitmap_id][init_bitmap_id[Core_ID]].v[i] = 1;
+        if (vis_bitmap_index[Core_ID] < BitMap_Compressed_NUM) {
+            if (active_vertex_bitmap == 0) {
+                for (int i = 0; i < BitMap_Compressed_Length; ++ i) {
+                    vis_bitmap[Core_ID][now_bitmap_id][vis_bitmap_index[Core_ID]].v[i] = 0;
+                }
+                vis_bitmap_now[Core_ID] = vis_bitmap[Core_ID][now_bitmap_id][vis_bitmap_index[Core_ID] + 1];
+                vis_bitmap_index[Core_ID]++;
+            } else {
+                //any vertex in current bitmap line is scheduled
+                if (!NextStage_Full) {
+                    vis_bitmap_now[Core_ID].v[active_vertex_index] = 0;
+                }
             }
-            init_bitmap_id[Core_ID]++;//对vis_bitmap每页进行初始化，每次初始化一页
-            vis_bitmap_now[Core_ID] = vis_bitmap[Core_ID][now_bitmap_id][0];
+        } else if (vis_bitmap_index[Core_ID] >= BitMap_Compressed_NUM &&
+                    Backend_Iteration_End && Backend_Iteration_End_DValid &&
+                    iteration_flag[Core_ID]) {
+            vis_bitmap_now[Core_ID] = vis_bitmap[Core_ID][next_bitmap_id][0];
             vis_bitmap_index[Core_ID] = 0;
-        } else {
-            if (vis_bitmap_index[Core_ID] < BitMap_Compressed_NUM) {
-                if (active_vertex_bitmap == 0) {
-                    for (int i = 0; i < BitMap_Compressed_Length; ++ i) {
-                        vis_bitmap[Core_ID][now_bitmap_id][vis_bitmap_index[Core_ID]].v[i] = 0;
-                    }
-                    vis_bitmap_now[Core_ID] = vis_bitmap[Core_ID][now_bitmap_id][vis_bitmap_index[Core_ID] + 1];
-                    vis_bitmap_index[Core_ID]++;
-                } else {
-                    //any vertex in current bitmap line is scheduled
-                    if (!NextStage_Full) {
-                        vis_bitmap_now[Core_ID].v[active_vertex_index] = 0;
-                    }
-                }
-            } else if (vis_bitmap_index[Core_ID] >= BitMap_Compressed_NUM &&
-                        Backend_Iteration_End && Backend_Iteration_End_DValid &&
-                        iteration_flag[Core_ID]) {
-                vis_bitmap_now[Core_ID] = vis_bitmap[Core_ID][next_bitmap_id][0];
-                vis_bitmap_index[Core_ID] = 0;
+        }
+        //update the bitmap
+        if (Backend_Active_V_DValid) {
+            // filter visited vertex in push mode
+            if (vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] && !Backend_Active_V_Updated) {
+                active_vertex_num -= 1;
+            } else if (!vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] && Backend_Active_V_Updated) {
+                active_vertex_num += 1;
             }
-            //update the bitmap
-            if (Backend_Active_V_DValid) {
-                // filter visited vertex in push mode
-                if (vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] && !Backend_Active_V_Updated) {
-                    active_vertex_num -= 1;
-                } else if (!vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] && Backend_Active_V_Updated) {
-                    active_vertex_num += 1;
-                }
-                vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] = Backend_Active_V_Updated;
-                if (Backend_Active_V_ID == 177) {
-                    cout << "v_id " << Backend_Active_V_ID << " updated " << Backend_Active_V_Updated << endl;
-                }
-            }
+            vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] = Backend_Active_V_Updated;
         }
     }
 

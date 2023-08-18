@@ -9,6 +9,7 @@
 
 extern int clk;
 extern int rst_rd;
+extern FILE* debug_fp;
 
 using namespace std;
 
@@ -139,6 +140,10 @@ void Vertex_RAM_Controller_Single(
         }
     }
 
+    if (Core_ID == 25 && conflict_valid_buffer[25][FLOAT_ADD_DELAY - 1]) {
+        fprintf(debug_fp, "clk %d dst %d\n", clk, conflict_check_buffer[25][FLOAT_ADD_DELAY - 1]);
+    }
+
     // 1. output 
     if (rst_rd) {
         *Src_Recv_Update_V_Value = 0;
@@ -171,10 +176,6 @@ void Vertex_RAM_Controller_Single(
             }
             *Backend_Active_V_ID = active_addr_buffer[Core_ID].front();
             *Backend_Active_V_DValid = 1;
-            if (*Backend_Active_V_ID == 0) {
-                cout << "v_id " << *Backend_Active_V_ID << " delta " << active_delta_buffer[Core_ID].front() <<
-                    " pr " << active_pr_buffer[Core_ID].front() << endl;
-            }
 
             active_addr_buffer[Core_ID].pop();
             active_delta_buffer[Core_ID].pop();
@@ -250,9 +251,6 @@ void Vertex_RAM_Controller_Single(
         }
 
         if (Wr_Valid_Dst) {
-            if (Wr_Addr_Dst == 0) {
-                cout << "next_add " << Wr_V_Value_Dst << endl;
-            }
             wr_delta_addr_buffer[Core_ID].push(Wr_Addr_Dst);
             wr_delta_value_buffer[Core_ID].push(Wr_V_Value_Dst);
             wr_pr_addr_buffer[Core_ID].push(Wr_Addr_Dst);
@@ -382,5 +380,5 @@ void Vertex_RAM_Controller_Single(
         *Iteration_End_DValid = 0;
     }
 
-    *Stage_Full = (wr_pr_addr_buffer[Core_ID].size() >= FIFO_SIZE);
+    *Stage_Full = (wr_pr_addr_buffer[Core_ID].size() >= 32);
 }

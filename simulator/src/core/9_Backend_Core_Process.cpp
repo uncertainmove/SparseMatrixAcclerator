@@ -43,6 +43,7 @@ void Backend_Core(
     }
 }
 
+// shuffle后合并请求
 void Backend_Destination_Core_Single(
         int Core_ID,
         int HPX_Recv_Update_V_ID, V_VALUE_TP HPX_Recv_Update_V_Value, int HPX_Recv_Update_V_DValid,
@@ -52,6 +53,7 @@ void Backend_Destination_Core_Single(
         int *Dest_Core_Full,
         int *Wr_Vertex_BRAM_Addr, V_VALUE_TP *Wr_Vertex_BRAM_Data, int *Wr_Vertex_BRAM_Valid,
         int *Wr_Vertex_BRAM_Iteration_End, int *Wr_Vertex_BRAM_Iteration_End_DValid, int *Wr_Vertex_BRAM_Iteration_ID) {
+    
     if (rst_rd) {
         *Wr_Vertex_BRAM_Addr = 0;
         *Wr_Vertex_BRAM_Data = 0;
@@ -67,10 +69,6 @@ void Backend_Destination_Core_Single(
             *Wr_Vertex_BRAM_Addr = HPX_Recv_Update_V_ID;
             *Wr_Vertex_BRAM_Data = HPX_Recv_Update_V_Value;
             *Wr_Vertex_BRAM_Valid = 1;
-
-            if (*Wr_Vertex_BRAM_Addr == 0) {
-                cout << "backend 0 value " << *Wr_Vertex_BRAM_Data << endl;
-            }
 
             #if (DEBUG && PRINT_CONS)
             #endif

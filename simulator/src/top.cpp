@@ -12,9 +12,11 @@ int clk;
 int rst_rd;
 int MAX_ITERATION = 14;
 int VTX_NUM = 1048576, EDGE_NUM = 31400738;
+FILE* debug_fp = fopen("wr_pr_trace_debug.txt", "w");
 
 extern int v_updated;
 extern int iteration_end_flag;
+extern int noc_end;
 
 void top(int argc, char **argv)
 {
@@ -32,10 +34,14 @@ void top(int argc, char **argv)
         // rst_rd must be reset only one clk after the reseting of rst_root
         rst_rd = (clk < 100) ? 1 : 0;
 
-        if (clk % 1000000 == 0) {
+        if (clk % 100000 == 0) {
             cout << "clk " << clk << " v_update = " << v_updated << endl;
         }
+        if (clk % 10000 == 0 && noc_end) {
+            cout << "clk " << clk << " noc end" << endl;
+        }
         if (iteration_end_flag) {
+            cout << EDGE_NUM << " " << 1.0 * EDGE_NUM * 14 / (2 * 5 * clk) << "GTEPS" << endl;
             return;
         }
 
@@ -44,4 +50,6 @@ void top(int argc, char **argv)
         Memory(&pipe_mg);
         pipe_mg.run();
     }
+
+    fclose(debug_fp);
 }

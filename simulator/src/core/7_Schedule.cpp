@@ -96,9 +96,6 @@ void Schedule_Single(
                 *Update_V_ID = edge_buffer[Core_ID].front();
                 *Update_V_Value = v_value_buffer[Core_ID].front();
                 *Update_V_DValid = 1;
-                if (*Update_V_ID == 0) {
-                    cout << "schedule 0 value " << *Update_V_Value << endl;
-                }
             } else {
                 *Update_V_ID = 0;
                 *Update_V_Value = 0;

@@ -3,6 +3,7 @@
 #include "accelerator.h"
 
 using namespace std;
+int noc_end = 1;
 
 void NoC(pipe_manager* pipes) {
     // from
@@ -26,6 +27,10 @@ void NoC(pipe_manager* pipes) {
         sg_p8_wr.Hy1_Iteration_ID,
         sg_p8_wr.Stage_Full
     );
+    noc_end = 1;
+    for (int i = 0; i < CORE_NUM; i++) {
+        noc_end &= (sg_p8_wr.Hy1_Iteration_End[i] && sg_p8_wr.Hy1_Iteration_End_DValid[i]);
+    }
 
     pipes->read(&sg_p8_wr);
 }

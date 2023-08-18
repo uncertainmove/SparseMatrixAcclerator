@@ -50,12 +50,12 @@ public:
         }
     }
     void init_local_reg() {
-        for (int i = 0; i < HPX_VERTICAL_NUM; i++) {
-            for (int j = 0; j < HPX_HORIZONTAL_NUM; j++) {
-                clear_buffer(debug_M8._vertical_v_id_buffer[i][j]);
-                clear_buffer(debug_M8._vertical_v_value_buffer[i][j]);
-                clear_buffer(debug_M8._horizontal_v_id_buffer[i][j]);
-                clear_buffer(debug_M8._horizontal_v_value_buffer[i][j]);
+        for (int i = 0; i < HPX_ROW_NUM; i++) {
+            for (int j = 0; j < HPX_COLUMN_NUM; j++) {
+                clear_buffer(debug_M8._column_v_id_buffer[i][j]);
+                clear_buffer(debug_M8._column_v_value_buffer[i][j]);
+                clear_buffer(debug_M8._row_v_id_buffer[i][j]);
+                clear_buffer(debug_M8._row_v_value_buffer[i][j]);
                 clear_buffer(debug_M8._v_id_buffer[i][j]);
                 clear_buffer(debug_M8._v_value_buffer[i][j]);
             }
@@ -134,12 +134,12 @@ TEST_F(Hyperx_Network_Test, DISABLED_test_Trace) {
     printf("clk=%d\n", clk);
     run_module(1);
     // check
-    for (int i = 0; i < HPX_VERTICAL_NUM; i++) {
-        for (int j = 0; j < HPX_HORIZONTAL_NUM; j++) {
-            ASSERT_EQ(debug_M8._vertical_v_id_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._vertical_v_value_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._horizontal_v_id_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._horizontal_v_value_buffer[i][j].size(), size_t(0));
+    for (int i = 0; i < HPX_ROW_NUM; i++) {
+        for (int j = 0; j < HPX_COLUMN_NUM; j++) {
+            ASSERT_EQ(debug_M8._column_v_id_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._column_v_value_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._row_v_id_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._row_v_value_buffer[i][j].size(), size_t(0));
             ASSERT_EQ(debug_M8._v_id_buffer[i][j].size(), size_t(0));
             ASSERT_EQ(debug_M8._v_value_buffer[i][j].size(), size_t(0));
         }
@@ -165,12 +165,12 @@ TEST_F(Hyperx_Network_Test, test_given_Rst_then_LocalBufferInit) {
     init_input_flag();
     run_module(1);
     // check
-    for (int i = 0; i < HPX_VERTICAL_NUM; i++) {
-        for (int j = 0; j < HPX_HORIZONTAL_NUM; j++) {
-            ASSERT_EQ(debug_M8._vertical_v_id_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._vertical_v_value_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._horizontal_v_id_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._horizontal_v_value_buffer[i][j].size(), size_t(0));
+    for (int i = 0; i < HPX_ROW_NUM; i++) {
+        for (int j = 0; j < HPX_COLUMN_NUM; j++) {
+            ASSERT_EQ(debug_M8._column_v_id_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._column_v_value_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._row_v_id_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._row_v_value_buffer[i][j].size(), size_t(0));
             ASSERT_EQ(debug_M8._v_id_buffer[i][j].size(), size_t(0));
             ASSERT_EQ(debug_M8._v_value_buffer[i][j].size(), size_t(0));
         }
@@ -227,12 +227,12 @@ TEST_F(Hyperx_Network_Test, test_InOut_given_DataValid_then_OutputValid) {
     printf("\n");
     ASSERT_EQ(hy1_res_ready_all, true);
     // check final status
-    for (int i = 0; i < HPX_VERTICAL_NUM; i++) {
-        for (int j = 0; j < HPX_HORIZONTAL_NUM; j++) {
-            ASSERT_EQ(debug_M8._vertical_v_id_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._vertical_v_value_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._horizontal_v_id_buffer[i][j].size(), size_t(0));
-            ASSERT_EQ(debug_M8._horizontal_v_value_buffer[i][j].size(), size_t(0));
+    for (int i = 0; i < HPX_ROW_NUM; i++) {
+        for (int j = 0; j < HPX_COLUMN_NUM; j++) {
+            ASSERT_EQ(debug_M8._column_v_id_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._column_v_value_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._row_v_id_buffer[i][j].size(), size_t(0));
+            ASSERT_EQ(debug_M8._row_v_value_buffer[i][j].size(), size_t(0));
             ASSERT_EQ(debug_M8._v_id_buffer[i][j].size(), size_t(0));
             ASSERT_EQ(debug_M8._v_value_buffer[i][j].size(), size_t(0));
         }
