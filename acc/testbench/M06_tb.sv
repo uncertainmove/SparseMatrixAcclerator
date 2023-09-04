@@ -9,7 +9,7 @@ module M06_tb();
     parameter CORE_NUM = `CORE_NUM;
     parameter PSEUDO_CHANNEL_NUM = `PSEUDO_CHANNEL_NUM;
     parameter GROUP_CORE_NUM = `GROUP_CORE_NUM;
-    parameter POWERLAW_VTX_NUM = `POWERLAW_VTX_NUM;
+    parameter POWERLAW_VTX_NUM = `VTX_NUM;
     
     parameter integer LP_CLK_PERIOD_PS = 5000; // 200 MHz
 

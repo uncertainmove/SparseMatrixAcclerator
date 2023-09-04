@@ -11,7 +11,6 @@ module M04_tb ();
     parameter CORE_NUM = `CORE_NUM;
     parameter HBM_AWIDTH = `HBM_AWIDTH;
     parameter HBM_EDGE_MASK = `HBM_EDGE_MASK;
-    parameter FIRST_EDGE_BRAM_AWIDTH = `FIRST_EDGE_BRAM_AWIDTH;
     parameter CACHELINE_LEN_WIDTH = `CACHELINE_LEN_WIDTH;
     
     parameter integer LP_CLK_PERIOD_PS = 5000; // 200 MHz
@@ -49,7 +48,6 @@ module M04_tb ();
     wire [CORE_NUM * V_ID_WIDTH - 1 : 0]                hbm_active_v_id;
     wire [CORE_NUM * V_VALUE_WIDTH - 1 : 0]             hbm_active_v_value;
     wire [CORE_NUM - 1 : 0]                             rd_hbm_edge_valid;
-    wire [CORE_NUM * FIRST_EDGE_BRAM_AWIDTH - 1 : 0]    rd_bram_edge_addr;
     wire [CORE_NUM - 1 : 0]                             bram_push_flag;
     wire [CORE_NUM * V_ID_WIDTH - 1 : 0]                bram_active_v_id;
     wire [CORE_NUM * V_VALUE_WIDTH - 1 : 0]             bram_active_v_value;
@@ -126,11 +124,7 @@ module M04_tb ();
                 $error("rd_hbm_edge_valid init error");
                 test_pass = 0;
             end
-            assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-            else begin
-                $error("rd_bram_edge_addr init error!");
-                test_pass = 0;
-            end
+            
             assert(bram_push_flag[i] == 1'b0)
             else begin
                 $error("bram_push_flag init error!");
@@ -222,11 +216,7 @@ module M04_tb ();
                     $error("rd_hbm_edge_valid inputActiveId write error");
                     test_pass = 0;
                 end
-                assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-                else begin
-                    $error("rd_bram_edge_addr inputActiveId write error!");
-                    test_pass = 0;
-                end
+                
                 assert(bram_push_flag[i] == 1'b0)
                 else begin
                     $error("bram_push_flag inputActiveId write error!");
@@ -293,11 +283,7 @@ module M04_tb ();
                     $error("rd_hbm_edge_valid inputActiveId write error");
                     test_pass = 0;
                 end
-                assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-                else begin
-                    $error("rd_bram_edge_addr inputActiveId write error!");
-                    test_pass = 0;
-                end
+                
                 assert(bram_push_flag[i] == 1'b0)
                 else begin
                     $error("bram_push_flag inputActiveId write error!");
@@ -378,11 +364,7 @@ module M04_tb ();
                         $error("rd_hbm_edge_valid inputActiveId output error");
                         test_pass = 0;
                     end
-                    assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-                    else begin
-                        $error("rd_bram_edge_addr inputActiveId output error!");
-                        test_pass = 0;
-                    end
+                    
                     assert(bram_push_flag[i] == 1'b0)
                     else begin
                         $error("bram_push_flag inputActiveId output error!");
@@ -454,11 +436,7 @@ module M04_tb ();
                         $error("rd_hbm_edge_valid inputActiveId output error");
                         test_pass = 0;
                     end
-                    assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-                    else begin
-                        $error("rd_bram_edge_addr inputActiveId output error!");
-                        test_pass = 0;
-                    end
+                    
                     assert(bram_push_flag[i] == 1'b0)
                     else begin
                         $error("bram_push_flag inputActiveId output error!");
@@ -527,11 +505,7 @@ module M04_tb ();
                     $error("rd_hbm_edge_valid inputActiveId write error");
                     test_pass = 0;
                 end
-                assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-                else begin
-                    $error("rd_bram_edge_addr inputActiveId write error!");
-                    test_pass = 0;
-                end
+                
                 assert(bram_push_flag[i] == 1'b0)
                 else begin
                     $error("bram_push_flag inputActiveId write error!");
@@ -617,11 +591,7 @@ module M04_tb ();
                 $error("rd_hbm_edge_valid write error");
                 test_pass = 0;
             end
-            assert(rd_bram_edge_addr[0+: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-            else begin
-                $error("rd_bram_edge_addr write error!");
-                test_pass = 0;
-            end
+            
             assert(bram_push_flag[0] == 1'b0)
             else begin
                 $error("bram_push_flag write error!");
@@ -696,11 +666,7 @@ module M04_tb ();
                 $error("rd_hbm_edge_valid output_once error");
                 test_pass = 0;
             end
-            assert(rd_bram_edge_addr[0+: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-            else begin
-                $error("rd_bram_edge_addr output_once error!");
-                test_pass = 0;
-            end
+            
             assert(bram_push_flag[0] == 1'b0)
             else begin
                 $error("bram_push_flag output_once error!");
@@ -774,11 +740,7 @@ module M04_tb ();
                 $error("rd_hbm_edge_valid output_twice error");
                 test_pass = 0;
             end
-            assert(rd_bram_edge_addr[0+: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-            else begin
-                $error("rd_bram_edge_addr output_twice error!");
-                test_pass = 0;
-            end
+            
             assert(bram_push_flag[0] == 1'b0)
             else begin
                 $error("bram_push_flag output_twice error!");
@@ -852,11 +814,7 @@ module M04_tb ();
                 $error("rd_hbm_edge_valid output_three_times error");
                 test_pass = 0;
             end
-            assert(rd_bram_edge_addr[0+: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-            else begin
-                $error("rd_bram_edge_addr output_three_times error!");
-                test_pass = 0;
-            end
+            
             assert(bram_push_flag[0] == 1'b0)
             else begin
                 $error("bram_push_flag output_three_times error!");
@@ -948,11 +906,7 @@ module M04_tb ();
                     $error("rd_hbm_edge_valid inputActiveId write error");
                     test_pass = 0;
                 end
-                assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-                else begin
-                    $error("rd_bram_edge_addr inputActiveId write error!");
-                    test_pass = 0;
-                end
+                
                 assert(bram_push_flag[i] == 1'b0)
                 else begin
                     $error("bram_push_flag inputActiveId write error!");
@@ -1019,11 +973,7 @@ module M04_tb ();
                     $error("rd_hbm_edge_valid inputActiveId write error");
                     test_pass = 0;
                 end
-                assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-                else begin
-                    $error("rd_bram_edge_addr inputActiveId write error!");
-                    test_pass = 0;
-                end
+                
                 assert(bram_push_flag[i] == 1'b0)
                 else begin
                     $error("bram_push_flag inputActiveId write error!");
@@ -1098,11 +1048,7 @@ module M04_tb ();
                         $error("rd_hbm_edge_valid inputActiveId output error");
                         test_pass = 0;
                     end
-                    assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == i/CORE_NUM)
-                    else begin
-                        $error("rd_bram_edge_addr inputActiveId output error!");
-                        test_pass = 0;
-                    end
+                    
                     assert(bram_push_flag[i] == 1'b0)
                     else begin
                         $error("bram_push_flag inputActiveId output error!");
@@ -1169,11 +1115,7 @@ module M04_tb ();
                     $error("rd_hbm_edge_valid inputActiveId write error");
                     test_pass = 0;
                 end
-                assert(rd_bram_edge_addr[i * FIRST_EDGE_BRAM_AWIDTH +: FIRST_EDGE_BRAM_AWIDTH] == 'h0)
-                else begin
-                    $error("rd_bram_edge_addr inputActiveId write error!");
-                    test_pass = 0;
-                end
+                
                 assert(bram_push_flag[i] == 1'b0)
                 else begin
                     $error("bram_push_flag inputActiveId write error!");
@@ -1232,11 +1174,6 @@ module M04_tb ();
         .hbm_active_v_id                (hbm_active_v_id),
         .hbm_active_v_value             (hbm_active_v_value),
         .rd_hbm_edge_valid              (rd_hbm_edge_valid),
-        .rd_bram_edge_addr              (rd_bram_edge_addr),
-        .bram_push_flag                 (bram_push_flag),
-        .bram_active_v_id               (bram_active_v_id),
-        .bram_active_v_value            (bram_active_v_value),
-        .rd_bram_edge_valid             (rd_bram_edge_valid),
         .iteration_end                  (iteration_end),
         .iteration_end_valid            (iteration_end_valid)
     );

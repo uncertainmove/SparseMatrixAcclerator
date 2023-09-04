@@ -20,10 +20,10 @@
 /*********************************************
 * change core_num and channel_num and bitmap_compressed_num to do simulation
 **********************************************/
-`define CORE_NUM        64
-`define CORE_NUM_WIDTH  6
-`define PSEUDO_CHANNEL_NUM  4
-`define BITMAP_COMPRESSED_NUM       VTX_NUM / (CORE_NUM * BITMAP_COMPRESSED_LENGTH) + 1 // 513
+`define CORE_NUM        32
+`define CORE_NUM_WIDTH  5
+`define PSEUDO_CHANNEL_NUM  2
+`define BITMAP_COMPRESSED_NUM       ((`VTX_NUM + `CORE_NUM * `BITMAP_COMPRESSED_LENGTH - 1) / (`CORE_NUM * `BITMAP_COMPRESSED_LENGTH)) // 513
 `define BITMAP_COMPRESSED_NUM_WIDTH 10
 
 /*************************************************
@@ -38,7 +38,7 @@
 `define ITERATION_WIDTH     4
 `define V_ID_WIDTH          `VTX_NUM_WIDTH
 `define V_VALUE_WIDTH       32 // half float
-`define V_OFF_AWIDTH        (`VTX_NUM_WIDTH - `CORE_NUM_WIDTH + 1)
+`define V_OFF_AWIDTH        (`VTX_NUM_WIDTH - `CORE_NUM_WIDTH )
 `define V_OFF_DWIDTH        `EDGE_NUM_WIDTH
 
 `define GROUP_CORE_NUM          16
@@ -51,7 +51,7 @@
 `define PR_URAM_DWIDTH          32
 
 `define HPX_ROW_NUM    `PSEUDO_CHANNEL_NUM // row
-`define HPX_ROW_NUM_WIDTH 2
+`define HPX_ROW_NUM_WIDTH 1
 `define HPX_COLUMN_NUM  `GROUP_CORE_NUM // col
 `define HPX_COLUMN_NUM_WIDTH 4
 

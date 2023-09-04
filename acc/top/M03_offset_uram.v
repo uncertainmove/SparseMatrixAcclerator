@@ -38,7 +38,7 @@ module offset_uram #(parameter
                 if (uram_rst) begin
                     hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] <= {HBM_AWIDTH{1'b1}};
                     hbm_addr_valid[i] <= 0;
-                end else if (hbm_controller_full[i] || hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] == (((1 << 15) >> CORE_NUM_WIDTH)-1)) begin
+                end else if (hbm_controller_full[i] || hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] == (((1 << (1+14)) >> CORE_NUM_WIDTH)-1)) begin
                     hbm_addr_valid[i] <= 0;
                 end else begin
                     hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] <= hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] + 1;

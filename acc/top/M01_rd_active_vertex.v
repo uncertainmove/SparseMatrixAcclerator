@@ -116,7 +116,7 @@ module rd_active_vertex_single #(parameter
 
     // Note: write_width=1, write_depth=2048
     //       read_width=32, read_depth=64
-    vis_bitmap_0 VIS_BITMAP_BRAM_IP_SINGLE_0 (
+    vis_bitmap  VIS_BITMAP_BRAM_IP_SINGLE_0 (
         .clka       (clk),
         .ena        (!rst),
         .wea        ((backend_active_v_id_valid && !next_bitmap_id) || (local_vis_bitmap_index < BITMAP_COMPRESSED_NUM && !active_vertex_bitmap && !now_bitmap_id)),
@@ -128,7 +128,7 @@ module rd_active_vertex_single #(parameter
         .doutb      (local_vis_bitmap[0])
     );
 
-    vis_bitmap_1 VIS_BITMAP_BRAM_IP_SINGLE_1 (
+    vis_bitmap_1  VIS_BITMAP_BRAM_IP_SINGLE_1 (
         .clka       (clk),
         .ena        (!rst),
         .wea        ((backend_active_v_id_valid && next_bitmap_id) || (local_vis_bitmap_index < BITMAP_COMPRESSED_NUM && !active_vertex_bitmap && now_bitmap_id)),
@@ -271,6 +271,19 @@ module rd_active_vertex_single #(parameter
         end
     end
 
+
+    // bitmap initial & write
+    // note: use bram ip initial
+    always @ (posedge clk) begin
+        if (rst) begin
+            local_init_bitmap_id <= 0;
+        end else begin
+            if (local_init_bitmap_id < BITMAP_COMPRESSED_NUM) begin
+                local_init_bitmap_id <= local_init_bitmap_id + 1;
+            end
+        end
+    end
+
 endmodule
 
 module btree_cal_active_vtx_in_bitmap #(parameter
@@ -321,3 +334,5 @@ module btree_cal_active_vtx_in_bitmap #(parameter
     endgenerate
 
 endmodule
+
+

@@ -7,9 +7,9 @@ module M07_tb();
     parameter V_ID_WIDTH = `V_ID_WIDTH;
     parameter V_VALUE_WIDTH = `V_VALUE_WIDTH;
     parameter CORE_NUM = `CORE_NUM;
-    parameter VTX_BRAM_AWIDTH = `VTX_BRAM_AWIDTH;
-    parameter VTX_BRAM_DWIDTH = `VTX_BRAM_DWIDTH;
-    parameter ITERATION_DWIDTH = `ITERATION_DWIDTH;
+    parameter VTX_BRAM_AWIDTH = `VTX_NUM;
+    parameter VTX_BRAM_DWIDTH = `VTX_NUM;
+    parameter ITERATION_DWIDTH = `ITERATION_WIDTH;
     
     parameter integer LP_CLK_PERIOD_PS = 5000; // 200 MHz
 
