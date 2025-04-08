@@ -1,36 +1,35 @@
-#ifndef debug_h
-#define debug_h
+#ifndef DEBUG_H
+#define DEBUG_H
 
-#include "Accelerator.h"
+#include "parameter.h"
+#include "structure.h"
+
+// set debug to open debug mode
+#define DEBUG 1
 
 using namespace std;
 
-class debug_RD_ACTIVE_VERTEX_SINGLE {
+#define DEBUG_MSG(t, msg) do {  \
+    if (t) {                    \
+        cout << msg << endl;    \
+        exit(-1);               \
+    }                           \
+} while (0)
+
+class debug_RD_ACTIVE_VERTEX {
 public:
     int *_iteration_id;
     int *_init_bitmap_id;
     int *_iteration_end;
 
-    queue<int> (*_active_vid_queue)[CORE_NUM];
-
-    bitmap (*_vis_bitmap)[BitMap_Compressed_NUM + 1];
+    bitmap (*_vis_bitmap)[2][BitMap_Compressed_NUM + 1];
     int *_vis_bitmap_index;
     bitmap *_vis_bitmap_now;
 };
 
 class debug_RD_ACTIVE_VERTEX_OFFSET {
 public:
-    queue<int> *_push_flag_buffer;
     queue<int> *_v_id_buffer;
-    queue<int> *_v_value_buffer;
-    queue<int> *_pull_first_flag_buffer;
-};
-
-class debug_RD_ACTIVE_VERTEX_OFFSET_Container {
-public:
-    
-    queue_container<int> *_v_container;
-    value_container<int> *_Front_V_container,*_V_container,*_Active_V_container;
 };
 
 class debug_RD_Offset_Uram {
@@ -38,33 +37,19 @@ class debug_RD_Offset_Uram {
 
 class debug_RD_Active_Vertex_Edge {
 public:
-    queue<int> *_push_flag_buffer;
     queue<int> *_v_id_buffer;
-    queue<int> *_v_value_buffer;
+    queue<V_VALUE_TP> *_v_value_buffer;
     queue<int> *_v_loffset_buffer;
     queue<int> *_v_roffset_buffer;
-    queue<int> *_pull_first_flag_buffer;
-
-    int *_now_loffest;
-    int *_init_flag;
-};
-
-
-class debug_Rd_First_Edge_Bram {
-public:
-    queue<int> *_push_flag_buffer;
-    queue<int> *_v_id_buffer;
-    queue<int> *_v_value_buffer;
-    queue<int> *_edge_buffer;
+    int *_now_loffset;
 };
 
 class debug_Generate_HBM_Edge_Rqst {
 public:
     queue<int> (*_edge_addr_buffer)[GROUP_CORE_NUM];
     queue<BitVector_16> (*_edge_mask_buffer)[GROUP_CORE_NUM];
-    queue<int> (*_push_flag_buffer)[GROUP_CORE_NUM];
     queue<int> (*_v_id_buffer)[GROUP_CORE_NUM];
-    queue<int> (*_v_value_buffer)[GROUP_CORE_NUM];
+    queue<V_VALUE_TP> (*_v_value_buffer)[GROUP_CORE_NUM];
 };
 
 class debug_HBM_Interface {
@@ -75,75 +60,34 @@ public:
 
 class debug_Schedule {
 public:
-    queue<int> *_push_flag_buffer1;
-    queue<int> *_v_id_buffer1;
-    queue<int> *_v_value_buffer1;
-    queue<int> *_edge_buffer1;
-    queue<int> *_push_flag_buffer2;
-    queue<int> *_v_id_buffer2;
-    queue<int> *_v_value_buffer2;
-    queue<int> *_edge_buffer2;
+    queue<int> *_v_id_buffer;
+    queue<V_VALUE_TP> *_v_value_buffer;
+    queue<int> *_edge_buffer;
 };
 
-class debug_Omega_Network {
+class debug_Noc {
 public:
-    queue<int> (*_om1_push_flag_buffer_in1_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_id_buffer_in1_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_value_buffer_in1_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_push_flag_buffer_in1_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_id_buffer_in1_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_value_buffer_in1_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_push_flag_buffer_in2_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_id_buffer_in2_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_value_buffer_in2_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_push_flag_buffer_in2_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_id_buffer_in2_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om1_value_buffer_in2_out2)[OMEGA_SWITCH_NUM];
-
-    queue<int> (*_om2_push_flag_buffer_in1_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_id_buffer_in1_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_value_buffer_in1_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_push_flag_buffer_in1_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_id_buffer_in1_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_value_buffer_in1_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_push_flag_buffer_in2_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_id_buffer_in2_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_value_buffer_in2_out1)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_push_flag_buffer_in2_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_id_buffer_in2_out2)[OMEGA_SWITCH_NUM];
-    queue<int> (*_om2_value_buffer_in2_out2)[OMEGA_SWITCH_NUM];
+    queue<int> (*_column_v_id_buffer)[HPX_COLUMN_NUM];
+    queue<V_VALUE_TP> (*_column_v_value_buffer)[HPX_COLUMN_NUM];
+    queue<int> (*_row_v_id_buffer)[HPX_COLUMN_NUM];
+    queue<V_VALUE_TP> (*_row_v_value_buffer)[HPX_COLUMN_NUM];
+    queue<int> (*_v_id_buffer)[HPX_COLUMN_NUM];
+    queue<V_VALUE_TP> (*_v_value_buffer)[HPX_COLUMN_NUM];
 };
 
 class debug_Backend_Core_Process {
 public:
-    queue<int> *_update_v_id_buffer;
-    queue<int> *_pull_first_flag_buffer;
 };
 
-class debug_Vertex_BRAM {
+class debug_Vertex_RAM_Controller {
 public:
-    queue<int> *_push_flag_buffer;
-    queue<int> *_addr_buffer;
-    queue<int> *_value_buffer;
-    queue<int> *_pull_first_flag_buffer;
+    queue<int> *_wr_delta_addr_buffer;
+    queue<V_VALUE_TP> *_wr_delta_value_buffer;
+    queue<int> *_wr_pr_addr_buffer;
+    queue<V_VALUE_TP> *_wr_pr_value_buffer;
+    queue<int> *_active_addr_buffer;
+    queue<V_VALUE_TP> *_active_delta_buffer;
+    queue<V_VALUE_TP> *_active_pr_buffer;
 };
 
-void write_array_to_file (string prefix, FILE* fp, int array[], int size);
-void write_bitvector_to_file (string prefix, FILE* fp, BitVector_16 array[], int size);
-
 #endif
-
-#ifndef debuf_frame
-#define debug_frame
-/*debug frame*/
-#define LOGFUNC(...) (printf(__VA_ARGS__))
-#define LOGSTRINGS(fm, ...) printf(fm,__VA_ARGS__)
-#define edebug(format, ...) fprintf (stderr, format, ##__VA_ARGS__)
-#ifdef debug
-    #define dcout std::cout
-#else
-    #define dcout 0 && std::cout
-#endif
-#endif
-
-// #define exp_debug

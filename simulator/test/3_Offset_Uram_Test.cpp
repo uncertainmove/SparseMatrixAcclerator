@@ -1,6 +1,9 @@
 #include "gtest/gtest.h"
-#include "Accelerator.h"
 #include "debug.h"
+#include "memory.h"
+#include "parameter.h"
+#include "structure.h"
+#include "util.h"
 
 #include <iostream>
 
@@ -54,17 +57,16 @@ public:
     void reset_module() {
         // reset
         rst_rd = 1;
-        int cycle = 10;
         init_input_flag();
         run_module(1); // run module once to bind debug port
         init_local_reg();
-        run_module(cycle);
+        run_module(10);
         rst_rd = 0;
     }
     // Warning: you must set signal at first, then call this function
     void run_module(int cycle) {
         for (int i = 0; i < cycle; i++) {
-            RD_Offset_Uram (
+            Offset_Uram (
                 front_rd_active_v_offset_addr, front_active_v_dvalid,
 
                 active_v_loffset, active_v_roffset, active_v_dvalid
@@ -76,10 +78,10 @@ public:
     }
 };
 
-// given: rst=1, ROOT_ID
+// given: rst=1
 // while: no control singal set to high
 // then: local buffer empty
-TEST_F(RD_Offset_Uram_Test, test_PushPull_given_Rst_then_LocalBufferInit) {
+TEST_F(RD_Offset_Uram_Test, test_given_Rst_then_LocalBufferInit) {
     // reset
     reset_module();
     // run once
@@ -96,7 +98,7 @@ TEST_F(RD_Offset_Uram_Test, test_PushPull_given_Rst_then_LocalBufferInit) {
 // given: rst=0, ROOT_ID, front addr is valid
 // while: no control singal set to high
 // then: normal input and output
-TEST_F(RD_Offset_Uram_Test, test_PushPull_given_InputActiveAddr_then_OutputOffset) {
+TEST_F(RD_Offset_Uram_Test, test_given_InputActiveAddr_then_OutputOffset) {
     // reset
     reset_module();
     // run once to access memory

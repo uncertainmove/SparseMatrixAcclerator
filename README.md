@@ -265,6 +265,3 @@ edge_bram.BRAM_IP(rst_rd,
 
                    edge_bram_data, edge_bram_data_valid);
 ```
-
-
-
