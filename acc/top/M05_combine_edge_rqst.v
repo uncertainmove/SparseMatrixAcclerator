@@ -116,7 +116,7 @@ module generate_hbm_edge_rqst_single #(parameter
 
     wire [GROUP_CORE_NUM - 1 : 0] edge_addr_buffer_empty, edge_addr_buffer_full;
     wire [GROUP_CORE_NUM - 1 : 0] local_active_v_id_buffer_empty, local_active_v_id_buffer_full;
-    wire [GROUP_CORE_NUM - 1 : 0] local_active_v_value_buffer_empty, local_active_v_value_buffer_full;
+    wire [GROUP_CORE_NUM - 1 : 0] local_active_v_value_buffer_empty;
     wire [GROUP_CORE_NUM * HBM_AWIDTH - 1 : 0] local_edge_addr;
     wire [HBM_EDGE_MASK - 1 : 0] local_edge_mask [0 : GROUP_CORE_NUM - 1];
     wire [V_ID_WIDTH - 1 : 0] local_active_v_id [0 : GROUP_CORE_NUM - 1];
@@ -124,93 +124,95 @@ module generate_hbm_edge_rqst_single #(parameter
     wire local_active_v_id_valid [0 : GROUP_CORE_NUM - 1];
     wire [GROUP_CORE_NUM - 1 : 0] local_min_edge_addr_array;
     wire [GROUP_CORE_NUM - 1 : 0] sel_signal [0 : GROUP_CORE_NUM - 1];
+    wire read_signal [0 : GROUP_CORE_NUM - 1];
+    reg [31 : 0] end_ct;
 
     wire edge_addr_buffer_all_empty;
     assign edge_addr_buffer_all_empty = (local_active_v_value_buffer_empty == {GROUP_CORE_NUM{1'b1}});
 
     gen_min_addr GEN_MIN_ADDR (
         .front_edge_addr(local_edge_addr),
-        .edge_addr_buffer_empty(edge_addr_buffer_empty),
+        .edge_addr_buffer_empty(local_active_v_value_buffer_empty),
         
         .min_edge_addr_array  (local_min_edge_addr_array)
-    );
+    );//由于value数据来得慢，因此需要优先判断value数据是否为empty
 
     always @(posedge clk) begin
         if (rst) begin
-            rd_hbm_edge_addr <= 0;
+            rd_hbm_edge_addr <= {HBM_AWIDTH{1'b0}};
             rd_hbm_edge_valid <= 0;
         end else begin
             if (hbm_full || next_stage_full || edge_addr_buffer_all_empty) begin
-                rd_hbm_edge_addr <= 0;
+                rd_hbm_edge_addr <= {HBM_AWIDTH{1'b0}};
                 rd_hbm_edge_valid <= 0;
             end else begin
                 casex (local_min_edge_addr_array)
                     16'b0000000000000000: begin
-                        rd_hbm_edge_addr <= 0;
+                        rd_hbm_edge_addr <= {HBM_AWIDTH{1'b0}};
                         rd_hbm_edge_valid <= 0;
                     end
                     16'b???????????????1: begin
-                        rd_hbm_edge_addr <= local_edge_addr[1 * HBM_AWIDTH - 1 : 0 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[1 * HBM_AWIDTH - 1 : 0 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b??????????????10: begin
-                        rd_hbm_edge_addr <= local_edge_addr[2 * HBM_AWIDTH - 1 : 1 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[2 * HBM_AWIDTH - 1 : 1 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b?????????????100: begin
-                        rd_hbm_edge_addr <= local_edge_addr[3 * HBM_AWIDTH - 1 : 2 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[3 * HBM_AWIDTH - 1 : 2 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b????????????1000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[4 * HBM_AWIDTH - 1 : 3 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[4 * HBM_AWIDTH - 1 : 3 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b???????????10000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[5 * HBM_AWIDTH - 1 : 4 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[5 * HBM_AWIDTH - 1 : 4 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b??????????100000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[6 * HBM_AWIDTH - 1 : 5 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[6 * HBM_AWIDTH - 1 : 5 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b?????????1000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[7 * HBM_AWIDTH - 1 : 6 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[7 * HBM_AWIDTH - 1 : 6 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b????????10000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[8 * HBM_AWIDTH - 1 : 7 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[8 * HBM_AWIDTH - 1 : 7 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b???????100000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[9 * HBM_AWIDTH - 1 : 8 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[9 * HBM_AWIDTH - 1 : 8 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b??????1000000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[10 * HBM_AWIDTH - 1 : 9 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[10 * HBM_AWIDTH - 1 : 9 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b?????10000000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[11 * HBM_AWIDTH - 1 : 10 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[11 * HBM_AWIDTH - 1 : 10 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b????100000000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[12 * HBM_AWIDTH - 1 : 11 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[12 * HBM_AWIDTH - 1 : 11 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b???1000000000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[13 * HBM_AWIDTH - 1 : 12 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[13 * HBM_AWIDTH - 1 : 12 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b??10000000000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[14 * HBM_AWIDTH - 1 : 13 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[14 * HBM_AWIDTH - 1 : 13 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b?100000000000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[15 * HBM_AWIDTH - 1 : 14 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[15 * HBM_AWIDTH - 1 : 14 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                     16'b1000000000000000: begin
-                        rd_hbm_edge_addr <= local_edge_addr[16 * HBM_AWIDTH - 1 : 15 * HBM_AWIDTH];
+                        rd_hbm_edge_addr <= local_edge_addr[16 * HBM_AWIDTH - 1 : 15 * HBM_AWIDTH] << 6;
                         rd_hbm_edge_valid <= 1;
                     end
                 endcase
@@ -220,12 +222,26 @@ module generate_hbm_edge_rqst_single #(parameter
 
     always @ (posedge clk) begin
         iteration_id <= front_iteration_id;
-        if (!rst && (&front_iteration_end) && (&front_iteration_end_valid) && local_active_v_id_buffer_empty) begin
-            iteration_end <= {GROUP_CORE_NUM{1'b1}};
-            iteration_end_valid <= {GROUP_CORE_NUM{1'b1}};
-        end else begin
+        if (rst) begin
+            end_ct <= 0;
             iteration_end <= 0;
             iteration_end_valid <= 0;
+        end else begin
+            if ((&front_iteration_end) && (&front_iteration_end_valid) && (&local_active_v_id_buffer_empty) && (&local_active_v_value_buffer_empty)) begin
+                if (end_ct >= `WAIT_END_DELAY) begin
+                    // 强制等待20 clk
+                    iteration_end <= {GROUP_CORE_NUM{1'b1}};
+                    iteration_end_valid <= {GROUP_CORE_NUM{1'b1}};
+                end else begin
+                    end_ct <= end_ct + 1;
+                    iteration_end <= 0;
+                    iteration_end_valid <= 0;
+                end
+            end else begin
+                end_ct <= 0;
+                iteration_end <= 0;
+                iteration_end_valid <= 0;
+            end
         end
     end
 
@@ -235,8 +251,9 @@ module generate_hbm_edge_rqst_single #(parameter
         genvar j;
         for (i = 0; i < GROUP_CORE_NUM; i = i + 1) begin
             for (j = 0; j < GROUP_CORE_NUM; j = j + 1) begin
-                assign sel_signal[i][j] = local_min_edge_addr_array[j] && local_edge_mask[j][i] && !edge_addr_buffer_empty[j];
+                assign sel_signal[i][j] = local_min_edge_addr_array[j] && local_edge_mask[j][i] && !edge_addr_buffer_empty[j] && !local_active_v_value_buffer_empty[j];
             end
+            assign read_signal[i] = !hbm_full && !next_stage_full && !edge_addr_buffer_all_empty && local_min_edge_addr_array[i];
             // output
             always @ (posedge clk) begin
                 if (rst) begin
@@ -346,7 +363,7 @@ module generate_hbm_edge_rqst_single #(parameter
                 .srst       (rst),
                 .din        (front_rd_hbm_edge_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH]),
                 .wr_en      (front_rd_hbm_edge_valid[i]),
-                .rd_en      (!hbm_full && !next_stage_full && !edge_addr_buffer_all_empty && local_min_edge_addr_array[i]),
+                .rd_en      (read_signal[i]),
                 .dout       (local_edge_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH]),
                 .prog_full    (edge_addr_buffer_full[i]),
                 .full       (),
@@ -359,7 +376,7 @@ module generate_hbm_edge_rqst_single #(parameter
                 .srst       (rst),
                 .din        (front_rd_hbm_edge_mask[(i + 1) * HBM_EDGE_MASK - 1 : i * HBM_EDGE_MASK]),
                 .wr_en      (front_rd_hbm_edge_valid[i]),
-                .rd_en      (!hbm_full && !next_stage_full && !edge_addr_buffer_all_empty && local_min_edge_addr_array[i]),
+                .rd_en      (read_signal[i]),
                 .dout       (local_edge_mask[i]),
                 .full       (),
                 .empty      (),
@@ -371,7 +388,7 @@ module generate_hbm_edge_rqst_single #(parameter
                 .srst       (rst),
                 .din        (front_active_v_id[(i + 1) * V_ID_WIDTH - 1 : i * V_ID_WIDTH]),
                 .wr_en      (front_rd_hbm_edge_valid[i]),
-                .rd_en      (!hbm_full && !next_stage_full && !edge_addr_buffer_all_empty && local_min_edge_addr_array[i]),
+                .rd_en      (read_signal[i]),
                 .dout       (local_active_v_id[i]),
                 .prog_full  (local_active_v_id_buffer_full[i]),
                 .full       (),
@@ -384,10 +401,10 @@ module generate_hbm_edge_rqst_single #(parameter
                 .srst       (rst),
                 .din        (front_active_v_value[(i + 1) * V_VALUE_WIDTH - 1 : i * V_VALUE_WIDTH]),
                 .wr_en      (front_active_v_value_valid[i]),
-                .rd_en      (!hbm_full && !next_stage_full && !edge_addr_buffer_all_empty && local_min_edge_addr_array[i]),
+                .rd_en      (read_signal[i]),
                 .dout       (local_active_v_value[i]),
                 .full       (),
-                .empty      (local_active_v_value_buffer_empty),
+                .empty      (local_active_v_value_buffer_empty[i]),
                 .valid      ()
             );
         end

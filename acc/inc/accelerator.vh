@@ -1,7 +1,7 @@
 /*********************************************
 * do not change
 **********************************************/
-`define HBM_AWIDTH      32
+`define HBM_AWIDTH      64
 `define HBM_DWIDTH      512
 `define HBM_EDGE_MASK   16
 `define CACHELINE_LEN   16
@@ -12,8 +12,10 @@
 /*********************************************
 * change vtx_num and edge_num to check different graph
 *********************************************/
-`define VTX_NUM         1048576
-`define VTX_NUM_WIDTH   20
+`define MAX_VTX_NUM     1048576
+`define MAX_VTX_NUM_WIDTH 20
+`define VTX_NUM         262144         // 1048576
+`define VTX_NUM_WIDTH   18  // 20
 `define EDGE_NUM        31400738
 `define EDGE_NUM_WIDTH  25
 
@@ -23,23 +25,26 @@
 `define CORE_NUM        32
 `define CORE_NUM_WIDTH  5
 `define PSEUDO_CHANNEL_NUM  2
-`define BITMAP_COMPRESSED_NUM       ((`VTX_NUM + `CORE_NUM * `BITMAP_COMPRESSED_LENGTH - 1) / (`CORE_NUM * `BITMAP_COMPRESSED_LENGTH)) // 513
+`define BITMAP_COMPRESSED_NUM       1024
 `define BITMAP_COMPRESSED_NUM_WIDTH 10
 
 /*************************************************
 * do not change
 *************************************************/
+`define URAM_DELAY          3
+`define BRAM_DELAY          2
+`define WAIT_END_DELAY      20
 `define DAMPING             32'h3f59999a
-`define ONE_OVER_N          32'h35800000
+`define ONE_OVER_N          32'h36ffff80
 `define E1                  32'h33d6df95
 `define E2                  32'h3c23d70a
-`define ADDED_CONST         32'h3419999a
+`define ADDED_CONST         32'h3599994d
 
-`define ITERATION_WIDTH     4
-`define V_ID_WIDTH          `VTX_NUM_WIDTH
+`define ITERATION_WIDTH     4 // 注意最高只能支持31轮迭代
+`define V_ID_WIDTH          `MAX_VTX_NUM_WIDTH
 `define V_VALUE_WIDTH       32 // half float
-`define V_OFF_AWIDTH        (`VTX_NUM_WIDTH - `CORE_NUM_WIDTH )
-`define V_OFF_DWIDTH        `EDGE_NUM_WIDTH
+`define V_OFF_AWIDTH        (`MAX_VTX_NUM_WIDTH - `CORE_NUM_WIDTH )
+`define V_OFF_DWIDTH        32
 
 `define GROUP_CORE_NUM          16
 `define GROUP_CORE_NUM_WIDTH    4
@@ -54,6 +59,11 @@
 `define HPX_ROW_NUM_WIDTH 1
 `define HPX_COLUMN_NUM  `GROUP_CORE_NUM // col
 `define HPX_COLUMN_NUM_WIDTH 4
+
+`define HORIZONTAL_NUM `GROUP_CORE_NUM
+`define HORIZONTAL_NUM_WIDTH 4
+`define VERTICAL_NUM `PSEUDO_CHANNEL_NUM
+`define VERTICAL_NUM_WIDTH 1
 
 `define FIFO_SIZE           16
 `define FIFO_SIZE_WIDTH     4

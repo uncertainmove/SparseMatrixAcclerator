@@ -9,7 +9,7 @@
 
 extern int clk;
 extern int rst_rd;
-extern FILE* debug_fp;
+// extern FILE* debug_fp;
 
 using namespace std;
 
@@ -140,9 +140,9 @@ void Vertex_RAM_Controller_Single(
         }
     }
 
-    if (Core_ID == 25 && conflict_valid_buffer[25][FLOAT_ADD_DELAY - 1]) {
-        fprintf(debug_fp, "clk %d dst %d\n", clk, conflict_check_buffer[25][FLOAT_ADD_DELAY - 1]);
-    }
+    // if (Core_ID == 25 && conflict_valid_buffer[25][FLOAT_ADD_DELAY - 1]) {
+        // fprintf(debug_fp, "clk %d dst %d\n", clk, conflict_check_buffer[25][FLOAT_ADD_DELAY - 1]);
+    // }
 
     // 1. output 
     if (rst_rd) {
@@ -176,6 +176,8 @@ void Vertex_RAM_Controller_Single(
             }
             *Backend_Active_V_ID = active_addr_buffer[Core_ID].front();
             *Backend_Active_V_DValid = 1;
+            // cout << "clk: " << clk << ", M10 update active bitmap, id: " << *Backend_Active_V_ID <<
+                // ", active: " << *Backend_Active_V_Updated << endl;
 
             active_addr_buffer[Core_ID].pop();
             active_delta_buffer[Core_ID].pop();
@@ -337,6 +339,9 @@ void Vertex_RAM_Controller_Single(
             *PR_Uram_Wr_Addr = wr_pr_addr_buffer[Core_ID].front() / CORE_NUM;
             *PR_Uram_Wr_Value = wr_pr_value_buffer[Core_ID].front() + PR_Uram_Data;
             *PR_Uram_Wr_Valid = 1;
+            // cout << "clk: " << clk << ", M10 write pr, addr: " << wr_pr_addr_buffer[Core_ID].front() << ", value: " <<
+                // *(float *)PR_Uram_Wr_Value << ", front_v: " << *(float *)&wr_pr_value_buffer[Core_ID].front() <<
+                // ", front_u: " << *(float *)&PR_Uram_Data << endl;
 
             active_pr_buffer[Core_ID].push(*PR_Uram_Wr_Value);
         } else {
@@ -371,11 +376,19 @@ void Vertex_RAM_Controller_Single(
     active_delta_buffer_empty[Core_ID] = (active_delta_buffer[Core_ID].size() == 0);
     active_pr_buffer_empty[Core_ID] = (active_pr_buffer[Core_ID].size() == 0);
 
+    static int end_ct[CORE_NUM];
     if (!rst_rd && Front_Iteration_End && Front_Iteration_End_DValid && delta_buffer_empty[Core_ID] && pr_buffer_empty[Core_ID] && active_addr_buffer_empty[Core_ID]) {
-        *Iteration_End = 1;
-        *Iteration_End_DValid = 1;
+        if (end_ct[Core_ID] >= WAIT_END_DELAY) {
+            *Iteration_End = 1;
+            *Iteration_End_DValid = 1;
+        } else {
+            end_ct[Core_ID]++;
+            *Iteration_End = 0;
+            *Iteration_End_DValid = 0;
+        }
     }
     else {
+        end_ct[Core_ID] = 0;
         *Iteration_End = 0;
         *Iteration_End_DValid = 0;
     }

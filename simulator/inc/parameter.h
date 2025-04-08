@@ -40,7 +40,7 @@ struct V_VALUE_TP {
 // typedef float V_VALUE_TP;
 typedef int V_ID_TP;
 
-const int CORE_NUM = 64;
+const int CORE_NUM = 32;
 const int FIFO_SIZE = 16;
 
 const int MAX_VERTEX_NUM = 1024 * 1024;
@@ -48,9 +48,10 @@ const int MAX_EDGE_NUM = 100000000;
 const int CACHELINE_LEN = 16;
 
 const int BitMap_Compressed_Length = 32;
-const int BitMap_Compressed_NUM = MAX_VERTEX_NUM / (CORE_NUM * BitMap_Compressed_Length) + 1;
+// const int BitMap_Compressed_NUM = MAX_VERTEX_NUM / (CORE_NUM * BitMap_Compressed_Length) + 1;
+const int BitMap_Compressed_NUM = 4039 / (CORE_NUM * BitMap_Compressed_Length) + 1;
 
-const int PSEUDO_CHANNEL_NUM = 4;
+const int PSEUDO_CHANNEL_NUM = 2;
 const int GROUP_CORE_NUM = CORE_NUM / PSEUDO_CHANNEL_NUM;
 const int MAX_EDGE_ADDR = MAX_VERTEX_NUM * 32 / PSEUDO_CHANNEL_NUM;
 
@@ -61,9 +62,9 @@ const int BACKEND_DEST_FIFO_NUM = 4;
 
 const int FLOAT_ADD_DELAY = 14;
 const V_VALUE_TP DAMPING = 0.85;
-const V_VALUE_TP ONE_OVER_N = 1.0 / MAX_VERTEX_NUM;
 const V_VALUE_TP E1 = 1e-7;
 const V_VALUE_TP E2 = 1e-2;
-const V_VALUE_TP ADDED_CONST = (V_VALUE_TP(1.0) - DAMPING) * ONE_OVER_N;
+
+const int WAIT_END_DELAY = 20;
 
 #endif // PARAMETER_H

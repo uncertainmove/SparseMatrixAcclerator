@@ -42,4 +42,10 @@ void HBM_Controller_IP(
         int *HBM_Controller_Full,
         Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid);
 
+void HBM_Controller_IP_Ideal(
+        int Rd_HBM_Edge_Addr[], int Rd_HBM_Edge_Valid[],
+
+        int *HBM_Controller_Full,
+        Cacheline_16 *HBM_Controller_Edge, int *HBM_Controller_DValid);
+
 #endif // MEMORY_H

@@ -91,8 +91,7 @@ module rd_active_vertex_offset_single #(parameter
 );
 
     wire active_v_id_buffer_empty, active_v_id_buffer_full;
-    wire [31 : 0]   divider_dout_taddr;
-    wire            divider_dout_tvalid;
+    reg [31 : 0] end_ct;
 
     assign stage_full = active_v_id_buffer_full;
     assign rd_active_v_offset_addr = active_v_id >> CORE_NUM_WIDTH;
@@ -115,12 +114,26 @@ module rd_active_vertex_offset_single #(parameter
 
     always @ (posedge clk) begin
         iteration_id <= front_iteration_id;
-        if (!rst && front_iteration_end && front_iteration_end_valid && active_v_id_buffer_empty) begin
-            iteration_end <= 1;
-            iteration_end_valid <= 1;
-        end else begin
+        if (rst) begin
+            end_ct <= 0;
             iteration_end <= 0;
             iteration_end_valid <= 0;
+        end else begin
+            if (front_iteration_end && front_iteration_end_valid && active_v_id_buffer_empty) begin
+                if (end_ct >= `WAIT_END_DELAY) begin
+                    // 强制等待20 clk
+                    iteration_end <= 1;
+                    iteration_end_valid <= 1;
+                end else begin
+                    end_ct <= end_ct + 1;
+                    iteration_end <= 0;
+                    iteration_end_valid <= 0;
+                end
+            end else begin
+                end_ct <= 0;
+                iteration_end <= 0;
+                iteration_end_valid <= 0;
+            end
         end
     end
 

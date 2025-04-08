@@ -10,7 +10,7 @@ using namespace std;
 
 void top(int argc, char **argv);
 
-void Initialize_Input_Graph(char *off_file, char *edge_file);
+void Initialize_Input_Graph(int v_num, int e_num, char *off_file, char *edge_file, int has_header);
 
 void Initialize_Offset_Uram(int V_Num);
 

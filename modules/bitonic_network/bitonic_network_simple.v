@@ -1,77 +1,57 @@
-module top #(parameter
+`include "accelerator.vh"
+
+module accu #(parameter
+    V_ID_WIDTH = `V_ID_WIDTH,
+    V_VALUE_WIDTH = `V_VALUE_WIDTH,
+    HORIZONTAL_NUM = `HORIZONTAL_NUM,
     PIPELINE_NUM = 16
 ) (
     input clk,
     input rst,
+    input [32 * PIPELINE_NUM - 1 : 0] data,
+    input [32 * PIPELINE_NUM - 1 : 0] addr,
+    input [PIPELINE_NUM - 1 : 0] data_valid,
+    input [HORIZONTAL_NUM * PIPELINE_NUM - 1 : 0] select,
 
-    output [31 : 0] out,
-    output reg [31 : 0] addrout,
-    output reg valid
+    output [(V_VALUE_WIDTH+2) * PIPELINE_NUM - 1 : 0] out,
+    output [V_ID_WIDTH * PIPELINE_NUM - 1 : 0] addrout,
+    output [PIPELINE_NUM - 1 : 0] prog_full,
+    output [PIPELINE_NUM - 1 : 0] empty,
+    output [PIPELINE_NUM - 1 : 0] valid
 );
-
-   reg [32 * PIPELINE_NUM - 1 : 0] data;
-   reg [32 * PIPELINE_NUM - 1 : 0] addr;
-   reg [PIPELINE_NUM - 1 : 0] data_valid;
    wire [32 * PIPELINE_NUM - 1 : 0] bitonic_data_out;
    wire [32 * PIPELINE_NUM - 1 : 0] bitonic_addr_out;
    wire [PIPELINE_NUM - 1 : 0] bitonic_data_valid_out;
    wire [32 * PIPELINE_NUM - 1 : 0] data_out;
    wire [32 * PIPELINE_NUM - 1 : 0] addr_out;
    wire [PIPELINE_NUM - 1 : 0] data_valid_out;
-   reg [3 : 0] select;
-   wire [31 : 0] fifo_out [0 : PIPELINE_NUM - 1];
-   wire [31 : 0] fifo_out_2 [0 : PIPELINE_NUM - 1];
-   wire fifo_empty [0 : PIPELINE_NUM - 1];
-
-   always @ (posedge clk) begin
-       if (rst) begin
-           out <= 0;
-           addrout <= 0;
-           valid <= 0;
-           select <= 0;
-       end else begin
-           if (!fifo_empty[select]) begin
-               out <= fifo_out[select];
-               addrout <= fifo_out_2[select];
-               valid <= !fifo_empty[select];
-               select <= select + 1;
-           end
-       end
-   end
-
+   wire [PIPELINE_NUM - 1 : 0] fifo_empty;
+   wire [PIPELINE_NUM - 1 : 0] fifo_prog_full;
+   assign prog_full = fifo_prog_full==0 ? {PIPELINE_NUM{1'b0}} : {PIPELINE_NUM{1'b1}};
+   assign empty = fifo_empty;
+   
    generate
        genvar i;
        for (i = 0; i < PIPELINE_NUM; i = i + 1) begin
-           always @ (posedge clk) begin
-               if (rst) begin
-                   data[(i + 1) * 32 - 1 : i * 32] <= i;
-                   addr[(i + 1) * 32 - 1 : i * 32] <= i + 1;
-                   data_valid[i] <= 0;
-               end else begin
-                   data[(i + 1) * 32 - 1 : i * 32] <= data[(i + 1) * 32 - 1 : i * 32] + 1;
-                   addr[(i + 1) * 32 - 1 : i * 32] <= addr[(i + 1) * 32 - 1 : i * 32] + (i % 2 ? 1 : 0);
-                   data_valid[i] <= addr[i * 32 + 1 : i * 32] > 16384 ? 1'b0 : 1'b1;
-               end
-           end
-
-           fifo_out_ip OUT_FIFO (
+           custom_fifo_ft #(.FIFO_DWIDTH(V_VALUE_WIDTH+2), .FIFO_AWIDTH(5), .PROG_FULL_NUM(20)) OUT_FIFO (
                .clk        (clk),
                .srst       (rst),
                .din        (data_out[32 * (i + 1) - 1 : 32 * i]),
                .wr_en      (data_valid_out[i]),
-               .rd_en      (select == i && !fifo_empty[i]),
-               .dout       (fifo_out[i]),
-               .full       (),
-               .empty      (fifo_empty[i])
+               .rd_en      (!fifo_empty[i] && select[(i+1)*HORIZONTAL_NUM - 1 : i*HORIZONTAL_NUM]!=0),
+               .dout       (out[(i+1)*(V_VALUE_WIDTH+2)-1 : i*(V_VALUE_WIDTH+2)]),
+               .prog_full  (fifo_prog_full[i]),
+               .empty      (fifo_empty[i]),
+               .valid       (valid[i])
            );
 
-           fifo_out_ip ADDR_OUT_FIFO (
+           custom_fifo_ft #(.FIFO_DWIDTH(V_ID_WIDTH), .FIFO_AWIDTH(5), .PROG_FULL_NUM(20)) ADDR_OUT_FIFO (
                .clk        (clk),
                .srst       (rst),
                .din        (addr_out[32 * (i + 1) - 1 : 32 * i]),
                .wr_en      (data_valid_out[i]),
-               .rd_en      (select == i && !fifo_empty[i]),
-               .dout       (fifo_out_2[i]),
+               .rd_en      (!fifo_empty[i] && select[(i+1)*HORIZONTAL_NUM - 1 : i*HORIZONTAL_NUM]!=0),
+               .dout       (addrout[(i+1)*V_ID_WIDTH-1 : i*V_ID_WIDTH]),
                .full       (),
                .empty      ()
            );
@@ -134,10 +114,6 @@ module accumulator_16 #(parameter
     wire [PIPELINE_NUM - 1 : 0]                         src_level_2_valid;
     wire [PIPELINE_NUM - 1 : 0]                         src_level_3_valid;
     wire [PIPELINE_NUM - 1 : 0]                         src_level_4_valid;
-
-    assign data_out = src_level_4;
-    assign addr_out = acc_id_level_4;
-    assign data_valid_out = src_level_4_valid;
 
     // level 4
     generate
@@ -270,6 +246,18 @@ module accumulator_16 #(parameter
         end
     endgenerate
 
+    assign data_out = src_level_4;
+    assign addr_out = acc_id_level_4;
+    
+    generate
+        for (i = 0; i < EDGE_PIPE_NUM; i = i + 1) begin
+            if(i < EDGE_PIPE_NUM-1)
+                assign data_valid_out[i] = src_level_4_valid[i] && acc_id_level_4[(i+1)*32-1 : i*32] != acc_id_level_4[(i+2)*32-1 : (i+1)*32];
+            else
+                assign data_valid_out[i] = src_level_4_valid[i];
+        end
+    endgenerate
+    
 endmodule
 
 module parallel_accumulator_update_reg #(parameter
@@ -301,6 +289,7 @@ module parallel_accumulator_update_reg #(parameter
 endmodule
 
 module parallel_accumulator_update_addr #(parameter
+    V_VALUE_WIDTH = `V_VALUE_WIDTH,
     VERTEX_BRAM_DWIDTH = 32,
     ACC_ID_WIDTH = 32
 ) (
@@ -324,23 +313,29 @@ module parallel_accumulator_update_addr #(parameter
             validout <= 0;
         end
         else begin
-            if ((validin_1 && validin_2 && idin_1 == idin_2 && din_1 < din_2) || (validin_1 && !validin_2)) begin
+            if (validin_1 && validin_2 && idin_1 == idin_2) begin
+                dout[V_VALUE_WIDTH-1 : 0]    <= din_1[V_VALUE_WIDTH-1 : 0] + din_2[V_VALUE_WIDTH-1 : 0];
+		        dout[VERTEX_BRAM_DWIDTH -1 : V_VALUE_WIDTH]    <= din_1;
+                idout   <= idin_1;
+                validout <= validin_1;
+            end
+            else if(validin_1 && !validin_2) begin
                 dout    <= din_1;
                 idout   <= idin_1;
                 validout <= validin_1;
             end
-            else begin
-                dout    <= din_2;
+	    else begin
+	    	    dout    <= din_2;
                 idout   <= idin_2;
                 validout <= validin_2;
-            end
+	        end
         end
     end
 
 endmodule
 
 // bitonic网络包含两层
-// 1. 将无序的输入数据转化为双调序列
+// 1. 将无序的输入数据转化为双调序
 // 2. 将双调序列转化为升序序列
 module bitonic_network_16 #(parameter
     PIPELINE_NUM = 16
@@ -598,7 +593,7 @@ module comparator_level_step_x #(parameter
 
 endmodule
 
-// 无效信号默认最小
+// 无效信号默认
 module comparator #(parameter
     DATA_WIDTH = 32,
     CH = 1'b0 // 0: ascending, 1: descending
@@ -645,48 +640,6 @@ module comparator #(parameter
                 addr_out_2 <= addr_in_1;
                 data_valid_out_2 <= data_valid_in_1;
             end
-            /*
-            if (data_valid_in_1 && data_valid_in_2) begin
-                if (data_in_2 >= data_in_1 && !CH) begin
-                    data_out_1 <= data_in_1;
-                    data_out_2 <= data_in_2;
-                end else begin
-                    data_out_1 <= data_in_2;
-                    data_out_2 <= data_in_1;
-                end
-                data_valid_out_1 <= 1;
-                data_valid_out_2 <= 1;
-            end else if (data_valid_in_1) begin
-                if (!CH) begin
-                    data_out_1 <= data_in_2;
-                    data_valid_out_1 <= data_valid_in_2;
-                    data_out_2 <= data_in_1;
-                    data_valid_out_2 <= data_valid_in_1;
-                end else begin
-                    data_out_1 <= data_in_1;
-                    data_valid_out_1 <= data_valid_in_1;
-                    data_out_2 <= data_in_2;
-                    data_valid_out_2 <= data_valid_in_2;
-                end
-            end else if (data_valid_in_2) begin
-                if (!CH) begin
-                    data_out_1 <= data_in_1;
-                    data_valid_out_1 <= data_valid_in_1;
-                    data_out_2 <= data_in_2;
-                    data_valid_out_2 <= data_valid_in_2;
-                end else begin
-                    data_out_1 <= data_in_2;
-                    data_valid_out_1 <= data_valid_in_2;
-                    data_out_2 <= data_in_1;
-                    data_valid_out_2 <= data_valid_in_1;
-                end
-            end else begin
-                data_out_1 <= 0;
-                data_valid_out_1 <= 0;
-                data_out_2 <= 0;
-                data_valid_out_2 <= 0;
-            end
-            */
         end
     end
 

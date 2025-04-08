@@ -28,23 +28,23 @@ public:
 
     V_VALUE_TP delta1_bram_data[CORE_NUM] = {0};
     int delta1_bram_data_valid[CORE_NUM] = {0};
-    V_VALUE_TP delta2_bram_data[CORE_NUM] = {0};
-    int delta2_bram_data_valid[CORE_NUM] = {0};
+    V_VALUE_TP delta2_uram_data[CORE_NUM] = {0};
+    int delta2_uram_data_valid[CORE_NUM] = {0};
     V_VALUE_TP pr_uram_data[CORE_NUM] = {0};
     int pr_uram_data_valid[CORE_NUM] = {0};
     // output signal
     int delta1_bram_rd_addr[CORE_NUM] = {0};
     int delta1_bram_rd_valid[CORE_NUM] = {0};
-    int delta2_bram_rd_addr[CORE_NUM] = {0};
-    int delta2_bram_rd_valid[CORE_NUM] = {0};
+    int delta2_uram_rd_addr[CORE_NUM] = {0};
+    int delta2_uram_rd_valid[CORE_NUM] = {0};
     int pr_uram_rd_addr[CORE_NUM] = {0};
     int pr_uram_rd_valid[CORE_NUM] = {0};
     int delta1_bram_wr_addr[CORE_NUM] = {0};
     V_VALUE_TP delta1_bram_wr_value[CORE_NUM] = {0};
     int delta1_bram_wr_valid[CORE_NUM] = {0};
-    int delta2_bram_wr_addr[CORE_NUM] = {0};
-    V_VALUE_TP delta2_bram_wr_value[CORE_NUM] = {0};
-    int delta2_bram_wr_valid[CORE_NUM] = {0};
+    int delta2_uram_wr_addr[CORE_NUM] = {0};
+    V_VALUE_TP delta2_uram_wr_value[CORE_NUM] = {0};
+    int delta2_uram_wr_valid[CORE_NUM] = {0};
     int pr_uram_wr_addr[CORE_NUM] = {0};
     V_VALUE_TP pr_uram_wr_value[CORE_NUM] = {0};
     int pr_uram_wr_valid[CORE_NUM] = {0};
@@ -76,8 +76,8 @@ public:
 
             delta1_bram_data[i] = {0.0};
             delta1_bram_data_valid[i] = {0};
-            delta2_bram_data[i] = {0.0};
-            delta2_bram_data_valid[i] = {0};
+            delta2_uram_data[i] = {0.0};
+            delta2_uram_data_valid[i] = {0};
             pr_uram_data[i] = {0.0};
             pr_uram_data_valid[i] = {0};
         }
@@ -112,12 +112,12 @@ public:
                 front_iteration_id,
 
                 delta1_bram_data, delta1_bram_data_valid,
-                delta2_bram_data, delta2_bram_data_valid,
+                delta2_uram_data, delta2_uram_data_valid,
                 pr_uram_data, pr_uram_data_valid,
                 delta1_bram_rd_addr, delta1_bram_rd_valid,
-                delta2_bram_rd_addr, delta2_bram_rd_valid,
+                delta2_uram_rd_addr, delta2_uram_rd_valid,
                 delta1_bram_wr_addr, delta1_bram_wr_value, delta1_bram_wr_valid,
-                delta2_bram_wr_addr, delta2_bram_wr_value, delta2_bram_wr_valid,
+                delta2_uram_wr_addr, delta2_uram_wr_value, delta2_uram_wr_valid,
                 pr_uram_rd_addr, pr_uram_rd_valid,
                 pr_uram_wr_addr, pr_uram_wr_value, pr_uram_wr_valid,
 
@@ -154,14 +154,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_Rst_then_LocalBufferInit) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -206,14 +206,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_RdAddrValid0_then_ReadData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], i);
         ASSERT_EQ(delta1_bram_rd_valid[i], 1);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -247,14 +247,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_RdAddrValid0_then_ReadData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -300,14 +300,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_RdAddrValid1_then_ReadData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], i);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 1);
+        ASSERT_EQ(delta2_uram_rd_addr[i], i);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 1);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -326,8 +326,8 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_RdAddrValid1_then_ReadData) {
     // run to output
     init_input_flag();
     for (int i = 0; i < CORE_NUM; i++) {
-        delta2_bram_data[i] = 1.0;
-        delta2_bram_data_valid[i] = 1;
+        delta2_uram_data[i] = 1.0;
+        delta2_uram_data_valid[i] = 1;
         front_iteration_id[i] = 1;
     }
     cout << "clk 2" << endl;
@@ -343,14 +343,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_RdAddrValid1_then_ReadData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -396,14 +396,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid0_then_WriteData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -433,14 +433,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid0_then_WriteData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], i / CORE_NUM);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 1);
+        ASSERT_EQ(delta2_uram_rd_addr[i], i / CORE_NUM);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 1);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], i / CORE_NUM);
         ASSERT_EQ(pr_uram_rd_valid[i], 1);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -459,8 +459,8 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid0_then_WriteData) {
     // set pr and delta2 data
     init_input_flag();
     for (int i = 0; i < CORE_NUM; i++) {
-        delta2_bram_data[i] = 1.0;
-        delta2_bram_data_valid[i] = 1;
+        delta2_uram_data[i] = 1.0;
+        delta2_uram_data_valid[i] = 1;
         pr_uram_data[i] = 2.0;
         pr_uram_data_valid[i] = 1;
     }
@@ -476,14 +476,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid0_then_WriteData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], i / CORE_NUM);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 2.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 1);
+        ASSERT_EQ(delta2_uram_wr_addr[i], i / CORE_NUM);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 2.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 1);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], i / CORE_NUM);
@@ -512,14 +512,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid0_then_WriteData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -566,14 +566,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid1_then_WriteData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -607,14 +607,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid1_then_WriteData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], i / CORE_NUM);
         ASSERT_EQ(delta1_bram_rd_valid[i], 1);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], i / CORE_NUM);
         ASSERT_EQ(pr_uram_rd_valid[i], 1);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -652,14 +652,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid1_then_WriteData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], i / CORE_NUM);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 2.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 1);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], i / CORE_NUM);
@@ -692,14 +692,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrValid1_then_WriteData) {
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -745,14 +745,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], i / CORE_NUM);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 1);
+        ASSERT_EQ(delta2_uram_rd_addr[i], i / CORE_NUM);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 1);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], i / CORE_NUM);
         ASSERT_EQ(pr_uram_rd_valid[i], 1);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -771,8 +771,8 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
     // set pr and delta2 data
     init_input_flag();
     for (int i = 0; i < CORE_NUM; i++) {
-        delta2_bram_data[i] = 1.0;
-        delta2_bram_data_valid[i] = 1;
+        delta2_uram_data[i] = 1.0;
+        delta2_uram_data_valid[i] = 1;
         pr_uram_data[i] = 2.0;
         pr_uram_data_valid[i] = 1;
     }
@@ -788,14 +788,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], i / CORE_NUM);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 2.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 1);
+        ASSERT_EQ(delta2_uram_wr_addr[i], i / CORE_NUM);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 2.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 1);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], i / CORE_NUM);
@@ -824,14 +824,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -859,14 +859,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -895,14 +895,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], i / CORE_NUM);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 1);
+        ASSERT_EQ(delta2_uram_rd_addr[i], i / CORE_NUM);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 1);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], i / CORE_NUM);
         ASSERT_EQ(pr_uram_rd_valid[i], 1);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -921,8 +921,8 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
     // set pr and delta2 data
     init_input_flag();
     for (int i = 0; i < CORE_NUM; i++) {
-        delta2_bram_data[i] = 1.0;
-        delta2_bram_data_valid[i] = 1;
+        delta2_uram_data[i] = 1.0;
+        delta2_uram_data_valid[i] = 1;
         pr_uram_data[i] = 2.0;
         pr_uram_data_valid[i] = 1;
     }
@@ -938,14 +938,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], i / CORE_NUM);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 2.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 1);
+        ASSERT_EQ(delta2_uram_wr_addr[i], i / CORE_NUM);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 2.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 1);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], i / CORE_NUM);
@@ -974,14 +974,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);
@@ -1009,14 +1009,14 @@ TEST_F(Vertex_RAM_Controller_Test, test_given_WrAddrConflict_then_WriteDataBlock
 
         ASSERT_EQ(delta1_bram_rd_addr[i], 0);
         ASSERT_EQ(delta1_bram_rd_valid[i], 0);
-        ASSERT_EQ(delta2_bram_rd_addr[i], 0);
-        ASSERT_EQ(delta2_bram_rd_valid[i], 0);
+        ASSERT_EQ(delta2_uram_rd_addr[i], 0);
+        ASSERT_EQ(delta2_uram_rd_valid[i], 0);
         ASSERT_EQ(delta1_bram_wr_addr[i], 0);
         ASSERT_FLOAT_EQ(delta1_bram_wr_value[i], 0.0);
         ASSERT_EQ(delta1_bram_wr_valid[i], 0);
-        ASSERT_EQ(delta2_bram_wr_addr[i], 0);
-        ASSERT_FLOAT_EQ(delta2_bram_wr_value[i], 0.0);
-        ASSERT_EQ(delta2_bram_wr_valid[i], 0);
+        ASSERT_EQ(delta2_uram_wr_addr[i], 0);
+        ASSERT_FLOAT_EQ(delta2_uram_wr_value[i], 0.0);
+        ASSERT_EQ(delta2_uram_wr_valid[i], 0);
         ASSERT_EQ(pr_uram_rd_addr[i], 0);
         ASSERT_EQ(pr_uram_rd_valid[i], 0);
         ASSERT_EQ(pr_uram_wr_addr[i], 0);

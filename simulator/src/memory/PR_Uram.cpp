@@ -57,9 +57,7 @@ void PR_Uram_Single(
             *PR_Uram_Data_Valid = 1;
 
             v_updated += 1;
-            if (Core_ID == 0) {
-                // cout << "clk " << clk << " get pr rd, addr=" << PR_Uram_Rd_Addr << endl;
-            }
+            // cout << "clk " << clk << " get pr rd, addr=" << PR_Uram_Rd_Addr << endl;
         }
         else {
             *PR_Uram_Data = 0;
@@ -73,6 +71,7 @@ void PR_Uram_Single(
     } else {
         if (PR_Uram_Wr_Valid) {
             PR_URAM[Core_ID][PR_Uram_Wr_Addr][0] = PR_Uram_Wr_Value;
+            // cout << "clk " << clk << ", PR Uram get write, addr: " << PR_Uram_Wr_Addr * CORE_NUM + Core_ID << ", data: " << *(float *)&PR_Uram_Wr_Value << endl;
         }
     }
 }

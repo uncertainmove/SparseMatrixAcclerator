@@ -18,7 +18,7 @@ int main(int argc, char **argv)
         return -1;
     }
     for (int i = 0; i < VTX_NUM; i++) {
-        fprintf(res_fp, "%d %.9f\n", i, double(PR_URAM[i % CORE_NUM][i / CORE_NUM][0]));
+        fprintf(res_fp, "%d %x\n", i, PR_URAM[i % CORE_NUM][i / CORE_NUM][0]);
     }
     cout << "[INFO] Store res file complete!" << endl;
     return 0;

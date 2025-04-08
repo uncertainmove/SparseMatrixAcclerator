@@ -91,16 +91,27 @@ void Read_Active_Vertex_Offset_Single(
             *Active_V_DValid = 1;
             
             v_id_buffer[Core_ID].pop();
+            // cout << "M02: send task, clk: " << clk << ", id: " << *Active_V_ID << ", off_addr: " << *RD_Active_V_Offset_Addr <<
+                // ", value_addr: " << *RD_Active_V_Value_Addr << endl;
         }
     }
 
+    static int end_ct[CORE_NUM];
     ///iteration end management, front_active_v_dvalid is used to avoid early end
     if (!rst_rd && Front_Iteration_End && Front_Iteration_End_DValid && v_buffer_empty[Core_ID] && !Front_Active_V_DValid) {
-        *Iteration_End = 1;
-        *Iteration_End_DValid = 1;
-        *Iteration_ID = Front_Iteration_ID;
+        if (end_ct[Core_ID] >= WAIT_END_DELAY) {
+            *Iteration_End = 1;
+            *Iteration_End_DValid = 1;
+            *Iteration_ID = Front_Iteration_ID;
+        } else {
+            end_ct[Core_ID]++;
+            *Iteration_End = 0;
+            *Iteration_End_DValid = 0;
+            *Iteration_ID = Front_Iteration_ID;
+        }
     }
     else {
+        end_ct[Core_ID] = 0;
         *Iteration_End = 0;
         *Iteration_End_DValid = 0;
         *Iteration_ID = Front_Iteration_ID;

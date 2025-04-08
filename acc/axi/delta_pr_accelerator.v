@@ -5,16 +5,16 @@
 `timescale 1 ns / 1 ps
 // Top level of the kernel. Do not modify module name, parameters or ports.
 module delta_pr_accelerator #(
-  parameter integer C_S_AXI_CONTROL_ADDR_WIDTH = 12 ,
-  parameter integer C_S_AXI_CONTROL_DATA_WIDTH = 32 ,
-  parameter integer C_M00_AXI_ADDR_WIDTH       = 64 ,
-  parameter integer C_M00_AXI_DATA_WIDTH       = 512,
-  parameter integer C_M01_AXI_ADDR_WIDTH       = 64 ,
-  parameter integer C_M01_AXI_DATA_WIDTH       = 512,
-  parameter integer C_M02_AXI_ADDR_WIDTH       = 64 ,
-  parameter integer C_M02_AXI_DATA_WIDTH       = 512,
-  parameter integer C_M03_AXI_ADDR_WIDTH       = 64 ,
-  parameter integer C_M03_AXI_DATA_WIDTH       = 512
+  parameter integer C_S_AXI_CONTROL_ADDR_WIDTH = 12  ,
+  parameter integer C_S_AXI_CONTROL_DATA_WIDTH = 32  ,
+  parameter integer C_M00_AXI_ADDR_WIDTH       = 64  ,
+  parameter integer C_M00_AXI_DATA_WIDTH       = 1024,
+  parameter integer C_M01_AXI_ADDR_WIDTH       = 64  ,
+  parameter integer C_M01_AXI_DATA_WIDTH       = 512 ,
+  parameter integer C_M02_AXI_ADDR_WIDTH       = 64  ,
+  parameter integer C_M02_AXI_DATA_WIDTH       = 512 ,
+  parameter integer C_M03_AXI_ADDR_WIDTH       = 64  ,
+  parameter integer C_M03_AXI_DATA_WIDTH       = 1024
 )
 (
   // System Signals

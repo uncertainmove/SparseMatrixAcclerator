@@ -125,13 +125,10 @@ void RD_ACTIVE_VERTEX_SINGLE(
             if (vis_bitmap_index[Core_ID] < BitMap_Compressed_NUM && active_vertex_bitmap == 1) {
                 *Active_V_ID = (vis_bitmap_index[Core_ID] * BitMap_Compressed_Length + active_vertex_index) * CORE_NUM + Core_ID;
                 *Active_V_DValid = (*Active_V_ID < VTX_NUM);
-
                 if (*Active_V_DValid) {
                     send_v++;
+                    // cout << "M01: send task, clk: " << clk << ", id: " << *Active_V_ID << endl;
                 }
-
-                #if (DEBUG)
-                #endif
             } else {
                 *Active_V_ID = 0;
                 *Active_V_DValid = 0;
@@ -166,6 +163,7 @@ void RD_ACTIVE_VERTEX_SINGLE(
                     cout << "iteration " << iteration_id[Core_ID] << " end at clk " << clk <<
                     " send vertex " << send_v << " edge updated " << v_updated <<
                     " active vertex " << active_vertex_num << endl;
+                    if (active_vertex_num == 0) iteration_end_flag = 1;
                     active_vertex_num = 0;
                 }
                 send_v = 0;
@@ -215,8 +213,10 @@ void RD_ACTIVE_VERTEX_SINGLE(
             // filter visited vertex in push mode
             if (vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] && !Backend_Active_V_Updated) {
                 active_vertex_num -= 1;
+                // cout << "clk: " << clk << ", M01 delete active vertex, id: " << Backend_Active_V_ID << endl;
             } else if (!vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] && Backend_Active_V_Updated) {
                 active_vertex_num += 1;
+                // cout << "clk: " << clk << ", M01 insert active vertex, id: " << Backend_Active_V_ID << endl;
             }
             vis_bitmap[Core_ID][next_bitmap_id][backend_v_bitmap_id1].v[backend_v_bitmap_id2] = Backend_Active_V_Updated;
         }

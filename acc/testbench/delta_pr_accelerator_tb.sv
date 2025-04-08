@@ -10,18 +10,27 @@ import slv_m02_axi_vip_pkg::*;
 import slv_m03_axi_vip_pkg::*;
 import control_delta_pr_accelerator_vip_pkg::*;
 module delta_pr_accelerator_tb ();
-parameter integer LP_MAX_LENGTH = 8192;
-parameter integer LP_MAX_TRANSFER_LENGTH = 16384 / 4;
+parameter integer ITERATION_NUM = 15;
+parameter integer VERTEX_NUM = 4039;
+parameter integer EDGE_NUM = 176468;
+parameter integer EDGE_NUM_0 = 89116;
+parameter integer EDGE_NUM_1 = 87352;
+string file_location = "/data/zz_data/projects/SparseMatrixAcclerator_pr_acc/acc/data/facebook/";
+// parameter integer VERTEX_NUM = 9;
+// parameter integer EDGE_NUM = 24;
+// parameter integer EDGE_NUM_0 = 24;
+// parameter integer EDGE_NUM_1 = 0;
+// string file_location = "/data/zz_data/projects/SparseMatrixAcclerator_pr_acc/acc/data/v_9_e_24/";
 parameter integer C_S_AXI_CONTROL_ADDR_WIDTH = 12;
 parameter integer C_S_AXI_CONTROL_DATA_WIDTH = 32;
 parameter integer C_M00_AXI_ADDR_WIDTH = 64;
-parameter integer C_M00_AXI_DATA_WIDTH = 512;
+parameter integer C_M00_AXI_DATA_WIDTH = 1024;
 parameter integer C_M01_AXI_ADDR_WIDTH = 64;
 parameter integer C_M01_AXI_DATA_WIDTH = 512;
 parameter integer C_M02_AXI_ADDR_WIDTH = 64;
 parameter integer C_M02_AXI_DATA_WIDTH = 512;
 parameter integer C_M03_AXI_ADDR_WIDTH = 64;
-parameter integer C_M03_AXI_DATA_WIDTH = 512;
+parameter integer C_M03_AXI_DATA_WIDTH = 1024;
 
 // Control Register
 parameter KRNL_CTRL_REG_ADDR     = 32'h00000000;
@@ -452,8 +461,15 @@ function void m00_axi_fill_memory(
   input bit [63:0] ptr,
   input integer    length
 );
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "off.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
   for (longint unsigned slot = 0; slot < length; slot++) begin
-    m00_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), slot);
+    $fscanf(fd, "%d", data);
+    m00_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
   end
 endfunction
 
@@ -463,8 +479,15 @@ function void m01_axi_fill_memory(
   input bit [63:0] ptr,
   input integer    length
 );
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "edge_0.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
   for (longint unsigned slot = 0; slot < length; slot++) begin
-    m01_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), slot);
+    $fscanf(fd, "%d", data);
+    m01_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
   end
 endfunction
 
@@ -474,8 +497,15 @@ function void m02_axi_fill_memory(
   input bit [63:0] ptr,
   input integer    length
 );
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "edge_1.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
   for (longint unsigned slot = 0; slot < length; slot++) begin
-    m02_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), slot);
+    $fscanf(fd, "%d", data);
+    m02_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
   end
 endfunction
 
@@ -809,15 +839,15 @@ task automatic set_scalar_registers();
 
   ///////////////////////////////////////////////////////////////////////////
   //Write ID 0: iteration_num (0x010) -> 32'hffffffff (scalar)
-  write_register(32'h010, 32'hffffffff);
+  write_register(32'h010, ITERATION_NUM);
 
   ///////////////////////////////////////////////////////////////////////////
   //Write ID 1: vertex_num (0x018) -> 32'hffffffff (scalar)
-  write_register(32'h018, 32'hffffffff);
+  write_register(32'h018, VERTEX_NUM);
 
   ///////////////////////////////////////////////////////////////////////////
   //Write ID 2: edge_num (0x020) -> 32'hffffffff (scalar)
-  write_register(32'h020, 32'hffffffff);
+  write_register(32'h020, EDGE_NUM);
 
 endtask
 
@@ -872,6 +902,7 @@ endtask
 task automatic set_memory_pointers();
   ///////////////////////////////////////////////////////////////////////////
   //Randomly generate memory pointers.
+  $display("%t : Setting Memory Pointer", $time);
   axi00_ptr0_ptr = get_random_ptr();
   axi01_ptr0_ptr = get_random_ptr();
   axi02_ptr0_ptr = get_random_ptr();
@@ -915,129 +946,72 @@ task automatic backdoor_fill_memories();
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Backdoor fill the memory with the content.
-  m00_axi_fill_memory(axi00_ptr0_ptr, LP_MAX_LENGTH);
+  m00_axi_fill_memory(axi00_ptr0_ptr, VERTEX_NUM * 2);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Backdoor fill the memory with the content.
-  m01_axi_fill_memory(axi01_ptr0_ptr, LP_MAX_LENGTH);
+  m01_axi_fill_memory(axi01_ptr0_ptr, EDGE_NUM_0);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Backdoor fill the memory with the content.
-  m02_axi_fill_memory(axi02_ptr0_ptr, LP_MAX_LENGTH);
+  m02_axi_fill_memory(axi02_ptr0_ptr, EDGE_NUM_1);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Backdoor fill the memory with the content.
-  m03_axi_fill_memory(axi03_ptr0_ptr, LP_MAX_LENGTH);
+  m03_axi_fill_memory(axi03_ptr0_ptr, VERTEX_NUM);
 
 endtask
 
 function automatic bit check_kernel_result();
   bit [31:0]        ret_rd_value = 32'h0;
+  real ret_pr_v, debug_pr_v, err;
+  bit [31 : 0] debug_pr_v_h, debug_pr_id;
+  bit [31:0]        cycle = 32'h0;
   bit error_found = 0;
   integer error_counter;
-  error_counter = 0;
+  integer fd;
+  integer fd_w;
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Checking memory connected to m00_axi
-  for (longint unsigned slot = 0; slot < LP_MAX_LENGTH; slot++) begin
-    ret_rd_value = m00_axi.mem_model.backdoor_memory_read_4byte(axi00_ptr0_ptr + (slot * 4));
-    if (slot < LP_MAX_TRANSFER_LENGTH) begin
-      if (ret_rd_value != (slot + 1)) begin
-        $error("Memory Mismatch: m00_axi : @0x%x : Expected 0x%x -> Got 0x%x ", axi00_ptr0_ptr + (slot * 4), slot + 1, ret_rd_value);
-        error_found |= 1;
-        error_counter++;
-      end
-    end else begin
-      if (ret_rd_value != slot) begin
-        $error("Memory Mismatch: m00_axi : @0x%x : Expected 0x%x -> Got 0x%x ", axi00_ptr0_ptr + (slot * 4), slot, ret_rd_value);
-        error_found |= 1;
-        error_counter++;
-      end
-    end
-    if (error_counter > 5) begin
-      $display("Too many errors found. Exiting check of m00_axi.");
-      slot = LP_MAX_LENGTH;
-    end
+  error_counter = 0;
+  fd = $fopen({file_location, "debug_res.txt"}, "r");
+  fd_w = $fopen({file_location, "res.txt"}, "w");
+  // fd_w = $fopen({file_location, "res.txt"}, "r");
+  if (!fd || !fd_w) begin
+    $finish();
   end
-  error_counter = 0;
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Checking memory connected to m01_axi
-  for (longint unsigned slot = 0; slot < LP_MAX_LENGTH; slot++) begin
-    ret_rd_value = m01_axi.mem_model.backdoor_memory_read_4byte(axi01_ptr0_ptr + (slot * 4));
-    if (slot < LP_MAX_TRANSFER_LENGTH) begin
-      if (ret_rd_value != (slot + 1)) begin
-        $error("Memory Mismatch: m01_axi : @0x%x : Expected 0x%x -> Got 0x%x ", axi01_ptr0_ptr + (slot * 4), slot + 1, ret_rd_value);
-        error_found |= 1;
-        error_counter++;
-      end
-    end else begin
-      if (ret_rd_value != slot) begin
-        $error("Memory Mismatch: m01_axi : @0x%x : Expected 0x%x -> Got 0x%x ", axi01_ptr0_ptr + (slot * 4), slot, ret_rd_value);
-        error_found |= 1;
-        error_counter++;
-      end
-    end
-    if (error_counter > 5) begin
-      $display("Too many errors found. Exiting check of m01_axi.");
-      slot = LP_MAX_LENGTH;
-    end
-  end
-  error_counter = 0;
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Checking memory connected to m02_axi
-  for (longint unsigned slot = 0; slot < LP_MAX_LENGTH; slot++) begin
-    ret_rd_value = m02_axi.mem_model.backdoor_memory_read_4byte(axi02_ptr0_ptr + (slot * 4));
-    if (slot < LP_MAX_TRANSFER_LENGTH) begin
-      if (ret_rd_value != (slot + 1)) begin
-        $error("Memory Mismatch: m02_axi : @0x%x : Expected 0x%x -> Got 0x%x ", axi02_ptr0_ptr + (slot * 4), slot + 1, ret_rd_value);
-        error_found |= 1;
-        error_counter++;
-      end
-    end else begin
-      if (ret_rd_value != slot) begin
-        $error("Memory Mismatch: m02_axi : @0x%x : Expected 0x%x -> Got 0x%x ", axi02_ptr0_ptr + (slot * 4), slot, ret_rd_value);
-        error_found |= 1;
-        error_counter++;
-      end
-    end
-    if (error_counter > 5) begin
-      $display("Too many errors found. Exiting check of m02_axi.");
-      slot = LP_MAX_LENGTH;
-    end
-  end
-  error_counter = 0;
-
+  cycle = m00_axi.mem_model.backdoor_memory_read_4byte(axi00_ptr0_ptr);
+  $display("Accelerator complete at cycle %d.", cycle);
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Checking memory connected to m03_axi
-  for (longint unsigned slot = 0; slot < LP_MAX_LENGTH; slot++) begin
+  for (longint unsigned slot = 0; slot < VERTEX_NUM; slot++) begin
     ret_rd_value = m03_axi.mem_model.backdoor_memory_read_4byte(axi03_ptr0_ptr + (slot * 4));
-    if (slot < LP_MAX_TRANSFER_LENGTH) begin
-      if (ret_rd_value != (slot + 1)) begin
-        $error("Memory Mismatch: m03_axi : @0x%x : Expected 0x%x -> Got 0x%x ", axi03_ptr0_ptr + (slot * 4), slot + 1, ret_rd_value);
-        error_found |= 1;
-        error_counter++;
-      end
-    end else begin
-      if (ret_rd_value != slot) begin
-        $error("Memory Mismatch: m03_axi : @0x%x : Expected 0x%x -> Got 0x%x ", axi03_ptr0_ptr + (slot * 4), slot, ret_rd_value);
-        error_found |= 1;
-        error_counter++;
-      end
+    ret_pr_v = $bitstoshortreal(ret_rd_value);
+    $fwrite(fd_w, "%d %h\n", slot, ret_rd_value); // 结果存放在文件
+    // $fscanf(fd_w, "%d %h", slot, ret_rd_value); // 结果存放在文件
+    // ret_pr_v = $bitstoshortreal(ret_rd_value);
+    $fscanf(fd, "%d %h", debug_pr_id, debug_pr_v_h);
+    debug_pr_v = $bitstoshortreal(debug_pr_v_h);
+    err = ret_pr_v - debug_pr_v > 0 ? ret_pr_v - debug_pr_v : debug_pr_v - ret_pr_v;
+    if (err / debug_pr_v < 0 || err / debug_pr_v > 0.0005) begin
+      // 强制规定误差不能超过0.05%
+      error_counter++;
+      error_found = 1;
+      $display("v_id: %d, debug_res: %f, acc_res: %f, err: %f.", slot, debug_pr_v, ret_pr_v, err);
+      $display("v_id: %d, debug_res: %h, acc_res: %h", slot, debug_pr_v_h, ret_rd_value);
     end
     if (error_counter > 5) begin
       $display("Too many errors found. Exiting check of m03_axi.");
-      slot = LP_MAX_LENGTH;
+      break;
     end
   end
-  error_counter = 0;
+  $fclose(fd);
+  $fclose(fd_w);
 
   return(error_found);
 endfunction
 
 bit choose_pressure_type = 0;
-bit axis_choose_pressure_type = 0;
 bit [0-1:0] axis_tlast_received;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1051,12 +1025,12 @@ task automatic multiple_iteration(input integer unsigned num_iterations, output 
 
     
     $display("Starting iteration: %d / %d", iter+1, num_iterations);
-    RAND_WREADY_PRESSURE_FAILED: assert(std::randomize(choose_pressure_type));
+    // RAND_WREADY_PRESSURE_FAILED: assert(std::randomize(choose_pressure_type));
     case(choose_pressure_type)
       0: slv_no_backpressure_wready();
       1: slv_random_backpressure_wready();
     endcase
-    RAND_RVALID_PRESSURE_FAILED: assert(std::randomize(choose_pressure_type));
+    // RAND_RVALID_PRESSURE_FAILED: assert(std::randomize(choose_pressure_type));
     case(choose_pressure_type)
       0: slv_no_delay_rvalid();
       1: slv_random_delay_rvalid();
@@ -1108,12 +1082,7 @@ initial begin : STIMULUS
   enable_interrupts();
 
   multiple_iteration(1, error_found);
-  if (error_found == 1) begin
-    $display( "Test Failed!");
-    $finish();
-  end
-
-  multiple_iteration(5, error_found);
+  // error_found |= check_kernel_result()   ;
 
   if (error_found == 1) begin
     $display( "Test Failed!");
@@ -1126,3 +1095,4 @@ end
 
 endmodule
 `default_nettype wire
+

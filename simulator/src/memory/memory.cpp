@@ -76,7 +76,7 @@ void Memory(pipe_manager* pipes) {
         cout << "----------------------------------------HBM ITF end-----------------------------------" << endl;
     #endif
 
-    HBM_Controller_IP(
+    HBM_Controller_IP_Ideal(
         sg_mem_rd.Rd_HBM_Edge_Addr, sg_mem_rd.Rd_HBM_Edge_Valid,
 
         sg_mem_wr.HBM_Controller_Full,

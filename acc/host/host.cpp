@@ -15,6 +15,8 @@ Associated Filename: main.c
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <bits/stdc++.h>
+#include <fstream>
 #ifdef _WINDOWS
 #include <io.h>
 #else
@@ -40,6 +42,8 @@ Associated Filename: main.c
 #define GET_STRING(name) STR_VALUE(name)
 #define TARGET_DEVICE GET_STRING(VITIS_PLATFORM)
 #endif
+
+using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -69,8 +73,6 @@ int main(int argc, char** argv)
 
     cl_int err;                            // error code returned from api calls
     cl_uint check_status = 0;
-    const cl_uint number_of_words = 4096; // 16KB of data
-
 
     cl_platform_id platform_id;         // platform id
     cl_device_id device_id;             // compute device id
@@ -80,149 +82,92 @@ int main(int argc, char** argv)
     cl_kernel kernel;                   // compute kernel
 
 
-    cl_uint* h_data;                                // host memory for input vector
+    cl_uint *h_data_off, *h_data_edge_0, *h_data_edge_1;                                // host memory for input vector
     char cl_platform_vendor[1001];
     char target_device_name[1001] = TARGET_DEVICE;
 
-    cl_uint* h_axi00_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi00_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi01_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi01_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi02_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi02_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi03_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi03_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi04_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi04_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi05_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi05_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi06_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi06_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi07_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi07_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi08_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi08_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi09_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi09_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi10_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi10_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi11_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi11_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi12_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi12_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi13_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi13_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi14_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi14_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi15_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi15_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi16_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi16_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi17_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi17_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi18_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi18_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi19_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi19_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi20_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi20_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi21_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi21_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi22_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi22_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi23_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi23_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi24_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi24_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi25_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi25_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi26_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi26_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi27_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi27_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi28_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi28_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi29_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi29_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi30_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi30_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi31_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*)); // host memory for output vector
-    cl_mem d_axi31_ptr0;                         // device memory used for a vector
-
-    if (argc != 2) {
-        printf("Usage: %s xclbin\n", argv[0]);
+    // ./exer xclbin off.txt edge_0.txt edge_1.txt debug_res.txt res.txt vertex_num edge_num iteration_num
+    if (argc != 11) {
+        printf("Usage: %s xclbin off.txt edge_0.txt edge_1.txt debug_res.txt res.txt vertex_num edge_0_num edge_1_num iteration_num\n", argv[0]);
         return EXIT_FAILURE;
     }
+    char *off_file = argv[2];
+    cout << "offset file: " << off_file << endl;
+    char *edge_0_file = argv[3];
+    cout << "edge_0 file: " << edge_0_file << endl;
+    char *edge_1_file = argv[4];
+    cout << "edge_1 file: " << edge_1_file << endl;
+    char *debug_res_file = argv[5];
+    cout << "debug res file: " << debug_res_file << endl;
+    char *res_file = argv[6];
+    cout << "res file: " << res_file << endl;
+    int vertex_num = atoi(argv[7]);
+    cout << "vertex num: " << vertex_num << endl;
+    int edge_0_num = atoi(argv[8]);
+    cout << "edge 0 num: " << edge_0_num << endl;
+    int edge_1_num = atoi(argv[9]);
+    cout << "edge 1 num: " << edge_1_num << endl;
+    int iteration_num = atoi(argv[10]);
+    cout << "iteration num: " << iteration_num << endl;
+
+    cl_uint* h_axi00_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, vertex_num * sizeof(cl_uint*)); // host memory for output vector
+    cl_mem d_axi00_ptr0;                         // device memory used for a vector
+
+    cl_uint* h_axi01_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, vertex_num * sizeof(cl_uint*)); // host memory for output vector
+    cl_mem d_axi01_ptr0;                         // device memory used for a vector
+
+    cl_uint* h_axi02_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, vertex_num * sizeof(cl_uint*)); // host memory for output vector
+    cl_mem d_axi02_ptr0;                         // device memory used for a vector
+
+    cl_uint* h_axi03_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, vertex_num * sizeof(cl_uint*)); // host memory for output vector
+    cl_mem d_axi03_ptr0;                         // device memory used for a vector
 
     // Fill our data sets with pattern
-    h_data = (cl_uint*)aligned_alloc(MEM_ALIGNMENT,MAX_LENGTH * sizeof(cl_uint*));
-    for(cl_uint i = 0; i < MAX_LENGTH; i++) {
-        h_data[i]  = i;
+    h_data_off = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, (vertex_num * 2) * sizeof(cl_uint*));
+    h_data_edge_0 = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, edge_0_num * sizeof(cl_uint*));
+    h_data_edge_1 = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, (edge_1_num + 1) * sizeof(cl_uint*));
+    for(cl_uint i = 0; i < vertex_num; i++) {
         h_axi00_ptr0_output[i] = 0; 
         h_axi01_ptr0_output[i] = 0; 
         h_axi02_ptr0_output[i] = 0; 
         h_axi03_ptr0_output[i] = 0; 
-        h_axi04_ptr0_output[i] = 0; 
-        h_axi05_ptr0_output[i] = 0; 
-        h_axi06_ptr0_output[i] = 0; 
-        h_axi07_ptr0_output[i] = 0; 
-        h_axi08_ptr0_output[i] = 0; 
-        h_axi09_ptr0_output[i] = 0; 
-        h_axi10_ptr0_output[i] = 0; 
-        h_axi11_ptr0_output[i] = 0; 
-        h_axi12_ptr0_output[i] = 0; 
-        h_axi13_ptr0_output[i] = 0; 
-        h_axi14_ptr0_output[i] = 0; 
-        h_axi15_ptr0_output[i] = 0; 
-        h_axi16_ptr0_output[i] = 0; 
-        h_axi17_ptr0_output[i] = 0; 
-        h_axi18_ptr0_output[i] = 0; 
-        h_axi19_ptr0_output[i] = 0; 
-        h_axi20_ptr0_output[i] = 0; 
-        h_axi21_ptr0_output[i] = 0; 
-        h_axi22_ptr0_output[i] = 0; 
-        h_axi23_ptr0_output[i] = 0; 
-        h_axi24_ptr0_output[i] = 0; 
-        h_axi25_ptr0_output[i] = 0; 
-        h_axi26_ptr0_output[i] = 0; 
-        h_axi27_ptr0_output[i] = 0; 
-        h_axi28_ptr0_output[i] = 0; 
-        h_axi29_ptr0_output[i] = 0; 
-        h_axi30_ptr0_output[i] = 0; 
-        h_axi31_ptr0_output[i] = 0; 
-
     }
+    cout << "Start Load Graph Offset" << endl;
+    ifstream in_off;
+    in_off.open(off_file);
+    if (!in_off) {
+      cout << "[ERROR] Failed to open " << off_file << endl;
+      exit(-1);
+    }
+    for(cl_uint i = 0; i < vertex_num * 2; i++) {
+        in_off >> h_data_off[i];
+    }
+    in_off.close();
+    cout << "Complete Load Graph Offset" << endl;
+    cout << "Start Load Graph Edge 0" << endl;
+    ifstream in_edge_0;
+    in_edge_0.open(edge_0_file);
+    if (!in_edge_0) {
+      cout << "[ERROR] Failed to open " << edge_0_file << endl;
+      exit(-1);
+    }
+    for(cl_uint i = 0; i < edge_0_num; i++) {
+        in_edge_0 >> h_data_edge_0[i];
+    }
+    in_edge_0.close();
+    cout << "Complete Load Graph Edge 0" << endl;
+    cout << "Start Load Graph Edge 1" << endl;
+    ifstream in_edge_1;
+    in_edge_1.open(edge_1_file);
+    if (!in_edge_1) {
+      cout << "[ERROR] Failed to open " << edge_1_file << endl;
+      exit(-1);
+    }
+    for(cl_uint i = 0; i < edge_1_num; i++) {
+        in_edge_1 >> h_data_edge_1[i];
+    }
+    in_edge_1.close();
+    cout << "Complete Load Graph Edge 1" << endl;
 
     // Get all platforms and then select Xilinx platform
     cl_platform_id platforms[16];       // platform id
@@ -355,7 +300,7 @@ int main(int argc, char** argv)
 
     // Create the compute kernel in the program we wish to run
     //
-    kernel = clCreateKernel(program, "acc_kernel", &err);
+    kernel = clCreateKernel(program, "delta_pr_accelerator", &err);
     if (!kernel || err != CL_SUCCESS) {
         printf("ERROR: Failed to create compute kernel!\n");
         printf("ERROR: Test failed\n");
@@ -368,536 +313,78 @@ int main(int argc, char** argv)
     mem_ext.param = kernel;
 
 
-    mem_ext.flags = 1;
-    d_axi00_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 2;
-    d_axi01_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
     mem_ext.flags = 3;
-    d_axi02_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
+    d_axi00_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * (vertex_num * 2), &mem_ext, &err);
     if (err != CL_SUCCESS) {
       std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
     }
-
-
     mem_ext.flags = 4;
-    d_axi03_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
+    d_axi01_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * edge_0_num,  &mem_ext, &err);
     if (err != CL_SUCCESS) {
       std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
     }
-
-
     mem_ext.flags = 5;
-    d_axi04_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
+    d_axi02_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * (edge_1_num + 1), &mem_ext, &err);
     if (err != CL_SUCCESS) {
       std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
     }
-
-
     mem_ext.flags = 6;
-    d_axi05_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
+    d_axi03_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * vertex_num, &mem_ext, &err);
     if (err != CL_SUCCESS) {
       std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
     }
-
-
-    mem_ext.flags = 7;
-    d_axi06_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 8;
-    d_axi07_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 9;
-    d_axi08_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 10;
-    d_axi09_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 11;
-    d_axi10_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 12;
-    d_axi11_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 13;
-    d_axi12_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 14;
-    d_axi13_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 15;
-    d_axi14_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 16;
-    d_axi15_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 17;
-    d_axi16_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 18;
-    d_axi17_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 19;
-    d_axi18_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 20;
-    d_axi19_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 21;
-    d_axi20_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 22;
-    d_axi21_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 23;
-    d_axi22_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 24;
-    d_axi23_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 25;
-    d_axi24_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 26;
-    d_axi25_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 27;
-    d_axi26_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 28;
-    d_axi27_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 29;
-    d_axi28_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 30;
-    d_axi29_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 31;
-    d_axi30_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    mem_ext.flags = 32;
-    d_axi31_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * number_of_words, &mem_ext, &err);
-    if (err != CL_SUCCESS) {
-      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
-    }
-
-
-    if (!(d_axi00_ptr0&&d_axi01_ptr0&&d_axi02_ptr0&&d_axi03_ptr0&&d_axi04_ptr0&&d_axi05_ptr0&&d_axi06_ptr0&&d_axi07_ptr0&&d_axi08_ptr0&&d_axi09_ptr0&&d_axi10_ptr0&&d_axi11_ptr0&&d_axi12_ptr0&&d_axi13_ptr0&&d_axi14_ptr0&&d_axi15_ptr0&&d_axi16_ptr0&&d_axi17_ptr0&&d_axi18_ptr0&&d_axi19_ptr0&&d_axi20_ptr0&&d_axi21_ptr0&&d_axi22_ptr0&&d_axi23_ptr0&&d_axi24_ptr0&&d_axi25_ptr0&&d_axi26_ptr0&&d_axi27_ptr0&&d_axi28_ptr0&&d_axi29_ptr0&&d_axi30_ptr0&&d_axi31_ptr0)) {
+    if (!(d_axi00_ptr0&&d_axi01_ptr0&&d_axi02_ptr0&&d_axi03_ptr0)) {
         printf("ERROR: Failed to allocate device memory!\n");
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
     }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi00_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
+    cout << "Complete Create Buffer" << endl;
+    err = clEnqueueWriteBuffer(commands, d_axi00_ptr0, CL_TRUE, 0, sizeof(cl_uint) * (vertex_num * 2), h_data_off, 0, NULL, NULL);
     if (err != CL_SUCCESS) {
         printf("ERROR: Failed to write to source array h_data: d_axi00_ptr0: %d!\n", err);
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
     }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi01_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(commands, d_axi01_ptr0, CL_TRUE, 0, sizeof(cl_uint) * edge_0_num, h_data_edge_0, 0, NULL, NULL);
     if (err != CL_SUCCESS) {
         printf("ERROR: Failed to write to source array h_data: d_axi01_ptr0: %d!\n", err);
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
     }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi02_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(commands, d_axi02_ptr0, CL_TRUE, 0, sizeof(cl_uint) * (edge_1_num + 1), h_data_edge_1, 0, NULL, NULL);
     if (err != CL_SUCCESS) {
         printf("ERROR: Failed to write to source array h_data: d_axi02_ptr0: %d!\n", err);
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
     }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi03_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
+    err = clEnqueueWriteBuffer(commands, d_axi03_ptr0, CL_TRUE, 0, sizeof(cl_uint) * vertex_num, h_data_off, 0, NULL, NULL);
     if (err != CL_SUCCESS) {
         printf("ERROR: Failed to write to source array h_data: d_axi03_ptr0: %d!\n", err);
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
     }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi04_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi04_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi05_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi05_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi06_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi06_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi07_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi07_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi08_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi08_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi09_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi09_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi10_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi10_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi11_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi11_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi12_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi12_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi13_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi13_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi14_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi14_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi15_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi15_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi16_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi16_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi17_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi17_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi18_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi18_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi19_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi19_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi20_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi20_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi21_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi21_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi22_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi22_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi23_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi23_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi24_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi24_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi25_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi25_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi26_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi26_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi27_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi27_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi28_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi28_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi29_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi29_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi30_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi30_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
-
-    err = clEnqueueWriteBuffer(commands, d_axi31_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_data, 0, NULL, NULL);
-    if (err != CL_SUCCESS) {
-        printf("ERROR: Failed to write to source array h_data: d_axi31_ptr0: %d!\n", err);
-        printf("ERROR: Test failed\n");
-        return EXIT_FAILURE;
-    }
-
+    cout << "Complete Write Buffer" << endl;
 
     // Set the arguments to our compute kernel
     // cl_uint vector_length = MAX_LENGTH;
     err = 0;
-    cl_uint d_root_id = 0;
-    err |= clSetKernelArg(kernel, 0, sizeof(cl_uint), &d_root_id); // Not used in example RTL logic.
-    err |= clSetKernelArg(kernel, 1, sizeof(cl_mem), &d_axi00_ptr0); 
-    err |= clSetKernelArg(kernel, 2, sizeof(cl_mem), &d_axi01_ptr0); 
-    err |= clSetKernelArg(kernel, 3, sizeof(cl_mem), &d_axi02_ptr0); 
-    err |= clSetKernelArg(kernel, 4, sizeof(cl_mem), &d_axi03_ptr0); 
-    err |= clSetKernelArg(kernel, 5, sizeof(cl_mem), &d_axi04_ptr0); 
-    err |= clSetKernelArg(kernel, 6, sizeof(cl_mem), &d_axi05_ptr0); 
-    err |= clSetKernelArg(kernel, 7, sizeof(cl_mem), &d_axi06_ptr0); 
-    err |= clSetKernelArg(kernel, 8, sizeof(cl_mem), &d_axi07_ptr0); 
-    err |= clSetKernelArg(kernel, 9, sizeof(cl_mem), &d_axi08_ptr0); 
-    err |= clSetKernelArg(kernel, 10, sizeof(cl_mem), &d_axi09_ptr0); 
-    err |= clSetKernelArg(kernel, 11, sizeof(cl_mem), &d_axi10_ptr0); 
-    err |= clSetKernelArg(kernel, 12, sizeof(cl_mem), &d_axi11_ptr0); 
-    err |= clSetKernelArg(kernel, 13, sizeof(cl_mem), &d_axi12_ptr0); 
-    err |= clSetKernelArg(kernel, 14, sizeof(cl_mem), &d_axi13_ptr0); 
-    err |= clSetKernelArg(kernel, 15, sizeof(cl_mem), &d_axi14_ptr0); 
-    err |= clSetKernelArg(kernel, 16, sizeof(cl_mem), &d_axi15_ptr0); 
-    err |= clSetKernelArg(kernel, 17, sizeof(cl_mem), &d_axi16_ptr0); 
-    err |= clSetKernelArg(kernel, 18, sizeof(cl_mem), &d_axi17_ptr0); 
-    err |= clSetKernelArg(kernel, 19, sizeof(cl_mem), &d_axi18_ptr0); 
-    err |= clSetKernelArg(kernel, 20, sizeof(cl_mem), &d_axi19_ptr0); 
-    err |= clSetKernelArg(kernel, 21, sizeof(cl_mem), &d_axi20_ptr0); 
-    err |= clSetKernelArg(kernel, 22, sizeof(cl_mem), &d_axi21_ptr0); 
-    err |= clSetKernelArg(kernel, 23, sizeof(cl_mem), &d_axi22_ptr0); 
-    err |= clSetKernelArg(kernel, 24, sizeof(cl_mem), &d_axi23_ptr0); 
-    err |= clSetKernelArg(kernel, 25, sizeof(cl_mem), &d_axi24_ptr0); 
-    err |= clSetKernelArg(kernel, 26, sizeof(cl_mem), &d_axi25_ptr0); 
-    err |= clSetKernelArg(kernel, 27, sizeof(cl_mem), &d_axi26_ptr0); 
-    err |= clSetKernelArg(kernel, 28, sizeof(cl_mem), &d_axi27_ptr0); 
-    err |= clSetKernelArg(kernel, 29, sizeof(cl_mem), &d_axi28_ptr0); 
-    err |= clSetKernelArg(kernel, 30, sizeof(cl_mem), &d_axi29_ptr0); 
-    err |= clSetKernelArg(kernel, 31, sizeof(cl_mem), &d_axi30_ptr0); 
-    err |= clSetKernelArg(kernel, 32, sizeof(cl_mem), &d_axi31_ptr0); 
+    cl_uint d_iteration_num = 10;
+    err |= clSetKernelArg(kernel, 0, sizeof(cl_uint), &d_iteration_num); // Not used in example RTL logic.
+    cl_uint d_vertex_num = vertex_num;
+    err |= clSetKernelArg(kernel, 1, sizeof(cl_uint), &d_vertex_num); // Not used in example RTL logic.
+    cl_uint d_edge_num = edge_0_num + edge_1_num;
+    err |= clSetKernelArg(kernel, 2, sizeof(cl_uint), &d_edge_num); // Not used in example RTL logic.
+    err |= clSetKernelArg(kernel, 3, sizeof(cl_mem), &d_axi00_ptr0); 
+    err |= clSetKernelArg(kernel, 4, sizeof(cl_mem), &d_axi01_ptr0); 
+    err |= clSetKernelArg(kernel, 5, sizeof(cl_mem), &d_axi02_ptr0); 
+    err |= clSetKernelArg(kernel, 6, sizeof(cl_mem), &d_axi03_ptr0); 
 
     if (err != CL_SUCCESS) {
         printf("ERROR: Failed to set kernel arguments! %d\n", err);
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
     }
+    cout << "Complete Set Args" << endl;
 
     size_t global[1];
     size_t local[1];
@@ -912,8 +399,10 @@ int main(int argc, char** argv)
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
     }
+    cout << "Call Execute Kernel" << endl;
 
     clFinish(commands);
+    cout << "Finish Execute Kernel" << endl;
 
 
     // Read back the results from the device to verify the output
@@ -921,70 +410,10 @@ int main(int argc, char** argv)
     cl_event readevent;
 
     err = 0;
-    err |= clEnqueueReadBuffer( commands, d_axi00_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi00_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi01_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi01_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi02_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi02_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi03_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi03_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi04_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi04_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi05_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi05_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi06_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi06_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi07_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi07_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi08_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi08_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi09_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi09_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi10_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi10_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi11_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi11_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi12_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi12_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi13_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi13_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi14_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi14_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi15_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi15_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi16_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi16_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi17_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi17_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi18_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi18_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi19_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi19_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi20_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi20_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi21_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi21_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi22_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi22_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi23_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi23_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi24_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi24_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi25_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi25_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi26_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi26_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi27_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi27_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi28_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi28_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi29_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi29_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi30_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi30_ptr0_output, 0, NULL, &readevent );
-
-    err |= clEnqueueReadBuffer( commands, d_axi31_ptr0, CL_TRUE, 0, sizeof(cl_uint) * number_of_words, h_axi31_ptr0_output, 0, NULL, &readevent );
-
+    err |= clEnqueueReadBuffer( commands, d_axi00_ptr0, CL_TRUE, 0, sizeof(cl_uint) * 1, h_axi00_ptr0_output, 0, NULL, &readevent );
+    // err |= clEnqueueReadBuffer( commands, d_axi01_ptr0, CL_TRUE, 0, sizeof(cl_uint) * vertex_num, h_axi01_ptr0_output, 0, NULL, &readevent );
+    // err |= clEnqueueReadBuffer( commands, d_axi02_ptr0, CL_TRUE, 0, sizeof(cl_uint) * vertex_num, h_axi02_ptr0_output, 0, NULL, &readevent );
+    err |= clEnqueueReadBuffer( commands, d_axi03_ptr0, CL_TRUE, 0, sizeof(cl_uint) * vertex_num, h_axi03_ptr0_output, 0, NULL, &readevent );
 
     if (err != CL_SUCCESS) {
         printf("ERROR: Failed to read output array! %d\n", err);
@@ -992,296 +421,47 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
     clWaitForEvents(1, &readevent);
+
+    cout << "total_clk: " << h_axi00_ptr0_output[0] << endl;
+    cout << "Start Store Graph Result" << endl;
+    ofstream out_res;
+    out_res.open(res_file);
+    if (!out_res) {
+      cout << "[ERROR] Failed to open " << res_file << endl;
+      exit(-1);
+    }
+    for (int i = 0; i < vertex_num; i++) {
+      out_res << i << " " << hex << h_axi03_ptr0_output[i] << endl;
+    }
+    out_res.close();
+    cout << "Complete Store Graph Result" << endl;
+    cout << "Start Check Graph Result" << endl;
+    FILE *in_debug_res = fopen(debug_res_file, "r");
+    if (!in_debug_res) {
+      cout << "[ERROR] Failed to open " << debug_res_file << endl;
+      exit(-1);
+    }
+    int debug_res_id, debug_res_data;
+    int error_counter = 0;
+    check_status = 0;
+    for (int i = 0; i < vertex_num; i++) {
+      fscanf(in_debug_res, "%d %x", &debug_res_id, &debug_res_data);
+      // cout << "id: " << debug_res_id << ", data: " << debug_res_data << endl;
+      float ret_pr_v = *(float *)&h_axi03_ptr0_output[i];
+      float debug_pr_v = *(float *)&debug_res_data;
+      float divation = ret_pr_v - debug_pr_v > 0 ? ret_pr_v - debug_pr_v : debug_pr_v - ret_pr_v;
+      if (divation / debug_pr_v < 0 || divation / debug_pr_v > 0.0005) {
+        error_counter++;
+        check_status = 1;
+        printf("debug_res: %f, acc_res: %f, err: %f.\n", debug_pr_v, ret_pr_v, err);
+      }
+      if (error_counter > 5) {
+        cout << "Too many errors found. Exiting check of result." << endl;
+        break;
+      }
+    }
+
     // Check Results
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi00_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m00_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi00_ptr0_output[i], h_axi00_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi00_ptr0_input[i], h_axi00_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi01_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m01_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi01_ptr0_output[i], h_axi01_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi01_ptr0_input[i], h_axi01_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi02_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m02_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi02_ptr0_output[i], h_axi02_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi02_ptr0_input[i], h_axi02_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi03_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m03_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi03_ptr0_output[i], h_axi03_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi03_ptr0_input[i], h_axi03_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi04_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m04_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi04_ptr0_output[i], h_axi04_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi04_ptr0_input[i], h_axi04_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi05_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m05_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi05_ptr0_output[i], h_axi05_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi05_ptr0_input[i], h_axi05_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi06_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m06_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi06_ptr0_output[i], h_axi06_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi06_ptr0_input[i], h_axi06_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi07_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m07_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi07_ptr0_output[i], h_axi07_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi07_ptr0_input[i], h_axi07_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi08_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m08_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi08_ptr0_output[i], h_axi08_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi08_ptr0_input[i], h_axi08_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi09_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m09_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi09_ptr0_output[i], h_axi09_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi09_ptr0_input[i], h_axi09_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi10_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m10_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi10_ptr0_output[i], h_axi10_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi10_ptr0_input[i], h_axi10_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi11_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m11_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi11_ptr0_output[i], h_axi11_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi11_ptr0_input[i], h_axi11_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi12_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m12_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi12_ptr0_output[i], h_axi12_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi12_ptr0_input[i], h_axi12_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi13_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m13_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi13_ptr0_output[i], h_axi13_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi13_ptr0_input[i], h_axi13_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi14_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m14_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi14_ptr0_output[i], h_axi14_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi14_ptr0_input[i], h_axi14_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi15_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m15_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi15_ptr0_output[i], h_axi15_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi15_ptr0_input[i], h_axi15_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi16_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m16_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi16_ptr0_output[i], h_axi16_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi16_ptr0_input[i], h_axi16_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi17_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m17_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi17_ptr0_output[i], h_axi17_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi17_ptr0_input[i], h_axi17_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi18_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m18_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi18_ptr0_output[i], h_axi18_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi18_ptr0_input[i], h_axi18_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi19_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m19_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi19_ptr0_output[i], h_axi19_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi19_ptr0_input[i], h_axi19_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi20_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m20_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi20_ptr0_output[i], h_axi20_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi20_ptr0_input[i], h_axi20_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi21_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m21_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi21_ptr0_output[i], h_axi21_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi21_ptr0_input[i], h_axi21_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi22_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m22_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi22_ptr0_output[i], h_axi22_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi22_ptr0_input[i], h_axi22_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi23_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m23_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi23_ptr0_output[i], h_axi23_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi23_ptr0_input[i], h_axi23_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi24_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m24_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi24_ptr0_output[i], h_axi24_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi24_ptr0_input[i], h_axi24_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi25_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m25_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi25_ptr0_output[i], h_axi25_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi25_ptr0_input[i], h_axi25_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi26_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m26_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi26_ptr0_output[i], h_axi26_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi26_ptr0_input[i], h_axi26_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi27_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m27_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi27_ptr0_output[i], h_axi27_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi27_ptr0_input[i], h_axi27_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi28_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m28_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi28_ptr0_output[i], h_axi28_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi28_ptr0_input[i], h_axi28_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi29_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m29_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi29_ptr0_output[i], h_axi29_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi29_ptr0_input[i], h_axi29_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi30_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m30_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi30_ptr0_output[i], h_axi30_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi30_ptr0_input[i], h_axi30_ptr0_output[i]);
-    }
-
-
-    for (cl_uint i = 0; i < number_of_words; i++) {
-        if ((h_data[i] + 1) != h_axi31_ptr0_output[i]) {
-            printf("ERROR in acc_kernel::m31_axi - array index %d (host addr 0x%03x) - input=%d (0x%x), output=%d (0x%x)\n", i, i*4, h_data[i], h_data[i], h_axi31_ptr0_output[i], h_axi31_ptr0_output[i]);
-            check_status = 1;
-        }
-      //  printf("i=%d, input=%d, output=%d\n", i,  h_axi31_ptr0_input[i], h_axi31_ptr0_output[i]);
-    }
-
-
     //--------------------------------------------------------------------------
     // Shutdown and cleanup
     //-------------------------------------------------------------------------- 
@@ -1297,93 +477,9 @@ int main(int argc, char** argv)
     clReleaseMemObject(d_axi03_ptr0);
     free(h_axi03_ptr0_output);
 
-    clReleaseMemObject(d_axi04_ptr0);
-    free(h_axi04_ptr0_output);
-
-    clReleaseMemObject(d_axi05_ptr0);
-    free(h_axi05_ptr0_output);
-
-    clReleaseMemObject(d_axi06_ptr0);
-    free(h_axi06_ptr0_output);
-
-    clReleaseMemObject(d_axi07_ptr0);
-    free(h_axi07_ptr0_output);
-
-    clReleaseMemObject(d_axi08_ptr0);
-    free(h_axi08_ptr0_output);
-
-    clReleaseMemObject(d_axi09_ptr0);
-    free(h_axi09_ptr0_output);
-
-    clReleaseMemObject(d_axi10_ptr0);
-    free(h_axi10_ptr0_output);
-
-    clReleaseMemObject(d_axi11_ptr0);
-    free(h_axi11_ptr0_output);
-
-    clReleaseMemObject(d_axi12_ptr0);
-    free(h_axi12_ptr0_output);
-
-    clReleaseMemObject(d_axi13_ptr0);
-    free(h_axi13_ptr0_output);
-
-    clReleaseMemObject(d_axi14_ptr0);
-    free(h_axi14_ptr0_output);
-
-    clReleaseMemObject(d_axi15_ptr0);
-    free(h_axi15_ptr0_output);
-
-    clReleaseMemObject(d_axi16_ptr0);
-    free(h_axi16_ptr0_output);
-
-    clReleaseMemObject(d_axi17_ptr0);
-    free(h_axi17_ptr0_output);
-
-    clReleaseMemObject(d_axi18_ptr0);
-    free(h_axi18_ptr0_output);
-
-    clReleaseMemObject(d_axi19_ptr0);
-    free(h_axi19_ptr0_output);
-
-    clReleaseMemObject(d_axi20_ptr0);
-    free(h_axi20_ptr0_output);
-
-    clReleaseMemObject(d_axi21_ptr0);
-    free(h_axi21_ptr0_output);
-
-    clReleaseMemObject(d_axi22_ptr0);
-    free(h_axi22_ptr0_output);
-
-    clReleaseMemObject(d_axi23_ptr0);
-    free(h_axi23_ptr0_output);
-
-    clReleaseMemObject(d_axi24_ptr0);
-    free(h_axi24_ptr0_output);
-
-    clReleaseMemObject(d_axi25_ptr0);
-    free(h_axi25_ptr0_output);
-
-    clReleaseMemObject(d_axi26_ptr0);
-    free(h_axi26_ptr0_output);
-
-    clReleaseMemObject(d_axi27_ptr0);
-    free(h_axi27_ptr0_output);
-
-    clReleaseMemObject(d_axi28_ptr0);
-    free(h_axi28_ptr0_output);
-
-    clReleaseMemObject(d_axi29_ptr0);
-    free(h_axi29_ptr0_output);
-
-    clReleaseMemObject(d_axi30_ptr0);
-    free(h_axi30_ptr0_output);
-
-    clReleaseMemObject(d_axi31_ptr0);
-    free(h_axi31_ptr0_output);
-
-
-
-    free(h_data);
+    free(h_data_off);
+    free(h_data_edge_0);
+    free(h_data_edge_1);
     clReleaseProgram(program);
 
      clReleaseKernel(kernel); 

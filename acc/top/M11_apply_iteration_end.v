@@ -14,21 +14,32 @@ module apply_iteration_end #(parameter
     input [CORE_NUM - 1 : 0]                    front_active_v_valid,
     input [CORE_NUM - 1 : 0]                    front_iteration_end,
     input [CORE_NUM - 1 : 0]                    front_iteration_end_valid,
+    input [CORE_NUM * ITERATION_WIDTH - 1 : 0]  front_iteration_id,
 
     output [CORE_NUM * V_ID_WIDTH - 1 : 0]      active_v_id,
     output [CORE_NUM - 1 : 0]                   active_v_updated,
     output [CORE_NUM - 1 : 0]                   active_v_valid,
     output [CORE_NUM - 1 : 0]                   iteration_end,
-    output [CORE_NUM - 1 : 0]                   iteration_end_valid
+    output [CORE_NUM - 1 : 0]                   iteration_end_valid,
+    output reg [CORE_NUM * ITERATION_WIDTH - 1 : 0]  iteration_id
 );
 
-    wire iteration_end_combined;
+    wire iteration_end_combined, iteration_end_valid_combined;
 
     btree_combine_iteration_end BTREE_COMBINE_ITERATION_END (
         .front_iteration_end        (front_iteration_end),
 
         .iteration_end_combined     (iteration_end_combined)
     );
+    btree_combine_iteration_end BTREE_COMBINE_ITERATION_END_VALID (
+        .front_iteration_end        (front_iteration_end_valid),
+
+        .iteration_end_combined     (iteration_end_valid_combined)
+    );
+
+    always @ (posedge clk) begin
+        iteration_id <= front_iteration_id;
+    end
 
     generate
         genvar i;
@@ -40,7 +51,7 @@ module apply_iteration_end #(parameter
                 .front_active_v_updated     (front_active_v_updated[i]),
                 .front_active_v_valid       (front_active_v_valid[i]),
                 .front_iteration_end        (iteration_end_combined),
-                .front_iteration_end_valid  (front_iteration_end_valid[i]),
+                .front_iteration_end_valid  (iteration_end_valid_combined),
 
                 .active_v_id                (active_v_id[(i + 1) * V_ID_WIDTH - 1 : i * V_ID_WIDTH]),
                 .active_v_updated           (active_v_updated[i]),

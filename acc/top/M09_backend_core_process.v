@@ -6,6 +6,7 @@ module backend_core #(parameter
     V_ID_WIDTH = `V_ID_WIDTH,
     V_VALUE_WIDTH = `V_VALUE_WIDTH,
     ITERATION_WIDTH = `ITERATION_WIDTH,
+    V_OFF_AWIDTH = `V_OFF_AWIDTH,
     CORE_NUM = `CORE_NUM
 ) (
     input                                       clk,
@@ -20,7 +21,7 @@ module backend_core #(parameter
 
     output reg [CORE_NUM - 1 : 0]               next_rst,
     output [CORE_NUM - 1 : 0]                   dest_core_full,
-    output [CORE_NUM * V_ID_WIDTH - 1 : 0]      wr_vertex_bram_addr,
+    output [CORE_NUM * V_OFF_AWIDTH - 1 : 0]    wr_vertex_bram_addr,
     output [CORE_NUM * V_VALUE_WIDTH - 1 : 0]   wr_vertex_bram_data,
     output [CORE_NUM - 1 : 0]                   wr_vertex_bram_valid,
     output [CORE_NUM - 1 : 0]                   wr_vertex_bram_iteration_end,
@@ -46,7 +47,7 @@ module backend_core #(parameter
                 .next_stage_full        (next_stage_full[i]),
 
                 .dest_core_full         (dest_core_full[i]),
-                .wr_vertex_bram_addr    (wr_vertex_bram_addr[(i + 1) * V_ID_WIDTH - 1 : i * V_ID_WIDTH]),
+                .wr_vertex_bram_addr    (wr_vertex_bram_addr[(i + 1) * V_OFF_AWIDTH - 1 : i * V_OFF_AWIDTH]),
                 .wr_vertex_bram_data    (wr_vertex_bram_data[(i + 1) * V_VALUE_WIDTH - 1 : i * V_VALUE_WIDTH]),
                 .wr_vertex_bram_valid   (wr_vertex_bram_valid[i]),
                 .wr_vertex_bram_iteration_end   (wr_vertex_bram_iteration_end[i]),
@@ -64,7 +65,8 @@ module backend_destination_core_single #(parameter
     V_VALUE_WIDTH = `V_VALUE_WIDTH,
     CORE_ID = 0,
     CORE_NUM = `CORE_NUM,
-    CORE_NUM_WIDTH = `CORE_NUM_WIDTH
+    CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
+    V_OFF_AWIDTH = `V_OFF_AWIDTH
 ) (
     input                   clk,
     input                   rst,
@@ -77,7 +79,7 @@ module backend_destination_core_single #(parameter
     input                           next_stage_full,
 
     output reg                          dest_core_full,
-    output reg [V_ID_WIDTH - 1 : 0]     wr_vertex_bram_addr,
+    output reg [V_OFF_AWIDTH - 1 : 0]     wr_vertex_bram_addr,
     output reg [V_VALUE_WIDTH - 1 : 0]  wr_vertex_bram_data,
     output reg                          wr_vertex_bram_valid,
     output reg                          wr_vertex_bram_iteration_end,

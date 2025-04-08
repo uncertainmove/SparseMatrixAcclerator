@@ -9,11 +9,14 @@ module rd_active_vertex #(parameter
 ) (
     input                                   clk,
     input                                   rst,
+    input [31 : 0]                          vertex_num,
+    input [31 : 0]                          iteration_num,
     input [CORE_NUM * V_ID_WIDTH - 1 : 0]   backend_active_v_id,
     input [CORE_NUM - 1 : 0]                backend_active_v_updated,
     input [CORE_NUM - 1 : 0]                backend_active_v_id_valid,
     input [CORE_NUM - 1 : 0]                backend_iteration_end,
     input [CORE_NUM - 1 : 0]                backend_iteration_end_valid,
+    input [CORE_NUM * ITERATION_WIDTH - 1 : 0]  backend_iteration_id,
     input [CORE_NUM - 1 : 0]                next_stage_full,
 
     output reg [CORE_NUM - 1 : 0]           next_rst,
@@ -33,11 +36,14 @@ module rd_active_vertex #(parameter
             rd_active_vertex_single #(.CORE_ID(i)) RD_ACTIVE_VERTEX_SINGLE (
                 .clk                    (clk),
                 .rst                    (rst),
+                .vertex_num             (vertex_num),
+                .iteration_num          (iteration_num),
                 .backend_active_v_id    (backend_active_v_id[(i + 1) * V_ID_WIDTH - 1 : i * V_ID_WIDTH]),
                 .backend_active_v_updated   (backend_active_v_updated[i]),
                 .backend_active_v_id_valid  (backend_active_v_id_valid[i]),
                 .backend_iteration_end      (backend_iteration_end[i]),
                 .backend_iteration_end_valid    (backend_iteration_end_valid[i]),
+                .backend_iteration_id       (backend_iteration_id[(i + 1) * ITERATION_WIDTH - 1 : i * ITERATION_WIDTH]),
                 .next_stage_full            (next_stage_full[i]),
 
                 .iteration_done             (iteration_done[i]),
@@ -60,18 +66,20 @@ module rd_active_vertex_single #(parameter
     CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
     BITMAP_COMPRESSED_LENGTH = `BITMAP_COMPRESSED_LENGTH,
     BITMAP_COMPRESSED_LENGTH_WIDTH = `BITMAP_COMPRESSED_LENGTH_WIDTH,
-    BITMAP_COMPRESSED_NUM = `BITMAP_COMPRESSED_NUM,
     BITMAP_COMPRESSED_NUM_WIDTH = `BITMAP_COMPRESSED_NUM_WIDTH,
     ITERATION_WIDTH = `ITERATION_WIDTH,
     MAX_ITERATION_NUM = `MAX_ITERATION_NUM
 ) (
     input                           clk,
     input                           rst,
+    input [31 : 0]                  vertex_num,
+    input [31 : 0]                  iteration_num,
     input [V_ID_WIDTH - 1 : 0]      backend_active_v_id,
     input                           backend_active_v_updated,
     input                           backend_active_v_id_valid,
     input                           backend_iteration_end,
     input                           backend_iteration_end_valid,
+    input [ITERATION_WIDTH - 1 : 0] backend_iteration_id,
     input                           next_stage_full,
 
     output                          iteration_done,
@@ -91,7 +99,8 @@ module rd_active_vertex_single #(parameter
     reg [2 : 0]                             prefetch_addr_valid; // bram delay
     // set to 0 when detect falling-edge
     reg                                     iteration_lock;
-    
+
+    wire [31 : 0] bitmap_compressed_num;
     wire now_bitmap_id, next_bitmap_id;
     wire [BITMAP_COMPRESSED_LENGTH - 1 : 0] prefetch_buffer_top;
     wire prefetch_buffer_empty, prefetch_buffer_almost_full;
@@ -100,12 +109,13 @@ module rd_active_vertex_single #(parameter
     wire [BITMAP_COMPRESSED_LENGTH_WIDTH - 1 : 0]   active_vertex_index;
     wire                                            active_vertex_bitmap;
 
+    assign bitmap_compressed_num = ((vertex_num + `CORE_NUM * `BITMAP_COMPRESSED_LENGTH - 1) >> (`CORE_NUM_WIDTH + `BITMAP_COMPRESSED_LENGTH_WIDTH));
     assign backend_v_bitmap_id1 = backend_active_v_id >> CORE_NUM_WIDTH >> BITMAP_COMPRESSED_LENGTH_WIDTH;
     assign backend_v_bitmap_id2 = backend_active_v_id[CORE_NUM_WIDTH + BITMAP_COMPRESSED_LENGTH_WIDTH - 1 : CORE_NUM_WIDTH];
     assign now_bitmap_id = local_iteration_id[0];
     assign next_bitmap_id = local_iteration_id[0] ^ 1;
     assign iteration_id = local_iteration_id;
-    assign iteration_done = (local_iteration_id == MAX_ITERATION_NUM);
+    assign iteration_done = (local_iteration_id == iteration_num);
 
     btree_cal_active_vtx_in_bitmap BTREE (
         .bitmap     (local_vis_bitmap_now),
@@ -119,8 +129,8 @@ module rd_active_vertex_single #(parameter
     vis_bitmap  VIS_BITMAP_BRAM_IP_SINGLE_0 (
         .clka       (clk),
         .ena        (!rst),
-        .wea        ((backend_active_v_id_valid && !next_bitmap_id) || (local_vis_bitmap_index < BITMAP_COMPRESSED_NUM && !active_vertex_bitmap && !now_bitmap_id)),
-        .addra      (!next_bitmap_id ? (backend_active_v_id >> CORE_NUM_WIDTH) : ((local_vis_bitmap_index << 5) + active_vertex_index)),
+        .wea        ((backend_active_v_id_valid && !next_bitmap_id) || (local_vis_bitmap_index < bitmap_compressed_num && active_vertex_bitmap && !now_bitmap_id)),
+        .addra      (!next_bitmap_id ? (backend_active_v_id >> CORE_NUM_WIDTH) : {{5'b0},{((local_vis_bitmap_index << 5) + active_vertex_index)}}),
         .dina       (!next_bitmap_id ? backend_active_v_updated : 1'b0),
         .clkb       (clk),
         .enb        (!rst && !now_bitmap_id),
@@ -131,8 +141,8 @@ module rd_active_vertex_single #(parameter
     vis_bitmap_1  VIS_BITMAP_BRAM_IP_SINGLE_1 (
         .clka       (clk),
         .ena        (!rst),
-        .wea        ((backend_active_v_id_valid && next_bitmap_id) || (local_vis_bitmap_index < BITMAP_COMPRESSED_NUM && !active_vertex_bitmap && now_bitmap_id)),
-        .addra      (next_bitmap_id ? (backend_active_v_id >> CORE_NUM_WIDTH) : ((local_vis_bitmap_index << 5) + active_vertex_index)),
+        .wea        ((backend_active_v_id_valid && next_bitmap_id) || (local_vis_bitmap_index < bitmap_compressed_num && active_vertex_bitmap && now_bitmap_id)),
+        .addra      (next_bitmap_id ? (backend_active_v_id >> CORE_NUM_WIDTH) : {{5'b0},{((local_vis_bitmap_index << 5) + active_vertex_index)}}),
         .dina       (next_bitmap_id ? backend_active_v_updated : 1'b0),
         .clkb       (clk),
         .enb        (!rst && now_bitmap_id),
@@ -146,7 +156,7 @@ module rd_active_vertex_single #(parameter
         .srst       (rst),
         .din        (local_vis_bitmap[now_bitmap_id]),
         .wr_en      (prefetch_addr_valid[2]),
-        .rd_en      (local_vis_bitmap_index < BITMAP_COMPRESSED_NUM && local_init_bitmap_id == BITMAP_COMPRESSED_NUM && !active_vertex_bitmap),
+        .rd_en      (local_vis_bitmap_index < bitmap_compressed_num && local_init_bitmap_id == bitmap_compressed_num && !active_vertex_bitmap && !prefetch_buffer_empty),
         .dout       (prefetch_buffer_top),
         .full       (),
         .prog_full  (prefetch_buffer_almost_full),
@@ -155,10 +165,10 @@ module rd_active_vertex_single #(parameter
     );
 
     always @ (posedge clk) begin
-        if (rst) begin
+        if (rst || iteration_done) begin
             iteration_lock <= 1;
         end else begin
-            if (backend_iteration_end && backend_iteration_end_valid) begin
+            if (backend_iteration_end && backend_iteration_end_valid && backend_iteration_id == local_iteration_id) begin
                 iteration_lock <= 0;
             end else begin
                 iteration_lock <= 1;
@@ -169,7 +179,7 @@ module rd_active_vertex_single #(parameter
     // output vid
     // Warning: isolate vertex need to be filter in M3
     always @ (posedge clk) begin
-        if (rst || local_init_bitmap_id < BITMAP_COMPRESSED_NUM) begin
+        if (rst || local_init_bitmap_id < bitmap_compressed_num || iteration_done) begin
             active_v_id <= 0;
             active_v_id_valid <= 0;
         end else begin
@@ -177,9 +187,9 @@ module rd_active_vertex_single #(parameter
                 active_v_id <= 0;
                 active_v_id_valid <= 0;
             end else begin
-                if (local_vis_bitmap_index < BITMAP_COMPRESSED_NUM && active_vertex_bitmap) begin
+                if (local_vis_bitmap_index < bitmap_compressed_num && active_vertex_bitmap) begin
                     active_v_id <= (local_vis_bitmap_index << BITMAP_COMPRESSED_LENGTH_WIDTH << CORE_NUM_WIDTH) + (active_vertex_index << CORE_NUM_WIDTH) + CORE_ID;
-                    active_v_id_valid <= 1;
+                    active_v_id_valid <= ((local_vis_bitmap_index << BITMAP_COMPRESSED_LENGTH_WIDTH << CORE_NUM_WIDTH) + (active_vertex_index << CORE_NUM_WIDTH) + CORE_ID) < vertex_num;
                 end else begin
                     active_v_id <= 0;
                     active_v_id_valid <= 0;
@@ -188,6 +198,7 @@ module rd_active_vertex_single #(parameter
         end
     end
 
+    wire iteration_change_flag = backend_iteration_end && backend_iteration_end_valid && backend_iteration_id == local_iteration_id && iteration_lock;
     // output iteration end
     always @ (posedge clk) begin
         if (rst) begin
@@ -197,13 +208,13 @@ module rd_active_vertex_single #(parameter
         end else begin
             if (iteration_end) begin
                 // check if prefetch buffer is empty
-                if (backend_iteration_end && backend_iteration_end_valid && iteration_lock) begin
+                if (iteration_change_flag) begin
                     local_iteration_id <= local_iteration_id + 1;
                     iteration_end <= 0;
                     iteration_end_valid <= 0;
                 end
             end else begin
-                if (local_vis_bitmap_index >= BITMAP_COMPRESSED_NUM) begin
+                if (local_vis_bitmap_index >= bitmap_compressed_num - 1 && !active_vertex_bitmap && prefetch_buffer_empty && !local_vis_bitmap_index_lock) begin
                     iteration_end <= 1;
                     iteration_end_valid <= 1;
                 end
@@ -213,12 +224,13 @@ module rd_active_vertex_single #(parameter
 
     // pull mode : bitmap prefetch addr
     always @ (posedge clk) begin
-        if (rst || local_init_bitmap_id < BITMAP_COMPRESSED_NUM) begin
+        if (rst || local_init_bitmap_id < bitmap_compressed_num || iteration_done) begin
             prefetch_addr <= {(BITMAP_COMPRESSED_NUM_WIDTH + 1){1'b1}};
             prefetch_addr_valid <= 0;
         end else begin
             // prefetch
-            if (prefetch_addr < BITMAP_COMPRESSED_NUM || prefetch_addr == {(BITMAP_COMPRESSED_NUM_WIDTH + 1){1'b1}}) begin
+            // 按照点编号范围预取数据
+            if (prefetch_addr == {(BITMAP_COMPRESSED_NUM_WIDTH + 1){1'b1}} || (prefetch_addr < bitmap_compressed_num - 1)) begin
                 if (!prefetch_buffer_almost_full) begin
                     prefetch_addr <= prefetch_addr + 1;
                     prefetch_addr_valid[0] <= 1;
@@ -227,7 +239,7 @@ module rd_active_vertex_single #(parameter
                 end
             end else begin
                 prefetch_addr_valid[0] <= 0;
-                if (backend_iteration_end && backend_iteration_end_valid && iteration_lock) begin
+                if (iteration_change_flag) begin
                     prefetch_addr <= {(BITMAP_COMPRESSED_NUM_WIDTH + 1){1'b1}};
                 end
             end
@@ -238,35 +250,24 @@ module rd_active_vertex_single #(parameter
 
     // bitmap read in local reg
     always @ (posedge clk) begin
-        if (rst) begin
-            local_vis_bitmap_now <= {BITMAP_COMPRESSED_LENGTH{1'b1}};
+        if (rst || local_init_bitmap_id < bitmap_compressed_num || iteration_change_flag || iteration_done) begin
+            local_vis_bitmap_now <= {BITMAP_COMPRESSED_LENGTH{1'b0}};
             local_vis_bitmap_index <= 0;
-            local_vis_bitmap_index_lock <= 0;
+            local_vis_bitmap_index_lock <= 1;
         end else begin
-            if (local_init_bitmap_id == BITMAP_COMPRESSED_NUM) begin
-                if (local_vis_bitmap_index < BITMAP_COMPRESSED_NUM) begin
-                    if (!active_vertex_bitmap) begin
-                        if(!prefetch_buffer_empty)begin
-                            local_vis_bitmap_now <= prefetch_buffer_top;
-                            if((local_vis_bitmap_index!=0 || local_vis_bitmap_index_lock)) begin
-                                local_vis_bitmap_index <= local_vis_bitmap_index + 1;
-                                local_vis_bitmap_index_lock <= 0;
-                            end
-                            else begin
-                                local_vis_bitmap_index_lock <= 1;
-                            end
-                        end
+            if (!active_vertex_bitmap) begin
+                if(!prefetch_buffer_empty)begin
+                    local_vis_bitmap_now <= prefetch_buffer_top;
+                    if((local_vis_bitmap_index == 0 && local_vis_bitmap_index_lock)) begin
+                        local_vis_bitmap_index_lock <= 0;
                     end else begin
-                        if (!next_stage_full) begin
-                            local_vis_bitmap_now[active_vertex_index] = 1'b0;
-                        end
+                        local_vis_bitmap_index <= local_vis_bitmap_index + 1;
                     end
                 end
             end else begin
-                // do initial
-                local_vis_bitmap_now <= {BITMAP_COMPRESSED_LENGTH{1'b1}};
-                local_vis_bitmap_index <= 0;
-                local_vis_bitmap_index_lock <= 0;
+                if (!next_stage_full) begin
+                    local_vis_bitmap_now[active_vertex_index] = 1'b0;
+                end
             end
         end
     end
@@ -275,10 +276,10 @@ module rd_active_vertex_single #(parameter
     // bitmap initial & write
     // note: use bram ip initial
     always @ (posedge clk) begin
-        if (rst) begin
+        if (rst || iteration_done) begin
             local_init_bitmap_id <= 0;
         end else begin
-            if (local_init_bitmap_id < BITMAP_COMPRESSED_NUM) begin
+            if (local_init_bitmap_id < bitmap_compressed_num) begin
                 local_init_bitmap_id <= local_init_bitmap_id + 1;
             end
         end
@@ -292,8 +293,8 @@ module btree_cal_active_vtx_in_bitmap #(parameter
 ) (
     input [BITMAP_COMPRESSED_LENGTH - 1 : 0] bitmap,
 
-    output [BITMAP_COMPRESSED_LENGTH_WIDTH - 1 : 0] index,
-    output all_visited
+    output [BITMAP_COMPRESSED_LENGTH_WIDTH - 1 : 0] index, // 第一个为1的位置
+    output all_visited // 0代表全部visited, 1代表存在未visitied的数据
 );
 
     wire [BITMAP_COMPRESSED_LENGTH_WIDTH - 1 : 0] index_level0 [0 : 31];

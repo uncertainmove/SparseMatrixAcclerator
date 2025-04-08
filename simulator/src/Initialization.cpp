@@ -16,7 +16,6 @@ vector<int> Edge_MEM[PSEUDO_CHANNEL_NUM];
 int VERTEX_DEGREE[CORE_NUM][MAX_VERTEX_NUM / CORE_NUM + 1];
 
 vector<pair<int, int>> no_self_edge_vec;
-vector<int> edge_sort_degree;
 
 int ori_pr(vector<V_VALUE_TP>& pr_res) {
     return 0;
@@ -25,63 +24,38 @@ int ori_pr(vector<V_VALUE_TP>& pr_res) {
 void Validation_Vertex_bram(int root_id) {
 }
 
-void Initialize_Input_Graph(char *off_file, char *edge_file) {
-    ifstream in_off,in_list;
-    in_off.open(off_file);
-    in_list.open(edge_file);
-    if(!in_off) {
+void Initialize_Input_Graph(int v_num, int e_num, char *off_file, char *edge_file, int has_header) {
+    FILE *off_fp, *list_fp;
+    off_fp = fopen(off_file, "r");
+    list_fp = fopen(edge_file, "r");
+    if(!off_fp) {
        cout << "[ERROR] Failed to open " << off_file << endl;
        exit(-1);
     }
-    if(!in_list) {
+    if(!list_fp) {
         cout << "[ERROR] Failed to open " << edge_file << endl;
         exit(-1);
     }
-    VTX_NUM = -1;
-    EDGE_NUM = 0;
     for (int i = 0; i < PSEUDO_CHANNEL_NUM; i++) {
         Edge_MEM[i].clear();
     }
     Ori_Edge_MEM.clear();
-    edge_sort_degree.clear();
     no_self_edge_vec.clear();
-    // delete self-edge
-    int idx = 0;
-    while(in_off >> Csr_Offset[idx]) {
-        idx++;
-        VTX_NUM++;
+    if (has_header) {
+        int tmp_v_num, tmp_e_num;
+        fscanf (off_fp, "%d", &tmp_v_num);
+        fscanf (list_fp, "%d", &tmp_e_num);
+        assert (tmp_v_num == VTX_NUM);
+        assert (tmp_e_num == EDGE_NUM);
     }
-    int delete_edge = 0;
-    for (int vid = 0; vid < VTX_NUM; vid++) {
-        for (int off = Csr_Offset[vid]; off < Csr_Offset[vid + 1]; off++) {
-            int dst_id = 0;
-            in_list >> dst_id;
-            /*
-            if (vid == dst_id) {
-                delete_edge++;
-                continue; // skip self-edge
-            }
-            */
-            no_self_edge_vec.push_back(pair<int, int>(vid, dst_id));
-        }
+    for (int i = 0; i < VTX_NUM + 1; i++) {
+        fscanf (off_fp, "%d", &Csr_Offset[i]);
     }
-    cout << "delete_edge=" << delete_edge << endl;
-    EDGE_NUM = no_self_edge_vec.size();
-
-    int cu_vid = 0, loff = 0, roff = 0;
     for (int i = 0; i < EDGE_NUM; i++) {
-        while (cu_vid != no_self_edge_vec[i].first) {
-            Csr_Offset[cu_vid] = loff;
-            loff = roff;
-            cu_vid++;
-            // cout << cu_vid << " " << no_self_edge_vec[i].first << endl;
-            if (cu_vid > no_self_edge_vec[i].first) exit(-1);
-        }
-        Ori_Edge_MEM.push_back(no_self_edge_vec[i].second);
-        roff++;
+        int dst_id;
+        fscanf (list_fp, "%d", &dst_id);
+        Ori_Edge_MEM.push_back(dst_id);
     }
-    Csr_Offset[cu_vid] = loff;
-    Csr_Offset[cu_vid + 1] = roff;
     auto compare = [](const int v1, const int v2) -> bool {
         return (Csr_Offset[v1 + 1] - Csr_Offset[v1]) > (Csr_Offset[v2 + 1] - Csr_Offset[v2]);
     };
@@ -93,7 +67,6 @@ void Initialize_Input_Graph(char *off_file, char *edge_file) {
     }
     #if STORE_DATA
         // write file
-        const string prefix = "./edge_channel_";
         for (int i = 0; i < PSEUDO_CHANNEL_NUM; i++) {
             FILE* edge_fp;
             string cu_filename = prefix;
@@ -108,9 +81,8 @@ void Initialize_Input_Graph(char *off_file, char *edge_file) {
         }
     #endif
 
-    in_off.close();
-    in_list.close();
-    // fclose(fp);
+    fclose(off_fp);
+    fclose(list_fp);
     printf("Initialize Graph Complete\n");
 }
 
@@ -130,7 +102,9 @@ void Initialize_Offset_Uram(int V_Num) {
     printf("Initialize Offset Complete\n");
 }
 
-void Initialize_Delta_Bram(){
+void Initialize_Delta_Bram() {
+    const V_VALUE_TP ONE_OVER_N = 1.0 / VTX_NUM;
+    const V_VALUE_TP ADDED_CONST = (V_VALUE_TP(1.0) - DAMPING) * ONE_OVER_N;
     for(int i = 0; i < CORE_NUM; i++){
         for(int j = 0; j < MAX_VERTEX_NUM / CORE_NUM + 1; j++){
             DELTA1_BRAM[i][j] = ONE_OVER_N;
@@ -141,6 +115,8 @@ void Initialize_Delta_Bram(){
 }
 
 void Initialize_PR_Uram(){
+    const V_VALUE_TP ONE_OVER_N = 1.0 / VTX_NUM;
+    const V_VALUE_TP ADDED_CONST = (V_VALUE_TP(1.0) - DAMPING) * ONE_OVER_N;
     for(int i = 0; i < CORE_NUM; i++){
         for(int j = 0; j < MAX_VERTEX_NUM / CORE_NUM + 1; j++){
             PR_URAM[i][j][0] = ADDED_CONST;

@@ -6,59 +6,98 @@ module offset_uram #(parameter
     V_ID_WIDTH = `V_ID_WIDTH,
     V_OFF_AWIDTH = `V_OFF_AWIDTH,
     V_OFF_DWIDTH = `V_OFF_DWIDTH,
-    HBM_DWIDTH = `HBM_DWIDTH,
+    HBM_DWIDTH = 1024,
     HBM_AWIDTH = `HBM_AWIDTH,
     PSEUDO_CHANNEL_NUM = `PSEUDO_CHANNEL_NUM,
     HBM_DWIDTH_PER_CORE = `HBM_DWIDTH_PER_CORE,
     CORE_NUM = `CORE_NUM,
-    CORE_NUM_WIDTH = `CORE_NUM_WIDTH
+    CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
+    VTX_NUM_WIDTH = `VTX_NUM_WIDTH
 ) (
-    input                               clk,
-    input                               uram_rst,
-    input [PSEUDO_CHANNEL_NUM * HBM_DWIDTH - 1 : 0] hbm_controller_data,
-    input [PSEUDO_CHANNEL_NUM - 1 : 0]              hbm_data_valid,
-    input [PSEUDO_CHANNEL_NUM - 1 : 0]              hbm_controller_full,
-    input [CORE_NUM - 1 : 0]            rst,
-    input [CORE_NUM * V_OFF_AWIDTH - 1 : 0]     front_rd_active_v_offset_addr,
-    input [CORE_NUM - 1 : 0]                    front_active_v_valid,
+    input                                   clk,
+    input [CORE_NUM - 1 : 0]                rst,
+    input [31 : 0]                          vertex_num,
+    input                                   initial_uram,
+    input [1023 : 0]                        front_hbm_rd_data,
+    input                                   front_hbm_rd_valid,
+    input                                   front_hbm_rd_ready,
+    input [CORE_NUM * V_OFF_AWIDTH - 1 : 0] front_rd_active_v_offset_addr,
+    input [CORE_NUM - 1 : 0]                front_active_v_valid,
 
-    output reg [PSEUDO_CHANNEL_NUM * HBM_AWIDTH - 1 : 0]    hbm_controller_addr,
-    output reg [PSEUDO_CHANNEL_NUM - 1 : 0]                 hbm_addr_valid,
-    output [CORE_NUM - 1 : 0]                               transfer_complete,
-    output reg [CORE_NUM - 1 : 0]               next_rst,
-    output [CORE_NUM * V_OFF_DWIDTH - 1 : 0]    uram_loffset,
-    output [CORE_NUM * V_OFF_DWIDTH - 1 : 0]    uram_roffset,
-    output [CORE_NUM - 1 : 0]                   uram_dvalid 
+    output reg [CORE_NUM - 1 : 0]           next_rst,
+    output reg [HBM_AWIDTH - 1 : 0]         hbm_rd_addr,
+    output reg                              hbm_rd_valid,
+    output reg                              hbm_rd_complete,
+    output [CORE_NUM * V_OFF_DWIDTH - 1 : 0]uram_loffset,
+    output [CORE_NUM * V_OFF_DWIDTH - 1 : 0]uram_roffset,
+    output [CORE_NUM - 1 : 0]               uram_dvalid 
 );
 
-    generate
-        genvar i;
-        for (i = 0; i < PSEUDO_CHANNEL_NUM; i = i + 1) begin
-            always @ (posedge clk) begin
-                if (uram_rst) begin
-                    hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] <= {HBM_AWIDTH{1'b1}};
-                    hbm_addr_valid[i] <= 0;
-                end else if (hbm_controller_full[i] || hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] == (((1 << (1+14)) >> CORE_NUM_WIDTH)-1)) begin
-                    hbm_addr_valid[i] <= 0;
+    reg [31 : 0] send_ct;
+    reg [31 : 0] rv_ct;
+    reg initial_ch;
+    wire [2047 : 0] front_hbm_rd_data_tmp;
+    wire [CORE_NUM - 1 : 0] front_hbm_rd_valid_tmp;
+
+    always @ (posedge clk) begin
+        if (rst) begin
+            if (!initial_uram) begin
+                // 初始地址按128B对齐
+                hbm_rd_addr <= {HBM_AWIDTH{1'b1}} & 64'hffffffffffffff80;
+                hbm_rd_valid <= 0;
+                send_ct <= 0;
+                rv_ct <= 0;
+                hbm_rd_complete <= 0;
+                initial_ch <= 0; // 0: 初始化前16个core，1: 初始化后16个core
+            end else begin
+                // rst=1, initial_uram=1, 进入传输状态
+                if (front_hbm_rd_valid) begin
+                    rv_ct <= rv_ct + 1;
+                    initial_ch <= ~initial_ch;
+                end
+                // 要求offset存放模式为：st -> ed -> st -> ed, 这样迭代式的存放
+                // vertex_num << 3：4B data_size * 2倍的offset数据
+                if (!front_hbm_rd_ready || hbm_rd_addr == ((vertex_num << 3) & 64'hffffffffffffff80)) begin
+                    hbm_rd_valid <= 0;
+                    // 当停止地址发送时才允许判断是否结束
+                    hbm_rd_complete <= send_ct == rv_ct;
                 end else begin
-                    hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] <= hbm_controller_addr[(i + 1) * HBM_AWIDTH - 1 : i * HBM_AWIDTH] + 1;
-                    hbm_addr_valid[i] <= 1;
+                    // 每次自增cacheline
+                    hbm_rd_addr <= hbm_rd_addr + 64'h0000000000000080;
+                    hbm_rd_valid <= 1;
+                    send_ct <= send_ct + 1;
                 end
             end
+        end else begin
+            // 传输结束，重置状态信号
+            hbm_rd_addr <= {HBM_AWIDTH{1'b1}} & 64'hffffffffffffff80;
+            hbm_rd_valid <= 0;
+            send_ct <= 0;
+            rv_ct <= 0;
+            hbm_rd_complete <= 0;
+            initial_ch <= 0; // 0: 初始化前16个core，1: 初始化后16个core
         end
+    end
+
+    assign front_hbm_rd_data_tmp[1023 : 0] = front_hbm_rd_data;
+    assign front_hbm_rd_data_tmp[2047 : 1024] = front_hbm_rd_data;
+    generate
+        genvar i;
         for (i = 0; i < CORE_NUM; i = i + 1) begin
+            assign front_hbm_rd_valid_tmp[i] = i < 16 ? (!initial_ch && front_hbm_rd_valid) : (initial_ch && front_hbm_rd_valid);
             always @ (posedge clk) begin
                 next_rst[i] <= rst[i];
             end
+            // 由于每次只能取上来 32*4B 的数据，因此需要 16 个core轮流写入
             offset_uram_single #(.CORE_ID(i)) OFFSET_URAM_SINGLE (
                 .clk                            (clk),
-                .rst                            (uram_rst),
-                .hbm_controller_data            (hbm_controller_data[(i + 1) * HBM_DWIDTH_PER_CORE - 1 : i * HBM_DWIDTH_PER_CORE]),
-                .hbm_data_valid                 (hbm_data_valid[i >> 4]),
+                .rst                            (rst),
+                .initial_uram                   (initial_uram),
+                .hbm_data                       (front_hbm_rd_data_tmp[(i + 1) * 64 - 1 : i * 64]),
+                .hbm_valid                      (front_hbm_rd_valid_tmp[i]),
                 .front_rd_active_v_offset_addr  (front_rd_active_v_offset_addr[(i + 1) * V_OFF_AWIDTH - 1 : i * V_OFF_AWIDTH]),
                 .front_active_v_valid           (front_active_v_valid[i]),
                 
-                .transfer_complete              (transfer_complete[i]),
                 .uram_loffset                   (uram_loffset[(i + 1) * V_OFF_DWIDTH - 1 : i * V_OFF_DWIDTH]),
                 .uram_roffset                   (uram_roffset[(i + 1) * V_OFF_DWIDTH - 1 : i * V_OFF_DWIDTH]),
                 .uram_dvalid                    (uram_dvalid[i])
@@ -77,63 +116,56 @@ module offset_uram_single #(parameter
     CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
     HBM_AWIDTH = `HBM_AWIDTH,
     HBM_DWIDTH_PER_CORE = `HBM_DWIDTH_PER_CORE,
+    URAM_DELAY = `URAM_DELAY,
     CORE_ID = 0
 ) (
     input                           clk,
     input                           rst,
-    input [HBM_DWIDTH_PER_CORE - 1 : 0] hbm_controller_data,
-    input                               hbm_data_valid,
+    input                           initial_uram,
+    input [64 - 1 : 0]              hbm_data,
+    input                           hbm_valid,
     input [V_OFF_AWIDTH - 1 : 0]    front_rd_active_v_offset_addr,
     input                           front_active_v_valid,
 
-    output                          transfer_complete,
     output [V_OFF_DWIDTH - 1 : 0]   uram_loffset,
     output [V_OFF_DWIDTH - 1 : 0]   uram_roffset,
-    output reg                      uram_dvalid
+    output                          uram_dvalid
 );
 
-    // CHECK four clk delay (change from 2 to 3)
-    reg local_uram_valid [0 : 3];
-    reg [V_OFF_DWIDTH - 1 : 0]  local_hbm_controller_data;
-    reg                         local_hbm_data_valid;
-    reg [HBM_AWIDTH - 1 : 0]    local_hbm_controller_addr;
+    reg local_uram_valid [0 : URAM_DELAY - 1];
+    reg [HBM_AWIDTH - 1 : 0]    local_uram_addr;
+
     integer i;
-
-    assign transfer_complete = (local_hbm_controller_addr == ((1 << 14) >> CORE_NUM_WIDTH));
-
     always @ (posedge clk) begin
         local_uram_valid[0] <= front_active_v_valid;
-        for (i = 0; i < 3; i = i + 1) begin
+        for (i = 0; i < URAM_DELAY - 1; i = i + 1) begin
             local_uram_valid[i + 1] <= local_uram_valid[i];
         end
-        uram_dvalid <= local_uram_valid[3];
     end
+    assign uram_dvalid = local_uram_valid[URAM_DELAY - 1];
 
     always @ (posedge clk) begin
         if (rst) begin
-            local_hbm_controller_addr <= 0;
-            local_hbm_controller_data <= 0;
-            local_hbm_data_valid <= 0;
-        end else begin
-            if (hbm_data_valid && !local_hbm_data_valid) begin
-                local_hbm_controller_data <= hbm_controller_data[V_OFF_DWIDTH - 1 : 0];
-                local_hbm_data_valid <= hbm_data_valid;
-            end else if (hbm_data_valid && local_hbm_data_valid) begin
-                local_hbm_controller_data <= 0;
-                local_hbm_data_valid <= 0;
-                local_hbm_controller_addr <= local_hbm_controller_addr + 1;
+            if (!initial_uram) begin
+                local_uram_addr <= 0;
+            end else begin
+                if (hbm_valid) begin
+                    local_uram_addr <= local_uram_addr + 1;
+                end
             end
+        end else begin
+            local_uram_addr <= 0;
         end
     end
 
     off_uram OFF_URAM (
         .clk    (clk),
-        .we     (hbm_data_valid && local_hbm_data_valid),
+        .we     (hbm_valid),
         .mem_en (1'b1),
-        .din    ({local_hbm_controller_data, hbm_controller_data[V_OFF_DWIDTH - 1 : 0]}),
-        .addr   (hbm_data_valid && local_hbm_data_valid ? local_hbm_controller_addr : front_rd_active_v_offset_addr),
+        .din    (hbm_data),
+        .addr   (hbm_valid ? local_uram_addr : front_rd_active_v_offset_addr),
 
-        .dout   ({uram_loffset, uram_roffset})
+        .dout   ({uram_roffset, uram_loffset})
     );
 
 endmodule
@@ -141,7 +173,7 @@ endmodule
 module off_uram #(parameter
     AWIDTH = `V_OFF_AWIDTH,
     DWIDTH = 2 * `V_OFF_DWIDTH,
-    NBPIPE = 3
+    NBPIPE = `URAM_DELAY - 2
 ) (
     input clk,
     input we,
@@ -212,7 +244,7 @@ module off_uram #(parameter
     end      
 
     // Final output register gives user the option to add a reset and
-    // an additional enable signal just for the data ouptut
+    // an additional enable signal just for the data output
     always @ (posedge clk) begin
         if (mem_en_pipe_reg[NBPIPE]) begin
             dout <= mem_pipe_reg[NBPIPE - 1];

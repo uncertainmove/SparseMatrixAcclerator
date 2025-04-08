@@ -32,5 +32,7 @@
 *.app
 
 # Runtime Folder
+*.txt
 build
 data
+ip

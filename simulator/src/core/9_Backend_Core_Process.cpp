@@ -65,6 +65,7 @@ void Backend_Destination_Core_Single(
     else {
         *Wr_Vertex_BRAM_Iteration_ID = HPX_Recv_Iteration_ID;
         *Dest_Core_Full = Next_StageFull;
+        // *Dest_Core_Full = 0;
         if (HPX_Recv_Update_V_DValid) {
             *Wr_Vertex_BRAM_Addr = HPX_Recv_Update_V_ID;
             *Wr_Vertex_BRAM_Data = HPX_Recv_Update_V_Value;

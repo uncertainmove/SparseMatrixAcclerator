@@ -4,20 +4,21 @@
 `include "accelerator.vh"
 `default_nettype none
 module delta_pr_accelerator_axi_top #(
-  parameter integer C_M00_AXI_ADDR_WIDTH = 64 ,
-  parameter integer C_M00_AXI_DATA_WIDTH = 512,
-  parameter integer C_M01_AXI_ADDR_WIDTH = 64 ,
-  parameter integer C_M01_AXI_DATA_WIDTH = 512,
-  parameter integer C_M02_AXI_ADDR_WIDTH = 64 ,
-  parameter integer C_M02_AXI_DATA_WIDTH = 512,
-  parameter integer C_M03_AXI_ADDR_WIDTH = 64 ,
-  parameter integer C_M03_AXI_DATA_WIDTH = 512,
+  parameter integer C_M00_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M00_AXI_DATA_WIDTH = 1024,
+  parameter integer C_M01_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M01_AXI_DATA_WIDTH = 512 ,
+  parameter integer C_M02_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M02_AXI_DATA_WIDTH = 512 ,
+  parameter integer C_M03_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M03_AXI_DATA_WIDTH = 1024,
   // acc parameter
   parameter integer V_ID_WIDTH = `V_ID_WIDTH,
   parameter integer V_OFF_AWIDTH = `V_OFF_AWIDTH,
   parameter integer V_OFF_DWIDTH = `V_OFF_DWIDTH,
   parameter integer V_VALUE_WIDTH = `V_VALUE_WIDTH,
   parameter integer CORE_NUM = `CORE_NUM,
+  parameter integer CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
   parameter integer ITERATION_WIDTH = `ITERATION_WIDTH,
   parameter integer HBM_AWIDTH = `HBM_AWIDTH,
   parameter integer HBM_DWIDTH = `HBM_DWIDTH,
@@ -133,8 +134,7 @@ timeprecision 1ps;
 // Local Parameters
 ///////////////////////////////////////////////////////////////////////////////
 // Large enough for interesting traffic.
-localparam integer  LP_DEFAULT_LENGTH_IN_BYTES = 16384;
-localparam integer  LP_NUM_EXAMPLES    = 4;
+localparam integer  LP_NUM_EXAMPLES    = 5;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Wires and Variables
@@ -167,9 +167,7 @@ wire [CORE_NUM - 1 : 0]                 P2_iteration_end;
 wire [CORE_NUM - 1 : 0]                 P2_iteration_end_valid;
 wire [CORE_NUM *ITERATION_WIDTH - 1 : 0]P2_iteration_id;
 
-wire [CORE_NUM - 1 : 0]                 P3_transfer_complete;
-wire [4 * HBM_AWIDTH - 1 : 0]  P3_hbm_controller_addr;
-wire [4 - 1 : 0]  P3_hbm_addr_valid;
+wire                                    P3_initial_complete;
 wire [CORE_NUM - 1 : 0]                 P3_next_rst;
 wire [CORE_NUM * V_OFF_DWIDTH - 1 : 0]  P3_active_v_loffset;
 wire [CORE_NUM * V_OFF_DWIDTH - 1 : 0]  P3_active_v_roffset;
@@ -189,28 +187,66 @@ wire [CORE_NUM * ITERATION_WIDTH - 1 : 0]  P4_iteration_id;
 
 wire [CORE_NUM - 1 : 0]                 P5_next_rst;
 wire [CORE_NUM - 1 : 0]                 P5_stage_full;
+wire [CORE_NUM * V_ID_WIDTH - 1 : 0]    P5_active_v_id;
 wire [PSEUDO_CHANNEL_NUM * HBM_AWIDTH - 1 : 0]    P5_rd_hbm_edge_addr;
 wire [PSEUDO_CHANNEL_NUM - 1 : 0]                 P5_rd_hbm_edge_valid;
-wire [CORE_NUM * V_ID_WIDTH - 1 : 0]    P5_active_v_id;
 wire [CORE_NUM * V_VALUE_WIDTH - 1 : 0] P5_active_v_value;
 wire [CORE_NUM - 1 : 0]                 P5_active_v_valid;
 wire [CORE_NUM - 1 : 0]                 P5_iteration_end;
 wire [CORE_NUM - 1 : 0]                 P5_iteration_end_valid;
 wire [CORE_NUM * ITERATION_WIDTH - 1 : 0]  P5_iteration_id;
 
-wire [4 - 1 : 0]               HBM_interface_full;
-wire [4 * HBM_AWIDTH - 1 : 0]  HBM_interface_rd_hbm_edge_addr;
-wire [4 - 1 : 0]               HBM_interface_rd_hbm_edge_valid;
-wire [CORE_NUM * HBM_AWIDTH - 1 : 0]  HBM_interface_active_v_edge;
+wire [PSEUDO_CHANNEL_NUM - 1 : 0]               HBM_interface_full;
+wire [PSEUDO_CHANNEL_NUM * HBM_DWIDTH - 1 : 0]  HBM_interface_active_v_edge;
 wire [CORE_NUM - 1 : 0]               HBM_interface_active_v_edge_valid;
 
-wire [4 - 1 : 0]               HBM_controller_read_full;
-wire [4 - 1 : 0]               HBM_controller_write_full;
-wire [4 - 1 : 0]               HBM_controller_write_empty;
-wire [4 * HBM_DWIDTH - 1 : 0]  HBM_controller_edge;
-wire [4 - 1 : 0]               HBM_controller_valid;
-wire [4 * HBM_AWIDTH - 1 : 0]  HBM_controller_recv_addr;
-wire [4 - 1 : 0]               HBM_controller_addr_valid;
+wire [C_M00_AXI_DATA_WIDTH - 1 : 0]       M00_AXI_rd_tdata;
+wire                                      M00_AXI_rd_tvalid;
+wire                                      M00_AXI_rd_tready;
+wire [C_M00_AXI_ADDR_WIDTH - 1 : 0]       M00_AXI_rd_addr;
+wire                                      M00_AXI_rd_valid;
+wire                                      M00_AXI_rd_ready;
+wire [C_M00_AXI_ADDR_WIDTH - 1 : 0]       M00_AXI_wr_addr;
+wire [C_M00_AXI_DATA_WIDTH - 1 : 0]       M00_AXI_wr_data;
+wire                                      M00_AXI_wr_valid;
+wire                                      M00_AXI_wr_ready;
+wire                                      M00_AXI_wr_trsp;
+
+wire [C_M01_AXI_DATA_WIDTH - 1 : 0]       M01_AXI_rd_tdata;
+wire                                      M01_AXI_rd_tvalid;
+wire                                      M01_AXI_rd_tready;
+wire [C_M01_AXI_ADDR_WIDTH - 1 : 0]       M01_AXI_rd_addr;
+wire                                      M01_AXI_rd_valid;
+wire                                      M01_AXI_rd_ready;
+wire [C_M01_AXI_ADDR_WIDTH - 1 : 0]       M01_AXI_wr_addr;
+wire [C_M01_AXI_DATA_WIDTH - 1 : 0]       M01_AXI_wr_data;
+wire                                      M01_AXI_wr_valid;
+wire                                      M01_AXI_wr_ready;
+wire                                      M01_AXI_wr_trsp;
+
+wire [C_M02_AXI_DATA_WIDTH - 1 : 0]       M02_AXI_rd_tdata;
+wire                                      M02_AXI_rd_tvalid;
+wire                                      M02_AXI_rd_tready;
+wire [C_M02_AXI_ADDR_WIDTH - 1 : 0]       M02_AXI_rd_addr;
+wire                                      M02_AXI_rd_valid;
+wire                                      M02_AXI_rd_ready;
+wire [C_M02_AXI_ADDR_WIDTH - 1 : 0]       M02_AXI_wr_addr;
+wire [C_M02_AXI_DATA_WIDTH - 1 : 0]       M02_AXI_wr_data;
+wire                                      M02_AXI_wr_valid;
+wire                                      M02_AXI_wr_ready;
+wire                                      M02_AXI_wr_trsp;
+
+wire [C_M03_AXI_DATA_WIDTH - 1 : 0]       M03_AXI_rd_tdata;
+wire                                      M03_AXI_rd_tvalid;
+wire                                      M03_AXI_rd_tready;
+wire [C_M03_AXI_ADDR_WIDTH - 1 : 0]       M03_AXI_rd_addr;
+wire                                      M03_AXI_rd_valid;
+wire                                      M03_AXI_rd_ready;
+wire [C_M03_AXI_ADDR_WIDTH - 1 : 0]       M03_AXI_wr_addr;
+wire [C_M03_AXI_DATA_WIDTH - 1 : 0]       M03_AXI_wr_data;
+wire                                      M03_AXI_wr_valid;
+wire                                      M03_AXI_wr_ready;
+wire                                      M03_AXI_wr_trsp;
 
 wire [CORE_NUM - 1 : 0]                 P7_next_rst;
 wire [PSEUDO_CHANNEL_NUM - 1 : 0]       P7_stage_full;
@@ -232,7 +268,7 @@ wire [CORE_NUM * ITERATION_WIDTH - 1 : 0]  P8_iteration_id;
 
 wire [CORE_NUM - 1 : 0]                   P9_next_rst;
 wire [CORE_NUM - 1 : 0]                   P9_dest_core_full;
-wire [CORE_NUM * V_ID_WIDTH - 1 : 0]      P9_wr_vertex_bram_addr;
+wire [CORE_NUM * V_OFF_AWIDTH - 1 : 0]    P9_wr_vertex_bram_addr;
 wire [CORE_NUM * V_VALUE_WIDTH - 1 : 0]   P9_wr_vertex_bram_data;
 wire [CORE_NUM - 1 : 0]                   P9_wr_vertex_bram_valid;
 wire [CORE_NUM - 1 : 0]                   P9_wr_vertex_bram_iteration_end;
@@ -241,8 +277,7 @@ wire [CORE_NUM * ITERATION_WIDTH - 1 : 0] P9_wr_vertex_bram_iteration_id;
 
 wire [CORE_NUM - 1 : 0]                   P10_next_rst;
 wire                                      P10_transfer_done;
-wire [CORE_NUM * HBM_DWIDTH_PER_CORE - 1 : 0] P10_wb_bfs_data;
-wire [PSEUDO_CHANNEL_NUM - 1 : 0]             P10_wb_bfs_valid;
+wire                                      P10_initial_done;
 wire [CORE_NUM - 1 : 0]                   P10_stage_full;
 wire [CORE_NUM * V_VALUE_WIDTH - 1 : 0]   P10_src_recv_update_v_value;
 wire [CORE_NUM - 1 : 0]                   P10_src_recv_update_v_valid;
@@ -251,50 +286,66 @@ wire [CORE_NUM - 1 : 0]                   P10_backend_active_v_updated;
 wire [CORE_NUM - 1 : 0]                   P10_backend_active_v_valid;
 wire [CORE_NUM - 1 : 0]                   P10_iteration_end;
 wire [CORE_NUM - 1 : 0]                   P10_iteration_end_valid;
+wire [CORE_NUM * ITERATION_WIDTH - 1 : 0] P10_iteration_id;
 
 wire [CORE_NUM * V_ID_WIDTH - 1 : 0]      P11_active_v_id;
 wire [CORE_NUM - 1 : 0]                   P11_active_v_updated;
 wire [CORE_NUM - 1 : 0]                   P11_active_v_valid;
 wire [CORE_NUM - 1 : 0]                   P11_iteration_end;
 wire [CORE_NUM - 1 : 0]                   P11_iteration_end_valid;
+wire [CORE_NUM * ITERATION_WIDTH - 1 : 0] P11_iteration_id;
 
-// 8 vertex per channel, 64bit per vertex : 32 for value, 32 for id
-wire [(32 + 32) * 8 - 1 : 0] WR_BACK_bfs_res [0 : 4 - 1];
-wire WR_BACK_bfs_valid [0 : 4 - 1];
-
-(* keep = "TRUE" *)   wire          clk = ap_clk;
-reg rst, uram_rst, cycle_valid;
+reg rst, cycle_valid;
+reg initial_uram, initial_ram, transfer_ram;
 reg [31 : 0] acc_cycle;
 reg [2 : 0] acc_state; // 00: initial state; 01: transfer uram data; 10: running; 11: done
-wire transfer_uram;
-wire transfer_bram;
-assign transfer_uram = (acc_state == 2'b01);
-assign transfer_bram = (acc_state == 2'b11); // transfer bram data after acc done
+
+(* keep = "TRUE" *)   wire          clk = ap_clk;
 
 always @ (posedge clk) begin
   if (areset) begin
-    acc_state <= 2'b00;
     rst <= 1'b1;
-    uram_rst <= 1'b1;
+    cycle_valid <= 0;
+    initial_uram <= 0;
+    initial_ram <= 0;
+    transfer_ram <= 0;
+    acc_state <= 2'b00;
   end else begin
     case (acc_state)
       2'b00: if (ap_start_pulse) begin
-        acc_state <= 2'b01;
         rst <= 1'b1;
-        uram_rst <= 1'b0;
+        cycle_valid <= 0;
+        initial_uram <= 1;
+        initial_ram <= 1;
+        transfer_ram <= 0;
+        acc_state <= 2'b01;
       end
-      2'b01: if (P3_transfer_complete == {CORE_NUM{1'b1}}) begin
-        acc_state <= 2'b10;
+      2'b01: if (P3_initial_complete && P10_initial_done) begin
         rst <= 1'b0;
-        uram_rst <= 1'b0;
+        cycle_valid <= 0;
+        initial_uram <= 0;
+        initial_ram <= 0;
+        transfer_ram <= 0;
+        acc_state <= 2'b10;
       end
       2'b10: if (P1_iteration_done == {CORE_NUM{1'b1}}) begin
+        rst <= 1'b0;
+        cycle_valid <= 1;
+        initial_uram <= 0;
+        initial_ram <= 0;
+        transfer_ram <= 1;
         acc_state <= 2'b11;
-        rst <= 1'b1;
-        uram_rst <= 1'b0;
       end
       2'b11: begin
-        // keep done signal
+        cycle_valid <= 0;
+        if (P10_transfer_done) begin
+          // keep done signal
+          rst <= 1'b1;
+          initial_uram <= 0;
+          initial_ram <= 0;
+          transfer_ram <= 0;
+          acc_state <= 2'b11;
+        end
       end
     endcase
   end
@@ -308,17 +359,12 @@ end
 
 //cycle inc
 always @(posedge ap_clk) begin
-  if(acc_state < 2) begin
+  if (areset) begin
     acc_cycle <= 0;
-  end else if (acc_state == 2) begin
-    acc_cycle <= acc_cycle + 1;
-  end
-  if(acc_state < 3 && P1_iteration_done != {CORE_NUM{1'b1}}) begin
-    cycle_valid <=0;
-  end else if(acc_state == 2 && P1_iteration_done == {CORE_NUM{1'b1}}) begin
-    cycle_valid <=1;
-  end else if (acc_state == 3) begin
-    cycle_valid <=0;
+  end else begin
+    if (acc_state == 2'b10) begin
+      acc_cycle <= acc_cycle + 1;
+    end
   end
 end
 
@@ -361,29 +407,18 @@ always @(posedge ap_clk) begin
 end
 
 assign ap_done = &ap_done_r && (acc_state == 2'b11) && P10_transfer_done;
+assign ap_done_i[4] = acc_state == 2'b11;
 
 // Ready Logic (non-pipelined case)
 assign ap_ready = ap_done;
 
-// combine result
-generate
-  genvar i;
-  for (i = 0; i < PSEUDO_CHANNEL_NUM; i = i + 1) begin
-    assign WR_BACK_bfs_res[i] = P10_wb_bfs_data[(i + 1) * HBM_DWIDTH - 1 : i * HBM_DWIDTH];
-    assign WR_BACK_bfs_valid[i] = P10_wb_bfs_valid[i];
-  end
-endgenerate
-
-assign HBM_controller_recv_addr = transfer_uram ? P3_hbm_controller_addr : HBM_interface_rd_hbm_edge_addr;
-assign HBM_controller_addr_valid = transfer_uram ? P3_hbm_addr_valid : HBM_interface_rd_hbm_edge_valid;
-
 // HBM controller
-hbm_channel_controller #(
+mem_axi_control #(
   .C_M_AXI_ADDR_WIDTH ( C_M00_AXI_ADDR_WIDTH ),
   .C_M_AXI_DATA_WIDTH ( C_M00_AXI_DATA_WIDTH ),
   .C_ADDER_BIT_WIDTH  ( 32                   )
 )
-hbm_channel_controller_inst_m00_axi (
+mem_axi_control_read_off (
   .aclk                    ( ap_clk                  ),
   .areset                  ( areset                  ),
   .kernel_clk              ( ap_clk                  ),
@@ -411,24 +446,31 @@ hbm_channel_controller_inst_m00_axi (
   .m_axi_rdata             ( m00_axi_rdata           ),
   .m_axi_rlast             ( m00_axi_rlast           ),
   // acc
-  .controller_recv_edge_addr        ({{32{1'b0}},HBM_controller_recv_addr[(0 + 1) * HBM_AWIDTH - 1 : 0 * HBM_AWIDTH]}<<6),
-  .controller_recv_edge_addr_valid  (HBM_controller_addr_valid[0]),
-  .read_stage_full                  (HBM_controller_read_full[0]),
-  .controller_send_edge             (HBM_controller_edge[(0 + 1) * HBM_DWIDTH - 1 : 0 * HBM_DWIDTH]),
-  .controller_send_edge_valid       (HBM_controller_valid[0]),
-  .controller_recv_update_data      (cycle_valid ? {{480{1'b0}},acc_cycle} : WR_BACK_bfs_res[0]),
-  .controller_recv_update_addr      (), // not use, should increment internal
-  .controller_recv_update_valid     (cycle_valid ? 1 : |WR_BACK_bfs_valid[0]),
-  .write_stage_full                 (HBM_controller_write_full[0]),
-  .write_stage_empty                (ap_done_i[0])
+  .rd_addr                 (M00_AXI_rd_addr),
+  .rd_valid                (M00_AXI_rd_valid),
+  .rd_ready                (M00_AXI_rd_ready), // to acc
+  .rd_tdata                (M00_AXI_rd_tdata),
+  .rd_tvalid               (M00_AXI_rd_tvalid),
+  .rd_tready               (M00_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M00_AXI_wr_data),
+  .wr_addr                 (M00_AXI_wr_addr),
+  .wr_valid                (M00_AXI_wr_valid),
+  .wr_ready                (M00_AXI_wr_ready),
+  .wr_rsp                  (M00_AXI_wr_trsp),
+  .complete                (ap_done_i[0])
 );
+assign M00_AXI_wr_addr = {C_M00_AXI_ADDR_WIDTH{1'b0}};
+assign M00_AXI_wr_data = {{992{1'b0}}, acc_cycle};
+assign M00_AXI_wr_valid = cycle_valid;
+assign M00_AXI_rd_tready = 1'b1;
 
-hbm_channel_controller #(
+// HBM controller
+mem_axi_control #(
   .C_M_AXI_ADDR_WIDTH ( C_M01_AXI_ADDR_WIDTH ),
   .C_M_AXI_DATA_WIDTH ( C_M01_AXI_DATA_WIDTH ),
   .C_ADDER_BIT_WIDTH  ( 32                   )
 )
-hbm_channel_controller_inst_m01_axi (
+mem_axi_control_read_edge0 (
   .aclk                    ( ap_clk                  ),
   .areset                  ( areset                  ),
   .kernel_clk              ( ap_clk                  ),
@@ -456,24 +498,31 @@ hbm_channel_controller_inst_m01_axi (
   .m_axi_rdata             ( m01_axi_rdata           ),
   .m_axi_rlast             ( m01_axi_rlast           ),
   // acc
-  .controller_recv_edge_addr        ({{32{1'b0}},HBM_controller_recv_addr[(1 + 1) * HBM_AWIDTH - 1 : 1 * HBM_AWIDTH]}<<6),
-  .controller_recv_edge_addr_valid  (HBM_controller_addr_valid[1]),
-  .read_stage_full                  (HBM_controller_read_full[1]),
-  .controller_send_edge             (HBM_controller_edge[(1 + 1) * HBM_DWIDTH - 1 : 1 * HBM_DWIDTH]),
-  .controller_send_edge_valid       (HBM_controller_valid[1]),
-  .controller_recv_update_data      (WR_BACK_bfs_res[1]),
-  .controller_recv_update_addr      (), // not use, should increment internal
-  .controller_recv_update_valid     (|WR_BACK_bfs_valid[1]),
-  .write_stage_full                 (HBM_controller_write_full[1]),
-  .write_stage_empty                (ap_done_i[1])
+  .rd_addr                 (M01_AXI_rd_addr),
+  .rd_valid                (M01_AXI_rd_valid),
+  .rd_ready                (M01_AXI_rd_ready), // to acc
+  .rd_tdata                (M01_AXI_rd_tdata),
+  .rd_tvalid               (M01_AXI_rd_tvalid),
+  .rd_tready               (M01_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M01_AXI_wr_data),
+  .wr_addr                 (M01_AXI_wr_addr),
+  .wr_valid                (M01_AXI_wr_valid),
+  .wr_ready                (M01_AXI_wr_ready),
+  .wr_rsp                  (M01_AXI_wr_trsp),
+  .complete                (ap_done_i[1])
 );
+assign M01_AXI_wr_addr = {C_M01_AXI_ADDR_WIDTH{1'b0}};
+assign M01_AXI_wr_data = {C_M01_AXI_DATA_WIDTH{1'b0}};
+assign M01_AXI_wr_valid = 1'b0;
+assign M01_AXI_rd_tready = 1'b1;
 
-hbm_channel_controller #(
+// HBM controller
+mem_axi_control #(
   .C_M_AXI_ADDR_WIDTH ( C_M02_AXI_ADDR_WIDTH ),
   .C_M_AXI_DATA_WIDTH ( C_M02_AXI_DATA_WIDTH ),
   .C_ADDER_BIT_WIDTH  ( 32                   )
 )
-hbm_channel_controller_inst_m02_axi (
+mem_axi_control_read_edge1 (
   .aclk                    ( ap_clk                  ),
   .areset                  ( areset                  ),
   .kernel_clk              ( ap_clk                  ),
@@ -501,24 +550,30 @@ hbm_channel_controller_inst_m02_axi (
   .m_axi_rdata             ( m02_axi_rdata           ),
   .m_axi_rlast             ( m02_axi_rlast           ),
   // acc
-  .controller_recv_edge_addr        (HBM_controller_recv_addr[(2 + 1) * HBM_AWIDTH - 1 : 2 * HBM_AWIDTH]),
-  .controller_recv_edge_addr_valid  (HBM_controller_addr_valid[2]),
-  .read_stage_full                  (HBM_controller_read_full[2]),
-  .controller_send_edge             (HBM_controller_edge[(2 + 1) * HBM_DWIDTH - 1 : 2 * HBM_DWIDTH]),
-  .controller_send_edge_valid       (HBM_controller_valid[2]),
-  .controller_recv_update_data      (WR_BACK_bfs_res[2]),
-  .controller_recv_update_addr      (), // not use, should increment internal
-  .controller_recv_update_valid     (|WR_BACK_bfs_valid[2]),
-  .write_stage_full                 (HBM_controller_write_full[2]),
-  .write_stage_empty                (ap_done_i[2])
+  .rd_addr                 (M02_AXI_rd_addr),
+  .rd_valid                (M02_AXI_rd_valid),
+  .rd_ready                (M02_AXI_rd_ready), // to acc
+  .rd_tdata                (M02_AXI_rd_tdata),
+  .rd_tvalid               (M02_AXI_rd_tvalid),
+  .rd_tready               (M02_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M02_AXI_wr_data),
+  .wr_addr                 (M02_AXI_wr_addr),
+  .wr_valid                (M02_AXI_wr_valid),
+  .wr_ready                (M02_AXI_wr_ready),
+  .wr_rsp                  (M02_AXI_wr_trsp),
+  .complete                (ap_done_i[2])
 );
+assign M02_AXI_wr_addr = {C_M02_AXI_ADDR_WIDTH{1'b0}};
+assign M02_AXI_wr_data = {C_M02_AXI_DATA_WIDTH{1'b0}};
+assign M02_AXI_wr_valid = 1'b0;
+assign M02_AXI_rd_tready = 1'b1;
 
-hbm_channel_controller #(
+mem_axi_control #(
   .C_M_AXI_ADDR_WIDTH ( C_M03_AXI_ADDR_WIDTH ),
   .C_M_AXI_DATA_WIDTH ( C_M03_AXI_DATA_WIDTH ),
   .C_ADDER_BIT_WIDTH  ( 32                   )
 )
-hbm_channel_controller_inst_m03_axi (
+mem_axi_control_write_res (
   .aclk                    ( ap_clk                  ),
   .areset                  ( areset                  ),
   .kernel_clk              ( ap_clk                  ),
@@ -546,27 +601,36 @@ hbm_channel_controller_inst_m03_axi (
   .m_axi_rdata             ( m03_axi_rdata           ),
   .m_axi_rlast             ( m03_axi_rlast           ),
   // acc
-  .controller_recv_edge_addr        (HBM_controller_recv_addr[(3 + 1) * HBM_AWIDTH - 1 : 3 * HBM_AWIDTH]),
-  .controller_recv_edge_addr_valid  (HBM_controller_addr_valid[3]),
-  .read_stage_full                  (HBM_controller_read_full[3]),
-  .controller_send_edge             (HBM_controller_edge[(3 + 1) * HBM_DWIDTH - 1 : 3 * HBM_DWIDTH]),
-  .controller_send_edge_valid       (HBM_controller_valid[3]),
-  .controller_recv_update_data      (WR_BACK_bfs_res[3]),
-  .controller_recv_update_addr      (), // not use, should increment internal
-  .controller_recv_update_valid     (|WR_BACK_bfs_valid[3]),
-  .write_stage_full                 (HBM_controller_write_full[3]),
-  .write_stage_empty                (ap_done_i[3])
+  .rd_addr                 (M03_AXI_rd_addr),
+  .rd_valid                (M03_AXI_rd_valid),
+  .rd_ready                (M03_AXI_rd_ready), // to acc
+  .rd_tdata                (M03_AXI_rd_tdata),
+  .rd_tvalid               (M03_AXI_rd_tvalid),
+  .rd_tready               (M03_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M03_AXI_wr_data),
+  .wr_addr                 (M03_AXI_wr_addr),
+  .wr_valid                (M03_AXI_wr_valid),
+  .wr_ready                (M03_AXI_wr_ready),
+  .wr_rsp                  (M03_AXI_wr_trsp),
+  .complete                (ap_done_i[3])
 );
+assign M03_AXI_rd_addr = {C_M03_AXI_ADDR_WIDTH{1'b0}};
+assign M03_AXI_rd_valid = 1'b0;
+assign M03_AXI_rd_tready = 1'b1;
+
 
 // kernel
 rd_active_vertex  RD_ACTIVE_VERTEX (
   .clk                (clk),
   .rst                (rst),
+  .vertex_num         (vertex_num),
+  .iteration_num      (iteration_num),
   .backend_active_v_id        (P11_active_v_id),
   .backend_active_v_updated   (P11_active_v_updated),
   .backend_active_v_id_valid  (P11_active_v_valid),
   .backend_iteration_end      (P11_iteration_end),
   .backend_iteration_end_valid(P11_iteration_end_valid),
+  .backend_iteration_id       (P11_iteration_id),
   .next_stage_full            (P2_stage_full),
 
   .next_rst                   (P1_next_rst),
@@ -602,18 +666,19 @@ rd_active_vertex_offset RD_ACTIVE_VERTEX_OFFSET (
 
 offset_uram OFFSET_URAM (
   .clk                        (clk),
-  .uram_rst                   (uram_rst),
-  .hbm_controller_data        (HBM_controller_edge),
-  .hbm_data_valid             (transfer_uram ? HBM_controller_valid : 0),
-  .hbm_controller_full        (HBM_controller_read_full),
   .rst                        (P2_next_rst),
+  .vertex_num                 (vertex_num),
+  .initial_uram               (initial_uram),
+  .front_hbm_rd_data          (M00_AXI_rd_tdata),
+  .front_hbm_rd_valid         (M00_AXI_rd_tvalid),
+  .front_hbm_rd_ready         (M00_AXI_rd_ready),
   .front_rd_active_v_offset_addr  (P2_rd_active_v_offset_addr),
   .front_active_v_valid       (P2_rd_active_v_addr_valid),
 
-  .hbm_controller_addr        (P3_hbm_controller_addr),
-  .hbm_addr_valid             (P3_hbm_addr_valid),
-  .transfer_complete          (P3_transfer_complete),
   .next_rst                   (P3_next_rst),
+  .hbm_rd_addr                (M00_AXI_rd_addr),
+  .hbm_rd_valid               (M00_AXI_rd_valid),
+  .hbm_rd_complete            (P3_initial_complete),
   .uram_loffset               (P3_active_v_loffset),
   .uram_roffset               (P3_active_v_roffset),
   .uram_dvalid                (P3_active_v_valid)
@@ -679,13 +744,13 @@ hbm_interface HBM_INTERFACE (
   .rst                        (P5_next_rst),
   .front_rd_hbm_edge_addr     (P5_rd_hbm_edge_addr),
   .front_rd_hbm_edge_valid    (P5_rd_hbm_edge_valid),
-  .hbm_controller_edge        (HBM_controller_edge),
-  .hbm_controller_valid       (HBM_controller_valid),
-  .hbm_controller_full        (HBM_controller_read_full),
+  .hbm_controller_edge        ({M02_AXI_rd_tdata, M01_AXI_rd_tdata}),
+  .hbm_controller_valid       ({M02_AXI_rd_tvalid, M01_AXI_rd_tvalid}),
+  .hbm_controller_full        ({!M02_AXI_rd_ready, !M01_AXI_rd_ready}),
 
   .stage_full                 (HBM_interface_full),
-  .rd_hbm_edge_addr           (HBM_interface_rd_hbm_edge_addr),
-  .rd_hbm_edge_valid          (HBM_interface_rd_hbm_edge_valid),
+  .rd_hbm_edge_addr           ({M02_AXI_rd_addr, M01_AXI_rd_addr}),
+  .rd_hbm_edge_valid          ({M02_AXI_rd_valid, M01_AXI_rd_valid}),
   .active_v_edge              (HBM_interface_active_v_edge),
   .active_v_edge_valid        (HBM_interface_active_v_edge_valid)
 );
@@ -713,26 +778,31 @@ scheduler SCHEDULER (
   .iteration_id               (P7_iteration_id)
 );
 
-hyperx_network HYPERX_NETWORK (
-  .clk                        (clk),
-  .rst                        (P7_next_rst),
-  .front_update_v_id          (P7_update_v_id),
-  .front_update_v_value       (P7_update_v_value),
-  .front_update_v_valid       (P7_update_v_valid),
-  .front_iteration_end        (P7_iteration_end),
-  .front_iteration_end_valid  (P7_iteration_end_valid),
-  .front_iteration_id         (P7_iteration_id),
-  .dest_core_full             (P9_dest_core_full),
+HyperX_Network HYPERX_NETWORK(
+    .clk                              (clk),
+    .hy1_front_rst                    (P7_next_rst),
+    .hy1_front_push_flag              ({CORE_NUM{1'b1}}),
+    .hy1_front_update_v_id            (P7_update_v_id),
+    .hy1_front_update_v_value         (P7_update_v_value),
+    .hy1_front_pull_first_flag        (0),
+    .hy1_front_update_v_valid         (P7_update_v_valid),
+    .hy1_front_iteration_end          (P7_iteration_end),
+    .hy1_front_iteration_end_valid    (P7_iteration_end_valid),
+    .hy1_front_iteration_id           (P7_iteration_id),
+    .source_core_full                 (P9_dest_core_full),
 
-  .next_rst           (P8_next_rst),
-  .stage_full         (P8_stage_full),
-  .update_v_id        (P8_update_v_id),
-  .update_v_value     (P8_update_v_value),
-  .update_v_valid     (P8_update_v_valid),
-  .iteration_end      (P8_iteration_end),
-  .iteration_end_valid(P8_iteration_end_valid),
-  .iteration_id       (P8_iteration_id)
+    .hy1_rst                          (P8_next_rst),
+    .hy1_stage_full                   (P8_stage_full),
+    .hy1_push_flag                    (),
+    .hy1_update_v_id                  (P8_update_v_id),
+    .hy1_update_v_value               (P8_update_v_value),
+    .hy1_pull_first_flag              (),
+    .hy1_update_v_valid               (P8_update_v_valid),
+    .hy1_iteration_end                (P8_iteration_end),
+    .hy1_iteration_end_valid          (P8_iteration_end_valid),
+    .hy1_iteration_id                 (P8_iteration_id)
 );
+
 
 backend_core BACKEND_CORE (
   .clk                      (clk),
@@ -757,9 +827,12 @@ backend_core BACKEND_CORE (
 
 vtx_ram_controller VTX_RAM_CONTROLLER (
   .clk                        (clk),
-  .rst                        (transfer_bram ? {CORE_NUM{1'b0}} : P9_next_rst),
-  .transfer_bram              (transfer_bram),
-  .hbm_write_full             (HBM_controller_write_full),
+  .rst                        (P9_next_rst),
+  .vertex_num                 (vertex_num),
+  .initial_ram                (initial_ram),
+  .transfer_ram               (transfer_ram),
+  .hbm_wr_ready               (M03_AXI_wr_ready),
+  .hbm_wr_trsp                (M03_AXI_wr_trsp),
   .rd_addr_src                (P2_rd_active_v_value_addr),
   .rd_valid_src               (P2_rd_active_v_addr_valid),
   .wr_addr_dst                (P9_wr_vertex_bram_addr),
@@ -770,10 +843,11 @@ vtx_ram_controller VTX_RAM_CONTROLLER (
   .front_iteration_id         (P9_wr_vertex_bram_iteration_id),
   
   .next_rst                   (P10_next_rst),
+  .initial_done               (P10_initial_done),
   .transfer_done              (P10_transfer_done),
-  .wb_bfs_data                (P10_wb_bfs_data),
-  .wb_bfs_valid               (P10_wb_bfs_valid),
-
+  .hbm_wb_data                (M03_AXI_wr_data),
+  .hbm_wb_addr                (M03_AXI_wr_addr),
+  .hbm_wb_valid               (M03_AXI_wr_valid),
   .stage_full                 (P10_stage_full),
   .src_recv_update_v_value    (P10_src_recv_update_v_value),
   .src_recv_update_v_valid    (P10_src_recv_update_v_valid),
@@ -781,7 +855,8 @@ vtx_ram_controller VTX_RAM_CONTROLLER (
   .backend_active_v_updated   (P10_backend_active_v_updated),
   .backend_active_v_valid     (P10_backend_active_v_valid),
   .iteration_end              (P10_iteration_end),
-  .iteration_end_valid        (P10_iteration_end_valid)
+  .iteration_end_valid        (P10_iteration_end_valid),
+  .iteration_id               (P10_iteration_id)
 );
 
 apply_iteration_end APPLY_ITERATION_END (
@@ -792,12 +867,14 @@ apply_iteration_end APPLY_ITERATION_END (
   .front_active_v_valid       (P10_backend_active_v_valid),
   .front_iteration_end        (P10_iteration_end),
   .front_iteration_end_valid  (P10_iteration_end_valid),
+  .front_iteration_id         (P10_iteration_id),
 
   .active_v_id                (P11_active_v_id),
   .active_v_updated           (P11_active_v_updated),
   .active_v_valid             (P11_active_v_valid),
   .iteration_end              (P11_iteration_end),
-  .iteration_end_valid        (P11_iteration_end_valid)
+  .iteration_end_valid        (P11_iteration_end_valid),
+  .iteration_id               (P11_iteration_id)
 );
 
 endmodule : delta_pr_accelerator_axi_top

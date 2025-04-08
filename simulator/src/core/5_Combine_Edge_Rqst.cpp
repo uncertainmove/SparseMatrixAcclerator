@@ -204,13 +204,22 @@ void Generate_HBM_Edge_Rqst_Single(
         v_buffer_empty_all &= v_buffer_empty[Channel_ID][i];
     }
 
+    static int end_ct[CORE_NUM];
     for (int i = 0; i < GROUP_CORE_NUM; ++ i) {
         if (!rst_rd && front_iteration_end_all && front_iteration_end_dvalid_all && v_buffer_empty_all) {
-            Iteration_End[Channel_ID * GROUP_CORE_NUM + i] = 1;
-            Iteration_End_DValid[Channel_ID * GROUP_CORE_NUM + i] = 1;
-            Iteration_ID[Channel_ID * GROUP_CORE_NUM + i] = Front_Iteration_ID[i];
+            if (end_ct[Channel_ID * GROUP_CORE_NUM + i] >= WAIT_END_DELAY) {
+                Iteration_End[Channel_ID * GROUP_CORE_NUM + i] = 1;
+                Iteration_End_DValid[Channel_ID * GROUP_CORE_NUM + i] = 1;
+                Iteration_ID[Channel_ID * GROUP_CORE_NUM + i] = Front_Iteration_ID[i];
+            } else {
+                end_ct[Channel_ID * GROUP_CORE_NUM + i]++;
+                Iteration_End[Channel_ID * GROUP_CORE_NUM + i] = 0;
+                Iteration_End_DValid[Channel_ID * GROUP_CORE_NUM + i] = 0;
+                Iteration_ID[Channel_ID * GROUP_CORE_NUM + i] = Front_Iteration_ID[i];
+            }
         }
         else {
+            end_ct[Channel_ID * GROUP_CORE_NUM + i] = 0;
             Iteration_End[Channel_ID * GROUP_CORE_NUM + i] = 0;
             Iteration_End_DValid[Channel_ID * GROUP_CORE_NUM + i] = 0;
             Iteration_ID[Channel_ID * GROUP_CORE_NUM + i] = Front_Iteration_ID[i];

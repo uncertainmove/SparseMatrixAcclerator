@@ -25,7 +25,7 @@ module hbm_interface #(parameter
     output [PSEUDO_CHANNEL_NUM - 1 : 0]                 stage_full,
     output [PSEUDO_CHANNEL_NUM * HBM_AWIDTH - 1 : 0]    rd_hbm_edge_addr,
     output [PSEUDO_CHANNEL_NUM - 1 : 0]                 rd_hbm_edge_valid,
-    output [CORE_NUM * HBM_AWIDTH - 1 : 0]              active_v_edge,
+    output [PSEUDO_CHANNEL_NUM * HBM_DWIDTH - 1 : 0]    active_v_edge,
     output [CORE_NUM - 1 : 0]                           active_v_edge_valid
 );
 
@@ -50,7 +50,7 @@ module hbm_interface #(parameter
                 .hbm_controller_edge    (hbm_controller_edge[(i + 1) * HBM_DWIDTH - 1 : i * HBM_DWIDTH]),
                 .hbm_controller_valid   (hbm_controller_valid[i]),
 
-                .active_v_edge          (active_v_edge[(i + 1) * GROUP_CORE_NUM * HBM_AWIDTH - 1 : i * GROUP_CORE_NUM * HBM_AWIDTH]),
+                .active_v_edge          (active_v_edge[(i + 1) * HBM_DWIDTH - 1 : i * HBM_DWIDTH]),
                 .active_v_edge_valid    (active_v_edge_valid[(i + 1) * GROUP_CORE_NUM - 1 : i * GROUP_CORE_NUM])
             );
         end
@@ -69,7 +69,9 @@ module hbm_interface_send_rqst_single #(parameter
     GROUP_CORE_NUM = `GROUP_CORE_NUM,
     PSEUDO_ID = 0,
     CORE_NUM = `CORE_NUM,
-    CORE_NUM_WIDTH = `CORE_NUM_WIDTH
+    CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
+    VTX_NUM_WIDTH = `VTX_NUM_WIDTH,
+    MAX_VTX_NUM_WIDTH = `MAX_VTX_NUM_WIDTH
 ) (
     input                           clk,
     input                           rst,
@@ -88,7 +90,7 @@ module hbm_interface_send_rqst_single #(parameter
     controller_edge_addr_fifo CONTROLLER_EDGE_ADDR_FIFO (
         .clk        (clk),
         .srst       (rst),
-        .din        (front_rd_hbm_edge_addr + ((1 << 15) >> CORE_NUM_WIDTH)),
+        .din        (front_rd_hbm_edge_addr),
         .wr_en      (front_rd_hbm_edge_valid),
         .rd_en      (!edge_addr_buffer_empty && !hbm_controller_full),
         .dout       (rd_hbm_edge_addr),
@@ -131,8 +133,8 @@ module hbm_interface_recv_edge_single #(parameter
     input [HBM_DWIDTH - 1 : 0]      hbm_controller_edge,
     input                           hbm_controller_valid,
 
-    output [GROUP_CORE_NUM * HBM_AWIDTH - 1 : 0]    active_v_edge,
-    output [GROUP_CORE_NUM - 1 : 0]                 active_v_edge_valid
+    output [HBM_DWIDTH - 1 : 0]     active_v_edge,
+    output [GROUP_CORE_NUM - 1 : 0] active_v_edge_valid
 );
 
     wire controller_edge_buffer_empty, controller_edge_buffer_full;

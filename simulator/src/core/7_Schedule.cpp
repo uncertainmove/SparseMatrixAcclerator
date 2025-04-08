@@ -96,6 +96,8 @@ void Schedule_Single(
                 *Update_V_ID = edge_buffer[Core_ID].front();
                 *Update_V_Value = v_value_buffer[Core_ID].front();
                 *Update_V_DValid = 1;
+                // cout << "clk: " << clk << ", M07 send task, src_id: " << v_id_buffer[Core_ID].front() << ", dst_id: " <<
+                    // *Update_V_ID << ", value: " << *(float *)Update_V_Value << endl;
             } else {
                 *Update_V_ID = 0;
                 *Update_V_Value = 0;
@@ -134,12 +136,21 @@ void Schedule_Single(
         }
     }
 
+    static int end_ct[CORE_NUM];
     if (!rst_rd && Front_Iteration_End && Front_Iteration_End_DValid && v_buffer_empty[Core_ID]) {
-        *Iteration_End = 1;
-        *Iteration_End_DValid = 1;
-        *Iteration_ID = Front_Iteration_ID;
+        if (end_ct[Core_ID] >= WAIT_END_DELAY) {
+            *Iteration_End = 1;
+            *Iteration_End_DValid = 1;
+            *Iteration_ID = Front_Iteration_ID;
+        } else {
+            end_ct[Core_ID]++;
+            *Iteration_End = 0;
+            *Iteration_End_DValid = 0;
+            *Iteration_ID = Front_Iteration_ID;
+        }
     }
     else {
+        end_ct[Core_ID] = 0;
         *Iteration_End = 0;
         *Iteration_End_DValid = 0;
         *Iteration_ID = Front_Iteration_ID;

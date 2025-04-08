@@ -19,18 +19,20 @@ void Apply_Iteration_End(
         int *Active_V_ID, int *Active_V_Updated, int *Active_V_DValid,
         int *Iteration_End, int *Iteration_End_DValid) {
 
-    int all_front_iteration_end;
+    int all_front_iteration_end, all_front_iteration_end_valid;
 
     all_front_iteration_end = Front_Iteration_End[0];
+    all_front_iteration_end_valid = Front_Iteration_End_DValid[0];
     for (int i = 1; i < CORE_NUM; ++ i) {
         all_front_iteration_end = all_front_iteration_end && Front_Iteration_End[i];
+        all_front_iteration_end_valid = all_front_iteration_end_valid && Front_Iteration_End_DValid[i];
     }
 
     for (int i = 0; i < CORE_NUM; ++ i) {
         Apply_Iteration_End_Single(
             i,
             Front_Active_V_ID[i], Front_Active_V_Updated[i], Front_Active_V_DValid[i],
-            all_front_iteration_end, Front_Iteration_End_DValid[i],
+            all_front_iteration_end, all_front_iteration_end_valid,
 
             &Active_V_ID[i], &Active_V_Updated[i], &Active_V_DValid[i],
             &Iteration_End[i], &Iteration_End_DValid[i]);
