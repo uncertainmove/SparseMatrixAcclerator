@@ -222,7 +222,7 @@ int main(int argc, char** argv)
             return EXIT_FAILURE;
         }
         printf("CL_DEVICE_NAME %s\n", cl_device_name);
-        if(strcmp(cl_device_name, target_device_name) == 0) {
+        if(strcmp(cl_device_name, target_device_name) == 0 || 1) {
             device_id = devices[i];
             device_found = 1;
             printf("Selected %s as the target device\n", cl_device_name);
@@ -368,7 +368,7 @@ int main(int argc, char** argv)
     // Set the arguments to our compute kernel
     // cl_uint vector_length = MAX_LENGTH;
     err = 0;
-    cl_uint d_iteration_num = 10;
+    cl_uint d_iteration_num = iteration_num;
     err |= clSetKernelArg(kernel, 0, sizeof(cl_uint), &d_iteration_num); // Not used in example RTL logic.
     cl_uint d_vertex_num = vertex_num;
     err |= clSetKernelArg(kernel, 1, sizeof(cl_uint), &d_vertex_num); // Not used in example RTL logic.
@@ -422,7 +422,14 @@ int main(int argc, char** argv)
     }
     clWaitForEvents(1, &readevent);
 
-    cout << "total_clk: " << h_axi00_ptr0_output[0] << endl;
+    cout << "Total Cycle   : " << h_axi00_ptr0_output[0] << endl;
+    float frequency = 132;
+    float performance = 1.0 * d_edge_num * d_iteration_num * frequency / h_axi00_ptr0_output[0] / 1000;
+    cout << "FPGA Frequency: " << frequency << "MHz" << endl;
+    cout << "Vertex Num    : " << d_vertex_num << endl;
+    cout << "Edge Num      : " << d_edge_num << endl;
+    cout << "Iteration Num : " << d_iteration_num << endl;
+    cout << "PR Performace : " << performance << "GTEPs" << endl;
     cout << "Start Store Graph Result" << endl;
     ofstream out_res;
     out_res.open(res_file);
@@ -450,12 +457,13 @@ int main(int argc, char** argv)
       float ret_pr_v = *(float *)&h_axi03_ptr0_output[i];
       float debug_pr_v = *(float *)&debug_res_data;
       float divation = ret_pr_v - debug_pr_v > 0 ? ret_pr_v - debug_pr_v : debug_pr_v - ret_pr_v;
+      float delta = debug_pr_v - ret_pr_v;
       if (divation / debug_pr_v < 0 || divation / debug_pr_v > 0.0005) {
         error_counter++;
         check_status = 1;
-        printf("debug_res: %f, acc_res: %f, err: %f.\n", debug_pr_v, ret_pr_v, err);
+        printf("id: %d, debug_res: %f, acc_res: %f, delta: %x, err: %f.\n", i, debug_pr_v, *(int *)&delta, ret_pr_v, divation / debug_pr_v);
       }
-      if (error_counter > 5) {
+      if (error_counter > 20) {
         cout << "Too many errors found. Exiting check of result." << endl;
         break;
       }

@@ -19,8 +19,12 @@ extern int noc_end;
 
 void top(int argc, char **argv)
 {
-    if (argc < 7) {
-        cout << "Usage: ./acc_sim off_file list_file max_iteration v_num e_num has_header" << endl;
+    if (argc < 8) {
+        cout << "Usage: ./acc_sim off_file list_file max_iteration v_num e_num has_header debug_file" << endl;
+        cout << argc << endl;
+        for (int i = 0; i < argc; i++) {
+            cout << argv[i] << endl;
+        }
         return;
     }
     VTX_NUM = atoi (argv[4]);
@@ -46,7 +50,7 @@ void top(int argc, char **argv)
             cout << "clk " << clk << " noc end" << endl;
         }
         if (iteration_end_flag) {
-            cout << EDGE_NUM << " " << 1.0 * EDGE_NUM * MAX_ITERATION / (2 * 5 * clk) << "GTEPS" << endl;
+            cout << EDGE_NUM << " " << 1.0 * EDGE_NUM * MAX_ITERATION  * 0.13 / clk << "GTEPS" << endl;
             return;
         }
 

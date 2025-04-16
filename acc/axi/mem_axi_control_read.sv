@@ -156,12 +156,13 @@ logic                                     arxfer;
 logic                                     stall_ar;
 wire logic                                ar_buffer_empty;
 wire logic                                ar_buffer_full;
-logic                                     arvalid_r;
+wire logic                                arvalid_r;
 // AXI Data Channel
 logic                                     rxfer;
 logic                                     decr_r_transaction_cntr;
 logic [LP_OUTSTANDING_CNTR_WIDTH-1:0]     outstanding_vacancy_count;
 wire logic                                r_buffer_empty;
+wire logic                                r_buffer_full;
 wire logic                                r_completed;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,15 +192,16 @@ assign m_axi_arlen  = 0; // force to one
 
 assign arxfer = m_axi_arvalid & m_axi_arready;
 
-always @ (posedge aclk) begin
-  if (areset) begin
-    arvalid_r <= 0;
-  end else begin
-    // 当valid=1时，若ready=0，则始终保持valid=1只到ready拉高
-    arvalid_r <= ~ar_buffer_empty & ~stall_ar & ~arvalid_r ? 1'b1 :
-                  m_axi_arready ? 1'b0 : arvalid_r;
-  end
-end
+// always @ (posedge aclk) begin
+  // if (areset) begin
+    // arvalid_r <= 0;
+  // end else begin
+    // // 当valid=1时，若ready=0，则始终保持valid=1只到ready拉高
+    // // arvalid_r <= ~ar_buffer_empty & ~stall_ar & ~arvalid_r ? 1'b1 :
+                  // // m_axi_arready ? 1'b0 : arvalid_r;
+  // end
+// end
+assign arvalid_r = ar_buffer_empty || stall_ar ? 1'b0 : 1'b1;
 
 assign complete = outstanding_vacancy_count == C_MAX_OUTSTANDING[0+:LP_OUTSTANDING_CNTR_WIDTH] &&
   ar_buffer_empty && r_buffer_empty;
@@ -305,7 +307,7 @@ if (C_INCLUDE_DATA_FIFO == 1) begin : gen_fifo
     .din           ( m_axi_rdata                 ) ,
     .full          (                             ) ,
     .overflow      (                             ) ,
-    .prog_full     (                             ) ,
+    .prog_full     ( r_buffer_full               ) ,
     .wr_data_count (                             ) ,
     .almost_full   (                             ) ,
     .wr_ack        (                             ) ,

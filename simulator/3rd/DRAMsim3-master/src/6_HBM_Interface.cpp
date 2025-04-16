@@ -253,7 +253,7 @@ void HBM_Controller_IP (
         }
     }
         
-    for (int dram_tick = 0 ; dram_tick < 4; dram_tick++){
+    for (int dram_tick = 0 ; dram_tick < 10; dram_tick++){
         dramsys_0.ClockTick();
     }
 

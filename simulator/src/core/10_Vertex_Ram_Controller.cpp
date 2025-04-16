@@ -257,13 +257,9 @@ void Vertex_RAM_Controller_Single(
             wr_delta_value_buffer[Core_ID].push(Wr_V_Value_Dst);
             wr_pr_addr_buffer[Core_ID].push(Wr_Addr_Dst);
             wr_pr_value_buffer[Core_ID].push(Wr_V_Value_Dst);
+            // cout << "clk " << clk << " get write rq, core_id: " << Core_ID << ", addr: " << Wr_Addr_Dst <<
+                    // ", value: " << *(float *)&Wr_V_Value_Dst << endl;
         }
-        /*
-        if (Core_ID == 0 && (*PR_Uram_Rd_Valid || *Delta1_Bram_Rd_Valid || *Delta2_Bram_Rd_Valid)) {
-            cout << "clk " << clk << " send rd request, core_id=" << Core_ID << ", valid=" << *PR_Uram_Rd_Valid <<
-                    *Delta1_Bram_Rd_Valid << *Delta2_Bram_Rd_Valid << endl;
-        }
-        */
     }
 
     // 3. send wr request to delta & pr bram
@@ -296,9 +292,11 @@ void Vertex_RAM_Controller_Single(
             }
             *Delta2_Bram_Wr_Addr = wr_pr_addr_buffer[Core_ID].front() / CORE_NUM;
             *Delta2_Bram_Wr_Value = wr_pr_value_buffer[Core_ID].front() +
-                ((Delta2_Bram_Data._iteration_id == Front_Iteration_ID) ? Delta2_Bram_Data : V_VALUE_TP(0.0)); // use float add ip in rtl
-            Delta2_Bram_Wr_Value->_iteration_id = Front_Iteration_ID;
+                ((Delta2_Bram_Data._iteration_id == Front_Iteration_ID + 1) ? Delta2_Bram_Data : V_VALUE_TP(0.0)); // use float add ip in rtl
+            Delta2_Bram_Wr_Value->_iteration_id = Front_Iteration_ID + 1;
             *Delta2_Bram_Wr_Valid = 1;
+            // cout << "clk " << clk << " write delta2, core_id: " << Core_ID << ", id: " << wr_pr_addr_buffer[Core_ID].front() <<
+                    // ", value: " << *(float *)Delta2_Bram_Wr_Value << endl;
 
             *Delta1_Bram_Wr_Addr = 0;
             *Delta1_Bram_Wr_Value = 0;
@@ -315,9 +313,11 @@ void Vertex_RAM_Controller_Single(
             }
             *Delta1_Bram_Wr_Addr = wr_pr_addr_buffer[Core_ID].front() / CORE_NUM;
             *Delta1_Bram_Wr_Value = wr_pr_value_buffer[Core_ID].front() +
-                ((Delta1_Bram_Data._iteration_id == Front_Iteration_ID) ? Delta1_Bram_Data : V_VALUE_TP(0.0)); // use float add ip in rtl
-            Delta1_Bram_Wr_Value->_iteration_id = Front_Iteration_ID;
+                ((Delta1_Bram_Data._iteration_id == Front_Iteration_ID + 1) ? Delta1_Bram_Data : V_VALUE_TP(0.0)); // use float add ip in rtl
+            Delta1_Bram_Wr_Value->_iteration_id = Front_Iteration_ID + 1;
             *Delta1_Bram_Wr_Valid = 1;
+            // cout << "clk " << clk << " write delta1, core_id: " << Core_ID << ", id: " << wr_pr_addr_buffer[Core_ID].front() <<
+                    // ", value: " << *(float *)Delta1_Bram_Wr_Value << endl;
 
             *Delta2_Bram_Wr_Addr = 0;
             *Delta2_Bram_Wr_Value = 0;
@@ -339,9 +339,8 @@ void Vertex_RAM_Controller_Single(
             *PR_Uram_Wr_Addr = wr_pr_addr_buffer[Core_ID].front() / CORE_NUM;
             *PR_Uram_Wr_Value = wr_pr_value_buffer[Core_ID].front() + PR_Uram_Data;
             *PR_Uram_Wr_Valid = 1;
-            // cout << "clk: " << clk << ", M10 write pr, addr: " << wr_pr_addr_buffer[Core_ID].front() << ", value: " <<
-                // *(float *)PR_Uram_Wr_Value << ", front_v: " << *(float *)&wr_pr_value_buffer[Core_ID].front() <<
-                // ", front_u: " << *(float *)&PR_Uram_Data << endl;
+            // cout << "clk " << clk << " write pr, core_id: " << Core_ID << ", id: " << wr_pr_addr_buffer[Core_ID].front() <<
+                    // ", value: " << *(float *)PR_Uram_Wr_Value << endl;
 
             active_pr_buffer[Core_ID].push(*PR_Uram_Wr_Value);
         } else {

@@ -11,8 +11,7 @@ module offset_uram #(parameter
     PSEUDO_CHANNEL_NUM = `PSEUDO_CHANNEL_NUM,
     HBM_DWIDTH_PER_CORE = `HBM_DWIDTH_PER_CORE,
     CORE_NUM = `CORE_NUM,
-    CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
-    VTX_NUM_WIDTH = `VTX_NUM_WIDTH
+    CORE_NUM_WIDTH = `CORE_NUM_WIDTH
 ) (
     input                                   clk,
     input [CORE_NUM - 1 : 0]                rst,
@@ -57,13 +56,14 @@ module offset_uram #(parameter
                 end
                 // 要求offset存放模式为：st -> ed -> st -> ed, 这样迭代式的存放
                 // vertex_num << 3：4B data_size * 2倍的offset数据
-                if (!front_hbm_rd_ready || hbm_rd_addr == ((vertex_num << 3) & 64'hffffffffffffff80)) begin
+                if (!front_hbm_rd_ready || hbm_rd_addr == (((vertex_num - 1) << 3) & 64'hffffffffffffff80)) begin
                     hbm_rd_valid <= 0;
                     // 当停止地址发送时才允许判断是否结束
                     hbm_rd_complete <= send_ct == rv_ct;
                 end else begin
                     // 每次自增cacheline
                     hbm_rd_addr <= hbm_rd_addr + 64'h0000000000000080;
+                    // hbm_rd_addr <= 64'h00000000007ffff8 & 64'hffffffffffffff80;
                     hbm_rd_valid <= 1;
                     send_ct <= send_ct + 1;
                 end
@@ -133,7 +133,7 @@ module offset_uram_single #(parameter
 );
 
     reg local_uram_valid [0 : URAM_DELAY - 1];
-    reg [HBM_AWIDTH - 1 : 0]    local_uram_addr;
+    reg [32 - 1 : 0]    local_uram_addr;
 
     integer i;
     always @ (posedge clk) begin
@@ -147,6 +147,7 @@ module offset_uram_single #(parameter
     always @ (posedge clk) begin
         if (rst) begin
             if (!initial_uram) begin
+                // local_uram_addr <= 32767;
                 local_uram_addr <= 0;
             end else begin
                 if (hbm_valid) begin
@@ -154,6 +155,7 @@ module offset_uram_single #(parameter
                 end
             end
         end else begin
+            // local_uram_addr <= 32767;
             local_uram_addr <= 0;
         end
     end

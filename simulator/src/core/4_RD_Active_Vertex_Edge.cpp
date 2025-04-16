@@ -220,6 +220,10 @@ void RD_Active_Vertex_Edge_Single(
     }
     else {
         if (Front_Active_V_Value_Valid) { 
+            // 此处需要判定迭代轮次是否一致，对于无入边点来说，迭代轮次始终为0，仅前两轮对其处理
+            if (Front_Active_V_Value._iteration_id != Front_Iteration_ID) {
+                Front_Active_V_Value._v_value = 0;
+            }
             v_value_buffer[Core_ID].push({Front_Active_V_Value});           
         }
     }

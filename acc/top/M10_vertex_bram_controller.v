@@ -42,7 +42,7 @@ module vtx_ram_controller #(parameter
     output [64 - 1 : 0]                         hbm_wb_addr,
     output                                      hbm_wb_valid,
     output [CORE_NUM - 1 : 0]                   stage_full,
-    output [CORE_NUM * V_VALUE_WIDTH - 1 : 0]   src_recv_update_v_value,
+    output [CORE_NUM * DELTA_BRAM_DWIDTH - 1 : 0]src_recv_update_v_value,
     output [CORE_NUM - 1 : 0]                   src_recv_update_v_valid,
     output [CORE_NUM * V_ID_WIDTH - 1 : 0]      backend_active_v_id,
     output [CORE_NUM - 1 : 0]                   backend_active_v_updated,
@@ -80,10 +80,10 @@ module vtx_ram_controller #(parameter
     wire [31 : 0] vertex_num_f;
     wire vertex_num_f_valid;
 
-    reg [PR_URAM_AWIDTH - 1 : 0] local_uram_addr;
+    reg [PR_URAM_AWIDTH : 0] local_uram_addr;
     reg local_uram_valid;
     reg [64 - 1 : 0] local_hbm_addr;
-    reg [PR_URAM_AWIDTH - 1 : 0] initial_uram_addr ;
+    reg [PR_URAM_AWIDTH : 0] initial_uram_addr ;
     reg initial_uram_valid;
     reg [31 : 0] send_ct, rv_ct;
     wire [31 : 0] delta1_initial_v;
@@ -111,14 +111,14 @@ module vtx_ram_controller #(parameter
     // 设置本地的uram传输地址
     always @ (posedge clk) begin
         if (rst) begin
-            local_uram_addr <= {PR_URAM_AWIDTH{1'b1}};
+            local_uram_addr <= {(PR_URAM_AWIDTH + 1){1'b1}};
             local_uram_valid <= 0;
             send_ct <= 0;
             rv_ct <= 0;
             transfer_done <= 0;
         end else begin
             if (!transfer_ram) begin
-                local_uram_addr <= {PR_URAM_AWIDTH{1'b1}};
+                local_uram_addr <= {(PR_URAM_AWIDTH + 1){1'b1}};
                 local_uram_valid <= 0;
                 send_ct <= 0;
                 rv_ct <= 0;
@@ -127,7 +127,7 @@ module vtx_ram_controller #(parameter
                 if (hbm_wr_trsp) begin
                     rv_ct <= rv_ct + 1;
                 end
-                if (!hbm_wr_ready || (local_uram_addr != {PR_URAM_AWIDTH{1'b1}} && local_uram_addr >= (vertex_num >> CORE_NUM_WIDTH))) begin
+                if (!hbm_wr_ready || (local_uram_addr != {(PR_URAM_AWIDTH + 1){1'b1}} && local_uram_addr >= ((vertex_num - 1) >> CORE_NUM_WIDTH))) begin
                     local_uram_valid <= 0;
                     transfer_done <= send_ct == rv_ct;
                 end else begin
@@ -157,15 +157,16 @@ module vtx_ram_controller #(parameter
     always @ (posedge clk) begin
         if(rst) begin
             if (!initial_ram) begin
-                initial_uram_addr <= {PR_URAM_AWIDTH{1'b1}};
+                initial_uram_addr <= {(PR_URAM_AWIDTH + 1){1'b1}};
                 initial_uram_valid <= 0;
                 initial_done <= 0;
             end else begin
-                if ((initial_uram_addr == {PR_URAM_AWIDTH{1'b1}} || initial_uram_addr < ((vertex_num - 1) >> CORE_NUM_WIDTH)) & delta1_initial_v_valid) begin
+                if ((initial_uram_addr == {(PR_URAM_AWIDTH + 1){1'b1}} || initial_uram_addr < ((vertex_num - 1) >> CORE_NUM_WIDTH)) & delta1_initial_v_valid) begin
                     initial_uram_addr <= initial_uram_addr + 1;
+                    // initial_uram_addr <= 32767;
                     initial_uram_valid <= 1;
                     initial_done <= 0;
-                end else if (initial_uram_addr != {PR_URAM_AWIDTH{1'b1}} && initial_uram_addr >= ((vertex_num - 1) >> CORE_NUM_WIDTH)) begin
+                end else if (initial_uram_addr != {(PR_URAM_AWIDTH + 1){1'b1}} && initial_uram_addr >= ((vertex_num - 1) >> CORE_NUM_WIDTH)) begin
                     initial_done <= 1;
                     initial_uram_valid <= 0;
                 end else begin
@@ -173,7 +174,7 @@ module vtx_ram_controller #(parameter
                 end
             end
         end else begin
-            initial_uram_addr <= {PR_URAM_AWIDTH{1'b1}};
+            initial_uram_addr <= {(PR_URAM_AWIDTH + 1){1'b1}};
             initial_uram_valid <= 0;
             initial_done <= 0;
         end
@@ -259,7 +260,7 @@ module vtx_ram_controller #(parameter
                 .pr_uram_wr_valid               (pr_uram_wr_valid[i]),
 
                 .stage_full                     (stage_full[i]),
-                .src_recv_update_v_value        (src_recv_update_v_value[(i + 1) * V_VALUE_WIDTH - 1 : i * V_VALUE_WIDTH]),
+                .src_recv_update_v_value        (src_recv_update_v_value[(i + 1) * DELTA_BRAM_DWIDTH - 1 : i * DELTA_BRAM_DWIDTH]),
                 .src_recv_update_v_valid        (src_recv_update_v_valid[i]),
                 .backend_active_v_id            (backend_active_v_id[(i + 1) * V_ID_WIDTH - 1 : i * V_ID_WIDTH]),
                 .backend_active_v_updated       (backend_active_v_updated[i]),
@@ -273,7 +274,7 @@ module vtx_ram_controller #(parameter
                 .ena        (1'b1),
                 .wea        (initial_uram_valid || delta1_bram_wr_valid[i]),
                 .addra      (initial_ram ? initial_uram_addr : delta1_bram_wr_addr[i]),
-                .dina       (initial_ram ? {delta1_initial_v, 4'b0} : delta1_bram_wr_value[i]),
+                .dina       (initial_ram ? {delta1_initial_v, {ITERATION_WIDTH{1'b0}}} : delta1_bram_wr_value[i]),
                 .clkb       (clk),
                 .enb        (!rst[i] ),
                 .addrb      (delta1_bram_rd_addr[i]),
@@ -284,7 +285,7 @@ module vtx_ram_controller #(parameter
                 .clk        (clk),
                 .we         (initial_uram_valid || delta2_uram_wr_valid[i]),
                 .mem_en     (1'b1),
-                .din        (initial_ram ? {delta2_initial_v, 4'b0} : delta2_uram_wr_value[i]),
+                .din        (initial_ram ? {delta2_initial_v, {(ITERATION_WIDTH - 1){1'b0}}, 1'b1} : delta2_uram_wr_value[i]),
                 .addra      (initial_ram ? initial_uram_addr : delta2_uram_wr_addr[i]),
                 .addrb      (delta2_uram_rd_addr[i]),
                 .dout       (delta2_uram_data[i])
@@ -373,7 +374,7 @@ module vtx_ram_controller_single #(parameter
     output reg                              pr_uram_wr_valid,
 
     output                                  stage_full,
-    output reg [V_VALUE_WIDTH - 1 : 0]  src_recv_update_v_value,
+    output reg [DELTA_BRAM_DWIDTH - 1 : 0]  src_recv_update_v_value,
     output reg                              src_recv_update_v_valid,
     output reg [V_ID_WIDTH - 1 : 0]         backend_active_v_id,
     output reg                              backend_active_v_updated,
@@ -438,7 +439,7 @@ module vtx_ram_controller_single #(parameter
         .aclk       (clk),
         .s_axis_a_tdata         (wr_delta_value_top),
         .s_axis_a_tvalid        (front_iteration_id[0] && delta1_bram_data_valid),
-        .s_axis_b_tdata         (delta1_bram_data[ITERATION_WIDTH - 1 : 0] == front_iteration_id ? delta1_bram_data[DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH] : 0),
+        .s_axis_b_tdata         (delta1_bram_data[ITERATION_WIDTH - 1 : 0] == front_iteration_id + 1 ? delta1_bram_data[DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH] : 0),
         .s_axis_b_tvalid        (front_iteration_id[0] && delta1_bram_data_valid),
         .m_axis_result_tdata    (wr_delta1_adder_result),
         .m_axis_result_tvalid   (wr_delta1_adder_result_valid)
@@ -448,7 +449,7 @@ module vtx_ram_controller_single #(parameter
         .aclk       (clk),
         .s_axis_a_tdata         (wr_delta_value_top),
         .s_axis_a_tvalid        (!front_iteration_id[0] && delta2_uram_data_valid),
-        .s_axis_b_tdata         (delta2_uram_data[ITERATION_WIDTH - 1 : 0] == front_iteration_id ? delta2_uram_data[DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH] : 0),
+        .s_axis_b_tdata         (delta2_uram_data[ITERATION_WIDTH - 1 : 0] == front_iteration_id + 1 ? delta2_uram_data[DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH] : 0),
         .s_axis_b_tvalid        (!front_iteration_id[0] && delta2_uram_data_valid),
         .m_axis_result_tdata    (wr_delta2_adder_result),
         .m_axis_result_tvalid   (wr_delta2_adder_result_valid)
@@ -599,10 +600,10 @@ module vtx_ram_controller_single #(parameter
             src_recv_update_v_valid <= 0;
         end else begin
             if (delta1_bram_data_valid && !front_iteration_id[0]) begin
-                src_recv_update_v_value <= delta1_bram_data[ DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH ];
+                src_recv_update_v_value <= delta1_bram_data;
                 src_recv_update_v_valid <= 1;
             end else if (delta2_uram_data_valid && front_iteration_id[0]) begin
-                src_recv_update_v_value <= delta2_uram_data[ DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH ];
+                src_recv_update_v_value <= delta2_uram_data;
                 src_recv_update_v_valid <= 1;
             end else begin
                 src_recv_update_v_value <= 0;
@@ -640,7 +641,7 @@ module vtx_ram_controller_single #(parameter
                 backend_active_v_valid <= 0;
             end
             if (wr_valid_dst) begin
-                $display("M10_vertex_bram_controller_single: Iteration_Id: %d, Core_Id: %d, active vertex, id: %d, value: %h", front_iteration_id, CORE_ID, wr_addr_dst * CORE_NUM + CORE_ID, wr_v_value_dst);
+                $display("M10_vertex_bram_controller_single: Iteration_Id: %d, Core_Id: %d, write vertex, id: %d, value: %h", front_iteration_id, CORE_ID, wr_addr_dst * CORE_NUM + CORE_ID, wr_v_value_dst);
             end
             if (backend_active_v_valid) begin
                 $display("M10_vertex_bram_controller_single: Iteration_Id: %d, Core_Id: %d, active vertex, id: %d, update: %d", front_iteration_id, CORE_ID, backend_active_v_id, backend_active_v_updated);
@@ -744,14 +745,16 @@ module vtx_ram_controller_single #(parameter
         end else begin
             if (!front_iteration_id[0] && wr_delta2_adder_result_valid) begin
                 delta2_uram_wr_addr <= wr_pr_addr_top;
-                delta2_uram_wr_value <= {wr_delta2_adder_result, front_iteration_id};
+                delta2_uram_wr_value[DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH] <= wr_delta2_adder_result;
+                delta2_uram_wr_value[ITERATION_WIDTH - 1 : 0] <= front_iteration_id + 1'b1;
                 delta2_uram_wr_valid <= 1;
                 delta1_bram_wr_addr <= 0;
                 delta1_bram_wr_value <= 0;
                 delta1_bram_wr_valid <= 0;
             end else if (front_iteration_id[0] && wr_delta1_adder_result_valid) begin
                 delta1_bram_wr_addr <= wr_pr_addr_top;
-                delta1_bram_wr_value <= {wr_delta1_adder_result, front_iteration_id};
+                delta1_bram_wr_value[DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH] <= wr_delta1_adder_result;
+                delta1_bram_wr_value[ITERATION_WIDTH - 1 : 0] <= front_iteration_id + 1'b1;
                 delta1_bram_wr_valid <= 1;
                 delta2_uram_wr_addr <= 0;
                 delta2_uram_wr_value <= 0;

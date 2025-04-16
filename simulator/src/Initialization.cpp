@@ -45,15 +45,16 @@ void Initialize_Input_Graph(int v_num, int e_num, char *off_file, char *edge_fil
         int tmp_v_num, tmp_e_num;
         fscanf (off_fp, "%d", &tmp_v_num);
         fscanf (list_fp, "%d", &tmp_e_num);
-        assert (tmp_v_num == VTX_NUM);
-        assert (tmp_e_num == EDGE_NUM);
+        assert (tmp_v_num == v_num);
+        assert (tmp_e_num == e_num);
     }
-    for (int i = 0; i < VTX_NUM + 1; i++) {
+    for (int i = 0; i < v_num + 1; i++) {
         fscanf (off_fp, "%d", &Csr_Offset[i]);
     }
-    for (int i = 0; i < EDGE_NUM; i++) {
+    for (int i = 0; i < e_num; i++) {
         int dst_id;
         fscanf (list_fp, "%d", &dst_id);
+        assert(dst_id < v_num);
         Ori_Edge_MEM.push_back(dst_id);
     }
     auto compare = [](const int v1, const int v2) -> bool {
@@ -107,8 +108,8 @@ void Initialize_Delta_Bram() {
     const V_VALUE_TP ADDED_CONST = (V_VALUE_TP(1.0) - DAMPING) * ONE_OVER_N;
     for(int i = 0; i < CORE_NUM; i++){
         for(int j = 0; j < MAX_VERTEX_NUM / CORE_NUM + 1; j++){
-            DELTA1_BRAM[i][j] = ONE_OVER_N;
-            DELTA2_BRAM[i][j] = ADDED_CONST - ONE_OVER_N;
+            DELTA1_BRAM[i][j] = V_VALUE_TP(ONE_OVER_N);
+            DELTA2_BRAM[i][j] = V_VALUE_TP(ADDED_CONST - ONE_OVER_N, 1);
         }
     }
     printf("Initialize Delta Bram Complete\n");

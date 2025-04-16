@@ -54,11 +54,68 @@ void LoadData (int has_header, int vertex_num, int edge_num, char *off_file, cha
             fscanf (list_fp, "%d", &dst_id);
             edge_list[off].source_id = vid;
             edge_list[off].target_id = dst_id;
+            // if (dst_id == 6380) {
+                // cout << "src: " << vid << ", dst: " << dst_id << endl;
+            // }
         }
     }
     fclose(off_fp);
     fclose(list_fp);
     printf("Initialize Graph Complete\n");
+}
+
+int ori_pr_push(int vertex_num, int edge_num, float *res) {
+    const double damping = 0.85;
+    const double one_over_n = 1.0 / vertex_num;
+    const double addedConst = (1.0 - damping) / vertex_num;
+    const double epsilon = 1e-7;
+    double *vertex_p[2];
+    int *degree = new int [vertex_num];
+    vertex_p[0] = new double [vertex_num];
+    vertex_p[1] = new double [vertex_num];
+    for (int i = 0; i < vertex_num; i++) {
+        vertex_p[0][i] = one_over_n;
+        vertex_p[1][i] = 0;
+        degree[i] = edge_off[i + 1] - edge_off[i];
+    }
+    int iter;
+    for (iter = 0; iter < 100; iter++) {
+        for (int i = 0; i < vertex_num; i++) {
+            for (int off = edge_off[i]; off < edge_off[i + 1]; off++) {
+                int dst_id = edge_list[off].target_id;
+                vertex_p[(iter + 1) % 2][dst_id] += vertex_p[iter % 2][i] / degree[i];
+                // cout << "src_id: " << i << ", dst_id: " << dst_id << ", delta: " << vertex_p[iter % 2][i] / degree[i] <<
+                    // ", p: " << vertex_p[(iter + 1) % 2][dst_id] << endl;
+            }
+        }
+        float L1_norm = 0;
+        for (int i = 0; i < vertex_num; i++) {
+            vertex_p[(iter + 1) % 2][i] = damping * vertex_p[(iter + 1) % 2][i] + addedConst;
+            L1_norm += fabs (vertex_p[(iter + 1) % 2][i] - vertex_p[iter % 2][i]);
+            vertex_p[iter % 2][i] = 0;
+        }
+        if (L1_norm < epsilon) {
+            cout << "iteration: " << iter + 1 << ", L1_norm: " << L1_norm << endl;
+            cout << "Ori PR Push complete iteration: " << iter + 1 << endl;
+            iter++;
+            break;
+        } else {
+            cout << "iteration: " << iter + 1 << ", L1_norm: " << L1_norm << endl;
+        }
+    }
+    FILE* check_fp = fopen("./pr_tmp_res.txt", "w");
+    for (int i = 0; i < vertex_num; i++) {
+        res[i] = vertex_p[iter % 2][i];
+        fprintf(check_fp, "%d %.9f\n", i, res[i]);
+    }
+    fclose(check_fp);
+    cout << "Ori PR Push Complete" << endl;
+
+    delete [] degree;
+    delete [] vertex_p[0];
+    delete [] vertex_p[1];
+
+    return iter;
 }
 
 void DeltaPR(const int vertex_num, const int edge_num, vector<pair<float, int>> &pr) {
@@ -202,9 +259,11 @@ void DeltaPR(const int vertex_num, const int edge_num, vector<pair<float, int>> 
                         } else {
                             bitmap[iter_id % 2][src_id] = false;
                         }
-                        // cout << "iteration_id: " << iter_id << ", id: " << src_id << ", accu: " << (cu_delta[i] /
+                        // if (src_id == 686905) {
+                        // cout << "iteration_id: " << iter_id << ", i: " << i << ", id: " << src_id << ", accu: " << (cu_delta[i] /
                             // (edge_off[i + 1] - edge_off[i])) * damping << ", delta: " << next_delta[src_id] << ", pr: " << pagerank[src_id].first <<
                             // ", active: " << bitmap[iter_id % 2][src_id] << endl;
+                        // }
                     }
                 }
             }
@@ -213,7 +272,7 @@ void DeltaPR(const int vertex_num, const int edge_num, vector<pair<float, int>> 
                     active_vtx++;
                     active_edge += edge_off[i + 1] - edge_off[i];
                 } else {
-                    // cout << i << endl;
+                    //cout << i << endl;
                 }
             }
 
@@ -277,5 +336,23 @@ int main(int argc, char **argv) {
         fprintf(check_fp, "%d %x\n", pagerank[i].second, *(int *)&pagerank[i].first);
     }
     fclose(check_fp);
+    cout << "Do Origin PR" << endl;
+    float ori_res[vertex_num];
+    ori_pr_push (vertex_num, edge_num, ori_res);
+    int error_counter = 0;
+    for (int i = 0; i < vertex_num; i++) {
+        float debug_pr_v = ori_res[i];
+        float ret_pr_v  = pagerank[i].first;
+        float divation = ret_pr_v - debug_pr_v > 0 ? ret_pr_v - debug_pr_v : debug_pr_v - ret_pr_v;
+      if (divation / debug_pr_v < 0 || divation / debug_pr_v > 0.2) {
+        error_counter++;
+        printf("id: %d, ori_pr_res: %.9f, delta_pr_res: %.9f, err: %.9f.\n", i, debug_pr_v, ret_pr_v, divation / debug_pr_v);
+      }
+      if (error_counter > 5) {
+        cout << "Too many errors found. Exiting check of result." << endl;
+        break;
+      }
+    }
+    cout << "Check Complete" << endl;
     return 0;
 }

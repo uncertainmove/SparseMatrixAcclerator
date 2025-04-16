@@ -26,7 +26,8 @@ module delta_pr_accelerator_axi_top #(
   parameter integer HBM_EDGE_MASK = `HBM_EDGE_MASK,
   parameter integer PSEUDO_CHANNEL_NUM = `PSEUDO_CHANNEL_NUM,
   parameter integer GROUP_CORE_NUM = `GROUP_CORE_NUM,
-  parameter integer DELTA_BRAM_AWIDTH = `DELTA_BRAM_AWIDTH
+  parameter integer DELTA_BRAM_AWIDTH = `DELTA_BRAM_AWIDTH,
+  parameter integer DELTA_BRAM_DWIDTH = `DELTA_BRAM_DWIDTH
 )
 (
   // System Signals
@@ -279,7 +280,7 @@ wire [CORE_NUM - 1 : 0]                   P10_next_rst;
 wire                                      P10_transfer_done;
 wire                                      P10_initial_done;
 wire [CORE_NUM - 1 : 0]                   P10_stage_full;
-wire [CORE_NUM * V_VALUE_WIDTH - 1 : 0]   P10_src_recv_update_v_value;
+wire [CORE_NUM * DELTA_BRAM_DWIDTH- 1 : 0]P10_src_recv_update_v_value;
 wire [CORE_NUM - 1 : 0]                   P10_src_recv_update_v_valid;
 wire [CORE_NUM * V_ID_WIDTH - 1 : 0]      P10_backend_active_v_id;
 wire [CORE_NUM - 1 : 0]                   P10_backend_active_v_updated;
@@ -300,7 +301,7 @@ reg initial_uram, initial_ram, transfer_ram;
 reg [31 : 0] acc_cycle;
 reg [2 : 0] acc_state; // 00: initial state; 01: transfer uram data; 10: running; 11: done
 
-(* keep = "TRUE" *)   wire          clk = ap_clk;
+(* keep = "TRUE" *)   wire          clk;
 
 always @ (posedge clk) begin
   if (areset) begin
@@ -319,6 +320,11 @@ always @ (posedge clk) begin
         initial_ram <= 1;
         transfer_ram <= 0;
         acc_state <= 2'b01;
+        // rst <= 1'b0;
+        // cycle_valid <= 1;
+        // initial_uram <= 0;
+        // initial_ram <= 0;
+        // acc_state <= 2'b10;
       end
       2'b01: if (P3_initial_complete && P10_initial_done) begin
         rst <= 1'b0;
@@ -351,7 +357,7 @@ always @ (posedge clk) begin
   end
 end
 
-// BUFG u_AXI_CLK_IN_0  ( .I (ap_clk), .O (clk) );
+BUFG u_AXI_CLK_IN_0  ( .I (ap_clk), .O (clk) );
 
 ///////////////////////////////////////////////////////////////////////////////
 // Begin RTL

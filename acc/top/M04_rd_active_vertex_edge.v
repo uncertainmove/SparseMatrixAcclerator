@@ -10,6 +10,7 @@ module rd_active_vertex_edge #(parameter
     V_OFF_DWIDTH = `V_OFF_DWIDTH,
     HBM_AWIDTH = `HBM_AWIDTH,
     HBM_EDGE_MASK = `HBM_EDGE_MASK,
+    DELTA_BRAM_DWIDTH = `DELTA_BRAM_DWIDTH,
     CORE_NUM = `CORE_NUM
 ) (
     input                               clk,
@@ -22,7 +23,7 @@ module rd_active_vertex_edge #(parameter
     input [CORE_NUM - 1 : 0]                    front_iteration_end,
     input [CORE_NUM - 1 : 0]                    front_iteration_end_valid,
     input [CORE_NUM * ITERATION_WIDTH - 1 : 0]  front_iteration_id,
-    input [CORE_NUM * V_VALUE_WIDTH - 1 : 0]    front_active_v_value,
+    input [CORE_NUM * DELTA_BRAM_DWIDTH - 1 : 0]front_active_v_value,
     input [CORE_NUM - 1 : 0]                    front_active_v_value_valid,
     input [CORE_NUM - 1 : 0]                    combine_stage_full,
 
@@ -56,7 +57,7 @@ module rd_active_vertex_edge #(parameter
                 .front_iteration_end            (front_iteration_end[i]),
                 .front_iteration_end_valid      (front_iteration_end_valid[i]),
                 .front_iteration_id             (front_iteration_id[(i + 1) * ITERATION_WIDTH - 1 : i * ITERATION_WIDTH]),
-                .front_active_v_value           (front_active_v_value[(i + 1) * V_VALUE_WIDTH - 1 : i * V_VALUE_WIDTH]),
+                .front_active_v_value           (front_active_v_value[(i + 1) * DELTA_BRAM_DWIDTH - 1 : i * DELTA_BRAM_DWIDTH]),
                 .front_active_v_value_valid     (front_active_v_value_valid[i]),
                 .combine_stage_full             (combine_stage_full[i]),
 
@@ -90,6 +91,7 @@ module rd_active_vertex_edge_single #(parameter
     CORE_NUM = `CORE_NUM,
     CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
     DAMPING = `DAMPING,
+    DELTA_BRAM_DWIDTH =`DELTA_BRAM_DWIDTH,
     FLOAT_MULTIPLY_DELAY = 6,
     FLOAT_DIVIDER_DELAY = 28
 ) (
@@ -100,7 +102,7 @@ module rd_active_vertex_edge_single #(parameter
     input [V_OFF_DWIDTH - 1 : 0]    front_active_v_loffset,
     input [V_OFF_DWIDTH - 1 : 0]    front_active_v_roffset,
     input                           front_offset_valid,
-    input [V_VALUE_WIDTH - 1 : 0]   front_active_v_value,
+    input [DELTA_BRAM_DWIDTH - 1 : 0]front_active_v_value,
     input                           front_active_v_value_valid,
     input                           front_iteration_end,
     input                           front_iteration_end_valid,
@@ -208,7 +210,7 @@ module rd_active_vertex_edge_single #(parameter
     // custom_fifo_ft #(.FIFO_DWIDTH(20), .FIFO_AWIDTH(2)) ACTIVE_V_VALUE_FIFO_FT (
         .clk        (clk),
         .srst       (rst),
-        .din        (front_active_v_value),
+        .din        (front_active_v_value[ITERATION_WIDTH - 1 : 0] == front_iteration_id ? front_active_v_value[DELTA_BRAM_DWIDTH - 1 : ITERATION_WIDTH] : 0),
         .wr_en      (front_active_v_value_valid),
         .rd_en      (read_signal),
         .dout       (active_v_value_top),

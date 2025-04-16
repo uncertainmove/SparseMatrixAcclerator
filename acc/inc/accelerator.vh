@@ -14,10 +14,6 @@
 *********************************************/
 `define MAX_VTX_NUM     1048576
 `define MAX_VTX_NUM_WIDTH 20
-`define VTX_NUM         262144         // 1048576
-`define VTX_NUM_WIDTH   18  // 20
-`define EDGE_NUM        31400738
-`define EDGE_NUM_WIDTH  25
 
 /*********************************************
 * change core_num and channel_num and bitmap_compressed_num to do simulation
@@ -40,8 +36,8 @@
 `define E2                  32'h3c23d70a
 `define ADDED_CONST         32'h3599994d
 
-`define ITERATION_WIDTH     4 // 注意最高只能支持31轮迭代
-`define V_ID_WIDTH          `MAX_VTX_NUM_WIDTH
+`define ITERATION_WIDTH     8 // 注意最高只能支持255轮迭代
+`define V_ID_WIDTH          (`MAX_VTX_NUM_WIDTH + 1)
 `define V_VALUE_WIDTH       32 // half float
 `define V_OFF_AWIDTH        (`MAX_VTX_NUM_WIDTH - `CORE_NUM_WIDTH )
 `define V_OFF_DWIDTH        32
@@ -69,5 +65,3 @@
 `define FIFO_SIZE_WIDTH     4
 `define HPX_FIFO_SIZE       16
 `define HPX_FIFO_SIZE_WIDTH 4
-
-`define MAX_ITERATION_NUM 14

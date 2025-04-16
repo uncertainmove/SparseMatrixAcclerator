@@ -69,9 +69,7 @@ module hbm_interface_send_rqst_single #(parameter
     GROUP_CORE_NUM = `GROUP_CORE_NUM,
     PSEUDO_ID = 0,
     CORE_NUM = `CORE_NUM,
-    CORE_NUM_WIDTH = `CORE_NUM_WIDTH,
-    VTX_NUM_WIDTH = `VTX_NUM_WIDTH,
-    MAX_VTX_NUM_WIDTH = `MAX_VTX_NUM_WIDTH
+    CORE_NUM_WIDTH = `CORE_NUM_WIDTH
 ) (
     input                           clk,
     input                           rst,

@@ -139,6 +139,8 @@ logic                                 ar_buffer_empty;
 logic                                 ar_buffer_full;
 logic                                 r_buffer_empty;
 logic                                 r_buffer_full;
+logic                                 rsp_buffer_full;
+logic                                 rsp_buffer_empty;
 logic                                 awvalid_r;
 // Write response channel
 wire                                  bxfer;
