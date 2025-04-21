@@ -12,6 +12,18 @@ module delta_pr_accelerator_axi_top #(
   parameter integer C_M02_AXI_DATA_WIDTH = 512 ,
   parameter integer C_M03_AXI_ADDR_WIDTH = 64  ,
   parameter integer C_M03_AXI_DATA_WIDTH = 1024,
+  parameter integer C_M04_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M04_AXI_DATA_WIDTH = 512,
+  parameter integer C_M05_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M05_AXI_DATA_WIDTH = 512,
+  parameter integer C_M06_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M06_AXI_DATA_WIDTH = 512,
+  parameter integer C_M07_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M07_AXI_DATA_WIDTH = 512,
+  parameter integer C_M08_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M08_AXI_DATA_WIDTH = 512,
+  parameter integer C_M09_AXI_ADDR_WIDTH = 64  ,
+  parameter integer C_M09_AXI_DATA_WIDTH = 512,
   // acc parameter
   parameter integer V_ID_WIDTH = `V_ID_WIDTH,
   parameter integer V_OFF_AWIDTH = `V_OFF_AWIDTH,
@@ -113,6 +125,126 @@ module delta_pr_accelerator_axi_top #(
   output wire                              m03_axi_rready ,
   input  wire [C_M03_AXI_DATA_WIDTH-1:0]   m03_axi_rdata  ,
   input  wire                              m03_axi_rlast  ,
+  // AXI4 master interface m04_axi
+  output wire                              m04_axi_awvalid,
+  input  wire                              m04_axi_awready,
+  output wire [C_M04_AXI_ADDR_WIDTH-1:0]   m04_axi_awaddr ,
+  output wire [8-1:0]                      m04_axi_awlen  ,
+  output wire                              m04_axi_wvalid ,
+  input  wire                              m04_axi_wready ,
+  output wire [C_M04_AXI_DATA_WIDTH-1:0]   m04_axi_wdata  ,
+  output wire [C_M04_AXI_DATA_WIDTH/8-1:0] m04_axi_wstrb  ,
+  output wire                              m04_axi_wlast  ,
+  input  wire                              m04_axi_bvalid ,
+  output wire                              m04_axi_bready ,
+  output wire                              m04_axi_arvalid,
+  input  wire                              m04_axi_arready,
+  output wire [C_M04_AXI_ADDR_WIDTH-1:0]   m04_axi_araddr ,
+  output wire [8-1:0]                      m04_axi_arlen  ,
+  input  wire                              m04_axi_rvalid ,
+  output wire                              m04_axi_rready ,
+  input  wire [C_M04_AXI_DATA_WIDTH-1:0]   m04_axi_rdata  ,
+  input  wire                              m04_axi_rlast  ,
+  // AXI4 master interface m05_axi
+  output wire                              m05_axi_awvalid,
+  input  wire                              m05_axi_awready,
+  output wire [C_M05_AXI_ADDR_WIDTH-1:0]   m05_axi_awaddr ,
+  output wire [8-1:0]                      m05_axi_awlen  ,
+  output wire                              m05_axi_wvalid ,
+  input  wire                              m05_axi_wready ,
+  output wire [C_M05_AXI_DATA_WIDTH-1:0]   m05_axi_wdata  ,
+  output wire [C_M05_AXI_DATA_WIDTH/8-1:0] m05_axi_wstrb  ,
+  output wire                              m05_axi_wlast  ,
+  input  wire                              m05_axi_bvalid ,
+  output wire                              m05_axi_bready ,
+  output wire                              m05_axi_arvalid,
+  input  wire                              m05_axi_arready,
+  output wire [C_M05_AXI_ADDR_WIDTH-1:0]   m05_axi_araddr ,
+  output wire [8-1:0]                      m05_axi_arlen  ,
+  input  wire                              m05_axi_rvalid ,
+  output wire                              m05_axi_rready ,
+  input  wire [C_M05_AXI_DATA_WIDTH-1:0]   m05_axi_rdata  ,
+  input  wire                              m05_axi_rlast  ,
+  // AXI4 master interface m06_axi
+  output wire                              m06_axi_awvalid,
+  input  wire                              m06_axi_awready,
+  output wire [C_M06_AXI_ADDR_WIDTH-1:0]   m06_axi_awaddr ,
+  output wire [8-1:0]                      m06_axi_awlen  ,
+  output wire                              m06_axi_wvalid ,
+  input  wire                              m06_axi_wready ,
+  output wire [C_M06_AXI_DATA_WIDTH-1:0]   m06_axi_wdata  ,
+  output wire [C_M06_AXI_DATA_WIDTH/8-1:0] m06_axi_wstrb  ,
+  output wire                              m06_axi_wlast  ,
+  input  wire                              m06_axi_bvalid ,
+  output wire                              m06_axi_bready ,
+  output wire                              m06_axi_arvalid,
+  input  wire                              m06_axi_arready,
+  output wire [C_M06_AXI_ADDR_WIDTH-1:0]   m06_axi_araddr ,
+  output wire [8-1:0]                      m06_axi_arlen  ,
+  input  wire                              m06_axi_rvalid ,
+  output wire                              m06_axi_rready ,
+  input  wire [C_M06_AXI_DATA_WIDTH-1:0]   m06_axi_rdata  ,
+  input  wire                              m06_axi_rlast  ,
+  // AXI4 master interface m07_axi
+  output wire                              m07_axi_awvalid,
+  input  wire                              m07_axi_awready,
+  output wire [C_M07_AXI_ADDR_WIDTH-1:0]   m07_axi_awaddr ,
+  output wire [8-1:0]                      m07_axi_awlen  ,
+  output wire                              m07_axi_wvalid ,
+  input  wire                              m07_axi_wready ,
+  output wire [C_M07_AXI_DATA_WIDTH-1:0]   m07_axi_wdata  ,
+  output wire [C_M07_AXI_DATA_WIDTH/8-1:0] m07_axi_wstrb  ,
+  output wire                              m07_axi_wlast  ,
+  input  wire                              m07_axi_bvalid ,
+  output wire                              m07_axi_bready ,
+  output wire                              m07_axi_arvalid,
+  input  wire                              m07_axi_arready,
+  output wire [C_M07_AXI_ADDR_WIDTH-1:0]   m07_axi_araddr ,
+  output wire [8-1:0]                      m07_axi_arlen  ,
+  input  wire                              m07_axi_rvalid ,
+  output wire                              m07_axi_rready ,
+  input  wire [C_M07_AXI_DATA_WIDTH-1:0]   m07_axi_rdata  ,
+  input  wire                              m07_axi_rlast  ,
+  // AXI4 master interface m08_axi
+  output wire                              m08_axi_awvalid,
+  input  wire                              m08_axi_awready,
+  output wire [C_M08_AXI_ADDR_WIDTH-1:0]   m08_axi_awaddr ,
+  output wire [8-1:0]                      m08_axi_awlen  ,
+  output wire                              m08_axi_wvalid ,
+  input  wire                              m08_axi_wready ,
+  output wire [C_M08_AXI_DATA_WIDTH-1:0]   m08_axi_wdata  ,
+  output wire [C_M08_AXI_DATA_WIDTH/8-1:0] m08_axi_wstrb  ,
+  output wire                              m08_axi_wlast  ,
+  input  wire                              m08_axi_bvalid ,
+  output wire                              m08_axi_bready ,
+  output wire                              m08_axi_arvalid,
+  input  wire                              m08_axi_arready,
+  output wire [C_M08_AXI_ADDR_WIDTH-1:0]   m08_axi_araddr ,
+  output wire [8-1:0]                      m08_axi_arlen  ,
+  input  wire                              m08_axi_rvalid ,
+  output wire                              m08_axi_rready ,
+  input  wire [C_M08_AXI_DATA_WIDTH-1:0]   m08_axi_rdata  ,
+  input  wire                              m08_axi_rlast  ,
+  // AXI4 master interface m09_axi
+  output wire                              m09_axi_awvalid,
+  input  wire                              m09_axi_awready,
+  output wire [C_M09_AXI_ADDR_WIDTH-1:0]   m09_axi_awaddr ,
+  output wire [8-1:0]                      m09_axi_awlen  ,
+  output wire                              m09_axi_wvalid ,
+  input  wire                              m09_axi_wready ,
+  output wire [C_M09_AXI_DATA_WIDTH-1:0]   m09_axi_wdata  ,
+  output wire [C_M09_AXI_DATA_WIDTH/8-1:0] m09_axi_wstrb  ,
+  output wire                              m09_axi_wlast  ,
+  input  wire                              m09_axi_bvalid ,
+  output wire                              m09_axi_bready ,
+  output wire                              m09_axi_arvalid,
+  input  wire                              m09_axi_arready,
+  output wire [C_M09_AXI_ADDR_WIDTH-1:0]   m09_axi_araddr ,
+  output wire [8-1:0]                      m09_axi_arlen  ,
+  input  wire                              m09_axi_rvalid ,
+  output wire                              m09_axi_rready ,
+  input  wire [C_M09_AXI_DATA_WIDTH-1:0]   m09_axi_rdata  ,
+  input  wire                              m09_axi_rlast  ,
   // Control Signals
   input  wire                              ap_start       ,
   output wire                              ap_idle        ,
@@ -124,7 +256,13 @@ module delta_pr_accelerator_axi_top #(
   input  wire [64-1:0]                     axi00_ptr0     ,
   input  wire [64-1:0]                     axi01_ptr0     ,
   input  wire [64-1:0]                     axi02_ptr0     ,
-  input  wire [64-1:0]                     axi03_ptr0     
+  input  wire [64-1:0]                     axi03_ptr0     ,
+  input  wire [64-1:0]                     axi04_ptr0     ,
+  input  wire [64-1:0]                     axi05_ptr0     ,
+  input  wire [64-1:0]                     axi06_ptr0     ,
+  input  wire [64-1:0]                     axi07_ptr0     ,
+  input  wire [64-1:0]                     axi08_ptr0     ,
+  input  wire [64-1:0]                     axi09_ptr0     
 );
 
 
@@ -135,7 +273,7 @@ timeprecision 1ps;
 // Local Parameters
 ///////////////////////////////////////////////////////////////////////////////
 // Large enough for interesting traffic.
-localparam integer  LP_NUM_EXAMPLES    = 5;
+localparam integer  LP_NUM_EXAMPLES    = 11;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Wires and Variables
@@ -248,6 +386,78 @@ wire [C_M03_AXI_DATA_WIDTH - 1 : 0]       M03_AXI_wr_data;
 wire                                      M03_AXI_wr_valid;
 wire                                      M03_AXI_wr_ready;
 wire                                      M03_AXI_wr_trsp;
+
+wire [C_M04_AXI_DATA_WIDTH - 1 : 0]       M04_AXI_rd_tdata;
+wire                                      M04_AXI_rd_tvalid;
+wire                                      M04_AXI_rd_tready;
+wire [C_M04_AXI_ADDR_WIDTH - 1 : 0]       M04_AXI_rd_addr;
+wire                                      M04_AXI_rd_valid;
+wire                                      M04_AXI_rd_ready;
+wire [C_M04_AXI_ADDR_WIDTH - 1 : 0]       M04_AXI_wr_addr;
+wire [C_M04_AXI_DATA_WIDTH - 1 : 0]       M04_AXI_wr_data;
+wire                                      M04_AXI_wr_valid;
+wire                                      M04_AXI_wr_ready;
+wire                                      M04_AXI_wr_trsp;
+
+wire [C_M05_AXI_DATA_WIDTH - 1 : 0]       M05_AXI_rd_tdata;
+wire                                      M05_AXI_rd_tvalid;
+wire                                      M05_AXI_rd_tready;
+wire [C_M05_AXI_ADDR_WIDTH - 1 : 0]       M05_AXI_rd_addr;
+wire                                      M05_AXI_rd_valid;
+wire                                      M05_AXI_rd_ready;
+wire [C_M05_AXI_ADDR_WIDTH - 1 : 0]       M05_AXI_wr_addr;
+wire [C_M05_AXI_DATA_WIDTH - 1 : 0]       M05_AXI_wr_data;
+wire                                      M05_AXI_wr_valid;
+wire                                      M05_AXI_wr_ready;
+wire                                      M05_AXI_wr_trsp;
+
+wire [C_M06_AXI_DATA_WIDTH - 1 : 0]       M06_AXI_rd_tdata;
+wire                                      M06_AXI_rd_tvalid;
+wire                                      M06_AXI_rd_tready;
+wire [C_M06_AXI_ADDR_WIDTH - 1 : 0]       M06_AXI_rd_addr;
+wire                                      M06_AXI_rd_valid;
+wire                                      M06_AXI_rd_ready;
+wire [C_M06_AXI_ADDR_WIDTH - 1 : 0]       M06_AXI_wr_addr;
+wire [C_M06_AXI_DATA_WIDTH - 1 : 0]       M06_AXI_wr_data;
+wire                                      M06_AXI_wr_valid;
+wire                                      M06_AXI_wr_ready;
+wire                                      M06_AXI_wr_trsp;
+
+wire [C_M07_AXI_DATA_WIDTH - 1 : 0]       M07_AXI_rd_tdata;
+wire                                      M07_AXI_rd_tvalid;
+wire                                      M07_AXI_rd_tready;
+wire [C_M07_AXI_ADDR_WIDTH - 1 : 0]       M07_AXI_rd_addr;
+wire                                      M07_AXI_rd_valid;
+wire                                      M07_AXI_rd_ready;
+wire [C_M07_AXI_ADDR_WIDTH - 1 : 0]       M07_AXI_wr_addr;
+wire [C_M07_AXI_DATA_WIDTH - 1 : 0]       M07_AXI_wr_data;
+wire                                      M07_AXI_wr_valid;
+wire                                      M07_AXI_wr_ready;
+wire                                      M07_AXI_wr_trsp;
+
+wire [C_M08_AXI_DATA_WIDTH - 1 : 0]       M08_AXI_rd_tdata;
+wire                                      M08_AXI_rd_tvalid;
+wire                                      M08_AXI_rd_tready;
+wire [C_M08_AXI_ADDR_WIDTH - 1 : 0]       M08_AXI_rd_addr;
+wire                                      M08_AXI_rd_valid;
+wire                                      M08_AXI_rd_ready;
+wire [C_M08_AXI_ADDR_WIDTH - 1 : 0]       M08_AXI_wr_addr;
+wire [C_M08_AXI_DATA_WIDTH - 1 : 0]       M08_AXI_wr_data;
+wire                                      M08_AXI_wr_valid;
+wire                                      M08_AXI_wr_ready;
+wire                                      M08_AXI_wr_trsp;
+
+wire [C_M09_AXI_DATA_WIDTH - 1 : 0]       M09_AXI_rd_tdata;
+wire                                      M09_AXI_rd_tvalid;
+wire                                      M09_AXI_rd_tready;
+wire [C_M09_AXI_ADDR_WIDTH - 1 : 0]       M09_AXI_rd_addr;
+wire                                      M09_AXI_rd_valid;
+wire                                      M09_AXI_rd_ready;
+wire [C_M09_AXI_ADDR_WIDTH - 1 : 0]       M09_AXI_wr_addr;
+wire [C_M09_AXI_DATA_WIDTH - 1 : 0]       M09_AXI_wr_data;
+wire                                      M09_AXI_wr_valid;
+wire                                      M09_AXI_wr_ready;
+wire                                      M09_AXI_wr_trsp;
 
 wire [CORE_NUM - 1 : 0]                 P7_next_rst;
 wire [PSEUDO_CHANNEL_NUM - 1 : 0]       P7_stage_full;
@@ -413,7 +623,7 @@ always @(posedge ap_clk) begin
 end
 
 assign ap_done = &ap_done_r && (acc_state == 2'b11) && P10_transfer_done;
-assign ap_done_i[4] = acc_state == 2'b11;
+assign ap_done_i[LP_NUM_EXAMPLES - 1] = acc_state == 2'b11;
 
 // Ready Logic (non-pipelined case)
 assign ap_ready = ap_done;
@@ -476,7 +686,7 @@ mem_axi_control #(
   .C_M_AXI_DATA_WIDTH ( C_M01_AXI_DATA_WIDTH ),
   .C_ADDER_BIT_WIDTH  ( 32                   )
 )
-mem_axi_control_read_edge0 (
+mem_axi_control_read_edge0_0 (
   .aclk                    ( ap_clk                  ),
   .areset                  ( areset                  ),
   .kernel_clk              ( ap_clk                  ),
@@ -524,11 +734,167 @@ assign M01_AXI_rd_tready = 1'b1;
 
 // HBM controller
 mem_axi_control #(
+  .C_M_AXI_ADDR_WIDTH ( C_M04_AXI_ADDR_WIDTH ),
+  .C_M_AXI_DATA_WIDTH ( C_M04_AXI_DATA_WIDTH ),
+  .C_ADDER_BIT_WIDTH  ( 32                   )
+)
+mem_axi_control_read_edge0_1 (
+  .aclk                    ( ap_clk                  ),
+  .areset                  ( areset                  ),
+  .kernel_clk              ( ap_clk                  ),
+  .kernel_rst              ( areset                  ),
+  .ctrl_addr_offset        ( axi04_ptr0              ),
+  .ctrl_constant           ( ctrl_constant           ),
+  .ap_start                ( ap_start_pulse          ),
+  .m_axi_awvalid           ( m04_axi_awvalid         ),
+  .m_axi_awready           ( m04_axi_awready         ),
+  .m_axi_awaddr            ( m04_axi_awaddr          ),
+  .m_axi_awlen             ( m04_axi_awlen           ),
+  .m_axi_wvalid            ( m04_axi_wvalid          ),
+  .m_axi_wready            ( m04_axi_wready          ),
+  .m_axi_wdata             ( m04_axi_wdata           ),
+  .m_axi_wstrb             ( m04_axi_wstrb           ),
+  .m_axi_wlast             ( m04_axi_wlast           ),
+  .m_axi_bvalid            ( m04_axi_bvalid          ),
+  .m_axi_bready            ( m04_axi_bready          ),
+  .m_axi_arvalid           ( m04_axi_arvalid         ),
+  .m_axi_arready           ( m04_axi_arready         ),
+  .m_axi_araddr            ( m04_axi_araddr          ),
+  .m_axi_arlen             ( m04_axi_arlen           ),
+  .m_axi_rvalid            ( m04_axi_rvalid          ),
+  .m_axi_rready            ( m04_axi_rready          ),
+  .m_axi_rdata             ( m04_axi_rdata           ),
+  .m_axi_rlast             ( m04_axi_rlast           ),
+  // acc
+  .rd_addr                 (M04_AXI_rd_addr),
+  .rd_valid                (M04_AXI_rd_valid),
+  .rd_ready                (M04_AXI_rd_ready), // to acc
+  .rd_tdata                (M04_AXI_rd_tdata),
+  .rd_tvalid               (M04_AXI_rd_tvalid),
+  .rd_tready               (M04_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M04_AXI_wr_data),
+  .wr_addr                 (M04_AXI_wr_addr),
+  .wr_valid                (M04_AXI_wr_valid),
+  .wr_ready                (M04_AXI_wr_ready),
+  .wr_rsp                  (M04_AXI_wr_trsp),
+  .complete                (ap_done_i[4])
+);
+assign M04_AXI_wr_addr = {C_M04_AXI_ADDR_WIDTH{1'b0}};
+assign M04_AXI_wr_data = {C_M04_AXI_DATA_WIDTH{1'b0}};
+assign M04_AXI_wr_valid = 1'b0;
+assign M04_AXI_rd_tready = 1'b1;
+
+// HBM controller
+mem_axi_control #(
+  .C_M_AXI_ADDR_WIDTH ( C_M06_AXI_ADDR_WIDTH ),
+  .C_M_AXI_DATA_WIDTH ( C_M06_AXI_DATA_WIDTH ),
+  .C_ADDER_BIT_WIDTH  ( 32                   )
+)
+mem_axi_control_read_edge0_2 (
+  .aclk                    ( ap_clk                  ),
+  .areset                  ( areset                  ),
+  .kernel_clk              ( ap_clk                  ),
+  .kernel_rst              ( areset                  ),
+  .ctrl_addr_offset        ( axi06_ptr0              ),
+  .ctrl_constant           ( ctrl_constant           ),
+  .ap_start                ( ap_start_pulse          ),
+  .m_axi_awvalid           ( m06_axi_awvalid         ),
+  .m_axi_awready           ( m06_axi_awready         ),
+  .m_axi_awaddr            ( m06_axi_awaddr          ),
+  .m_axi_awlen             ( m06_axi_awlen           ),
+  .m_axi_wvalid            ( m06_axi_wvalid          ),
+  .m_axi_wready            ( m06_axi_wready          ),
+  .m_axi_wdata             ( m06_axi_wdata           ),
+  .m_axi_wstrb             ( m06_axi_wstrb           ),
+  .m_axi_wlast             ( m06_axi_wlast           ),
+  .m_axi_bvalid            ( m06_axi_bvalid          ),
+  .m_axi_bready            ( m06_axi_bready          ),
+  .m_axi_arvalid           ( m06_axi_arvalid         ),
+  .m_axi_arready           ( m06_axi_arready         ),
+  .m_axi_araddr            ( m06_axi_araddr          ),
+  .m_axi_arlen             ( m06_axi_arlen           ),
+  .m_axi_rvalid            ( m06_axi_rvalid          ),
+  .m_axi_rready            ( m06_axi_rready          ),
+  .m_axi_rdata             ( m06_axi_rdata           ),
+  .m_axi_rlast             ( m06_axi_rlast           ),
+  // acc
+  .rd_addr                 (M06_AXI_rd_addr),
+  .rd_valid                (M06_AXI_rd_valid),
+  .rd_ready                (M06_AXI_rd_ready), // to acc
+  .rd_tdata                (M06_AXI_rd_tdata),
+  .rd_tvalid               (M06_AXI_rd_tvalid),
+  .rd_tready               (M06_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M06_AXI_wr_data),
+  .wr_addr                 (M06_AXI_wr_addr),
+  .wr_valid                (M06_AXI_wr_valid),
+  .wr_ready                (M06_AXI_wr_ready),
+  .wr_rsp                  (M06_AXI_wr_trsp),
+  .complete                (ap_done_i[6])
+);
+assign M06_AXI_wr_addr = {C_M06_AXI_ADDR_WIDTH{1'b0}};
+assign M06_AXI_wr_data = {C_M06_AXI_DATA_WIDTH{1'b0}};
+assign M06_AXI_wr_valid = 1'b0;
+assign M06_AXI_rd_tready = 1'b1;
+
+// HBM controller
+mem_axi_control #(
+  .C_M_AXI_ADDR_WIDTH ( C_M08_AXI_ADDR_WIDTH ),
+  .C_M_AXI_DATA_WIDTH ( C_M08_AXI_DATA_WIDTH ),
+  .C_ADDER_BIT_WIDTH  ( 32                   )
+)
+mem_axi_control_read_edge0_3 (
+  .aclk                    ( ap_clk                  ),
+  .areset                  ( areset                  ),
+  .kernel_clk              ( ap_clk                  ),
+  .kernel_rst              ( areset                  ),
+  .ctrl_addr_offset        ( axi08_ptr0              ),
+  .ctrl_constant           ( ctrl_constant           ),
+  .ap_start                ( ap_start_pulse          ),
+  .m_axi_awvalid           ( m08_axi_awvalid         ),
+  .m_axi_awready           ( m08_axi_awready         ),
+  .m_axi_awaddr            ( m08_axi_awaddr          ),
+  .m_axi_awlen             ( m08_axi_awlen           ),
+  .m_axi_wvalid            ( m08_axi_wvalid          ),
+  .m_axi_wready            ( m08_axi_wready          ),
+  .m_axi_wdata             ( m08_axi_wdata           ),
+  .m_axi_wstrb             ( m08_axi_wstrb           ),
+  .m_axi_wlast             ( m08_axi_wlast           ),
+  .m_axi_bvalid            ( m08_axi_bvalid          ),
+  .m_axi_bready            ( m08_axi_bready          ),
+  .m_axi_arvalid           ( m08_axi_arvalid         ),
+  .m_axi_arready           ( m08_axi_arready         ),
+  .m_axi_araddr            ( m08_axi_araddr          ),
+  .m_axi_arlen             ( m08_axi_arlen           ),
+  .m_axi_rvalid            ( m08_axi_rvalid          ),
+  .m_axi_rready            ( m08_axi_rready          ),
+  .m_axi_rdata             ( m08_axi_rdata           ),
+  .m_axi_rlast             ( m08_axi_rlast           ),
+  // acc
+  .rd_addr                 (M08_AXI_rd_addr),
+  .rd_valid                (M08_AXI_rd_valid),
+  .rd_ready                (M08_AXI_rd_ready), // to acc
+  .rd_tdata                (M08_AXI_rd_tdata),
+  .rd_tvalid               (M08_AXI_rd_tvalid),
+  .rd_tready               (M08_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M08_AXI_wr_data),
+  .wr_addr                 (M08_AXI_wr_addr),
+  .wr_valid                (M08_AXI_wr_valid),
+  .wr_ready                (M08_AXI_wr_ready),
+  .wr_rsp                  (M08_AXI_wr_trsp),
+  .complete                (ap_done_i[8])
+);
+assign M08_AXI_wr_addr = {C_M08_AXI_ADDR_WIDTH{1'b0}};
+assign M08_AXI_wr_data = {C_M08_AXI_DATA_WIDTH{1'b0}};
+assign M08_AXI_wr_valid = 1'b0;
+assign M08_AXI_rd_tready = 1'b1;
+
+// HBM controller
+mem_axi_control #(
   .C_M_AXI_ADDR_WIDTH ( C_M02_AXI_ADDR_WIDTH ),
   .C_M_AXI_DATA_WIDTH ( C_M02_AXI_DATA_WIDTH ),
   .C_ADDER_BIT_WIDTH  ( 32                   )
 )
-mem_axi_control_read_edge1 (
+mem_axi_control_read_edge1_0 (
   .aclk                    ( ap_clk                  ),
   .areset                  ( areset                  ),
   .kernel_clk              ( ap_clk                  ),
@@ -573,6 +939,162 @@ assign M02_AXI_wr_addr = {C_M02_AXI_ADDR_WIDTH{1'b0}};
 assign M02_AXI_wr_data = {C_M02_AXI_DATA_WIDTH{1'b0}};
 assign M02_AXI_wr_valid = 1'b0;
 assign M02_AXI_rd_tready = 1'b1;
+
+// HBM controller
+mem_axi_control #(
+  .C_M_AXI_ADDR_WIDTH ( C_M05_AXI_ADDR_WIDTH ),
+  .C_M_AXI_DATA_WIDTH ( C_M05_AXI_DATA_WIDTH ),
+  .C_ADDER_BIT_WIDTH  ( 32                   )
+)
+mem_axi_control_read_edge1_1 (
+  .aclk                    ( ap_clk                  ),
+  .areset                  ( areset                  ),
+  .kernel_clk              ( ap_clk                  ),
+  .kernel_rst              ( areset                  ),
+  .ctrl_addr_offset        ( axi05_ptr0              ),
+  .ctrl_constant           ( ctrl_constant           ),
+  .ap_start                ( ap_start_pulse          ),
+  .m_axi_awvalid           ( m05_axi_awvalid         ),
+  .m_axi_awready           ( m05_axi_awready         ),
+  .m_axi_awaddr            ( m05_axi_awaddr          ),
+  .m_axi_awlen             ( m05_axi_awlen           ),
+  .m_axi_wvalid            ( m05_axi_wvalid          ),
+  .m_axi_wready            ( m05_axi_wready          ),
+  .m_axi_wdata             ( m05_axi_wdata           ),
+  .m_axi_wstrb             ( m05_axi_wstrb           ),
+  .m_axi_wlast             ( m05_axi_wlast           ),
+  .m_axi_bvalid            ( m05_axi_bvalid          ),
+  .m_axi_bready            ( m05_axi_bready          ),
+  .m_axi_arvalid           ( m05_axi_arvalid         ),
+  .m_axi_arready           ( m05_axi_arready         ),
+  .m_axi_araddr            ( m05_axi_araddr          ),
+  .m_axi_arlen             ( m05_axi_arlen           ),
+  .m_axi_rvalid            ( m05_axi_rvalid          ),
+  .m_axi_rready            ( m05_axi_rready          ),
+  .m_axi_rdata             ( m05_axi_rdata           ),
+  .m_axi_rlast             ( m05_axi_rlast           ),
+  // acc
+  .rd_addr                 (M05_AXI_rd_addr),
+  .rd_valid                (M05_AXI_rd_valid),
+  .rd_ready                (M05_AXI_rd_ready), // to acc
+  .rd_tdata                (M05_AXI_rd_tdata),
+  .rd_tvalid               (M05_AXI_rd_tvalid),
+  .rd_tready               (M05_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M05_AXI_wr_data),
+  .wr_addr                 (M05_AXI_wr_addr),
+  .wr_valid                (M05_AXI_wr_valid),
+  .wr_ready                (M05_AXI_wr_ready),
+  .wr_rsp                  (M05_AXI_wr_trsp),
+  .complete                (ap_done_i[5])
+);
+assign M05_AXI_wr_addr = {C_M05_AXI_ADDR_WIDTH{1'b0}};
+assign M05_AXI_wr_data = {C_M05_AXI_DATA_WIDTH{1'b0}};
+assign M05_AXI_wr_valid = 1'b0;
+assign M05_AXI_rd_tready = 1'b1;
+
+// HBM controller
+mem_axi_control #(
+  .C_M_AXI_ADDR_WIDTH ( C_M07_AXI_ADDR_WIDTH ),
+  .C_M_AXI_DATA_WIDTH ( C_M07_AXI_DATA_WIDTH ),
+  .C_ADDER_BIT_WIDTH  ( 32                   )
+)
+mem_axi_control_read_edge1_2 (
+  .aclk                    ( ap_clk                  ),
+  .areset                  ( areset                  ),
+  .kernel_clk              ( ap_clk                  ),
+  .kernel_rst              ( areset                  ),
+  .ctrl_addr_offset        ( axi07_ptr0              ),
+  .ctrl_constant           ( ctrl_constant           ),
+  .ap_start                ( ap_start_pulse          ),
+  .m_axi_awvalid           ( m07_axi_awvalid         ),
+  .m_axi_awready           ( m07_axi_awready         ),
+  .m_axi_awaddr            ( m07_axi_awaddr          ),
+  .m_axi_awlen             ( m07_axi_awlen           ),
+  .m_axi_wvalid            ( m07_axi_wvalid          ),
+  .m_axi_wready            ( m07_axi_wready          ),
+  .m_axi_wdata             ( m07_axi_wdata           ),
+  .m_axi_wstrb             ( m07_axi_wstrb           ),
+  .m_axi_wlast             ( m07_axi_wlast           ),
+  .m_axi_bvalid            ( m07_axi_bvalid          ),
+  .m_axi_bready            ( m07_axi_bready          ),
+  .m_axi_arvalid           ( m07_axi_arvalid         ),
+  .m_axi_arready           ( m07_axi_arready         ),
+  .m_axi_araddr            ( m07_axi_araddr          ),
+  .m_axi_arlen             ( m07_axi_arlen           ),
+  .m_axi_rvalid            ( m07_axi_rvalid          ),
+  .m_axi_rready            ( m07_axi_rready          ),
+  .m_axi_rdata             ( m07_axi_rdata           ),
+  .m_axi_rlast             ( m07_axi_rlast           ),
+  // acc
+  .rd_addr                 (M07_AXI_rd_addr),
+  .rd_valid                (M07_AXI_rd_valid),
+  .rd_ready                (M07_AXI_rd_ready), // to acc
+  .rd_tdata                (M07_AXI_rd_tdata),
+  .rd_tvalid               (M07_AXI_rd_tvalid),
+  .rd_tready               (M07_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M07_AXI_wr_data),
+  .wr_addr                 (M07_AXI_wr_addr),
+  .wr_valid                (M07_AXI_wr_valid),
+  .wr_ready                (M07_AXI_wr_ready),
+  .wr_rsp                  (M07_AXI_wr_trsp),
+  .complete                (ap_done_i[7])
+);
+assign M07_AXI_wr_addr = {C_M07_AXI_ADDR_WIDTH{1'b0}};
+assign M07_AXI_wr_data = {C_M07_AXI_DATA_WIDTH{1'b0}};
+assign M07_AXI_wr_valid = 1'b0;
+assign M07_AXI_rd_tready = 1'b1;
+
+// HBM controller
+mem_axi_control #(
+  .C_M_AXI_ADDR_WIDTH ( C_M09_AXI_ADDR_WIDTH ),
+  .C_M_AXI_DATA_WIDTH ( C_M09_AXI_DATA_WIDTH ),
+  .C_ADDER_BIT_WIDTH  ( 32                   )
+)
+mem_axi_control_read_edge1_3 (
+  .aclk                    ( ap_clk                  ),
+  .areset                  ( areset                  ),
+  .kernel_clk              ( ap_clk                  ),
+  .kernel_rst              ( areset                  ),
+  .ctrl_addr_offset        ( axi09_ptr0              ),
+  .ctrl_constant           ( ctrl_constant           ),
+  .ap_start                ( ap_start_pulse          ),
+  .m_axi_awvalid           ( m09_axi_awvalid         ),
+  .m_axi_awready           ( m09_axi_awready         ),
+  .m_axi_awaddr            ( m09_axi_awaddr          ),
+  .m_axi_awlen             ( m09_axi_awlen           ),
+  .m_axi_wvalid            ( m09_axi_wvalid          ),
+  .m_axi_wready            ( m09_axi_wready          ),
+  .m_axi_wdata             ( m09_axi_wdata           ),
+  .m_axi_wstrb             ( m09_axi_wstrb           ),
+  .m_axi_wlast             ( m09_axi_wlast           ),
+  .m_axi_bvalid            ( m09_axi_bvalid          ),
+  .m_axi_bready            ( m09_axi_bready          ),
+  .m_axi_arvalid           ( m09_axi_arvalid         ),
+  .m_axi_arready           ( m09_axi_arready         ),
+  .m_axi_araddr            ( m09_axi_araddr          ),
+  .m_axi_arlen             ( m09_axi_arlen           ),
+  .m_axi_rvalid            ( m09_axi_rvalid          ),
+  .m_axi_rready            ( m09_axi_rready          ),
+  .m_axi_rdata             ( m09_axi_rdata           ),
+  .m_axi_rlast             ( m09_axi_rlast           ),
+  // acc
+  .rd_addr                 (M09_AXI_rd_addr),
+  .rd_valid                (M09_AXI_rd_valid),
+  .rd_ready                (M09_AXI_rd_ready), // to acc
+  .rd_tdata                (M09_AXI_rd_tdata),
+  .rd_tvalid               (M09_AXI_rd_tvalid),
+  .rd_tready               (M09_AXI_rd_tready), // 默认返回缓冲区足够
+  .wr_data                 (M09_AXI_wr_data),
+  .wr_addr                 (M09_AXI_wr_addr),
+  .wr_valid                (M09_AXI_wr_valid),
+  .wr_ready                (M09_AXI_wr_ready),
+  .wr_rsp                  (M09_AXI_wr_trsp),
+  .complete                (ap_done_i[9])
+);
+assign M09_AXI_wr_addr = {C_M09_AXI_ADDR_WIDTH{1'b0}};
+assign M09_AXI_wr_data = {C_M09_AXI_DATA_WIDTH{1'b0}};
+assign M09_AXI_wr_valid = 1'b0;
+assign M09_AXI_rd_tready = 1'b1;
 
 mem_axi_control #(
   .C_M_AXI_ADDR_WIDTH ( C_M03_AXI_ADDR_WIDTH ),
@@ -750,13 +1272,13 @@ hbm_interface HBM_INTERFACE (
   .rst                        (P5_next_rst),
   .front_rd_hbm_edge_addr     (P5_rd_hbm_edge_addr),
   .front_rd_hbm_edge_valid    (P5_rd_hbm_edge_valid),
-  .hbm_controller_edge        ({M02_AXI_rd_tdata, M01_AXI_rd_tdata}),
-  .hbm_controller_valid       ({M02_AXI_rd_tvalid, M01_AXI_rd_tvalid}),
-  .hbm_controller_full        ({!M02_AXI_rd_ready, !M01_AXI_rd_ready}),
+  .hbm_controller_edge        ({M09_AXI_rd_tdata, M07_AXI_rd_tdata, M05_AXI_rd_tdata, M02_AXI_rd_tdata, M08_AXI_rd_tdata, M06_AXI_rd_tdata, M04_AXI_rd_tdata, M01_AXI_rd_tdata}),
+  .hbm_controller_valid       ({M09_AXI_rd_tvalid, M07_AXI_rd_tvalid, M05_AXI_rd_tvalid, M02_AXI_rd_tvalid, M08_AXI_rd_tvalid, M06_AXI_rd_tvalid, M04_AXI_rd_tvalid, M01_AXI_rd_tvalid}),
+  .hbm_controller_full        ({!M09_AXI_rd_ready, !M07_AXI_rd_ready, !M05_AXI_rd_ready, !M02_AXI_rd_ready, !M08_AXI_rd_ready, !M06_AXI_rd_ready, !M04_AXI_rd_ready, !M01_AXI_rd_ready}),
 
   .stage_full                 (HBM_interface_full),
-  .rd_hbm_edge_addr           ({M02_AXI_rd_addr, M01_AXI_rd_addr}),
-  .rd_hbm_edge_valid          ({M02_AXI_rd_valid, M01_AXI_rd_valid}),
+  .rd_hbm_edge_addr           ({M09_AXI_rd_addr, M07_AXI_rd_addr, M05_AXI_rd_addr, M02_AXI_rd_addr, M08_AXI_rd_addr, M06_AXI_rd_addr, M04_AXI_rd_addr, M01_AXI_rd_addr}),
+  .rd_hbm_edge_valid          ({M09_AXI_rd_valid, M07_AXI_rd_valid, M05_AXI_rd_valid, M02_AXI_rd_valid, M08_AXI_rd_valid, M06_AXI_rd_valid, M04_AXI_rd_valid, M01_AXI_rd_valid}),
   .active_v_edge              (HBM_interface_active_v_edge),
   .active_v_edge_valid        (HBM_interface_active_v_edge_valid)
 );

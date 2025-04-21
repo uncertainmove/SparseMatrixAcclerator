@@ -8,6 +8,12 @@ import slv_m00_axi_vip_pkg::*;
 import slv_m01_axi_vip_pkg::*;
 import slv_m02_axi_vip_pkg::*;
 import slv_m03_axi_vip_pkg::*;
+import slv_m04_axi_vip_pkg::*;
+import slv_m05_axi_vip_pkg::*;
+import slv_m06_axi_vip_pkg::*;
+import slv_m07_axi_vip_pkg::*;
+import slv_m08_axi_vip_pkg::*;
+import slv_m09_axi_vip_pkg::*;
 import control_delta_pr_accelerator_vip_pkg::*;
 module delta_pr_accelerator_tb ();
 parameter integer ITERATION_NUM = 15;
@@ -16,16 +22,16 @@ parameter integer ITERATION_NUM = 15;
 // parameter integer EDGE_NUM_0 = 477148;
 // parameter integer EDGE_NUM_1 = 471315;
 // string file_location = "/data/zz_data/projects/SparseMatrixAcclerator_pr_acc/acc/data/v_82167_e_948463/";
-parameter integer VERTEX_NUM = 4039;
-parameter integer EDGE_NUM = 176468;
-parameter integer EDGE_NUM_0 = 89116;
-parameter integer EDGE_NUM_1 = 87352;
-string file_location = "/data/zz_data/projects/SparseMatrixAcclerator_pr_acc/acc/data/facebook/";
-// parameter integer VERTEX_NUM = 10;
-// parameter integer EDGE_NUM = 26;
-// parameter integer EDGE_NUM_0 = 26;
-// parameter integer EDGE_NUM_1 = 0;
-// string file_location = "/data/zz_data/projects/SparseMatrixAcclerator_pr_acc/acc/data/v_10_e_26/";
+// parameter integer VERTEX_NUM = 4039;
+// parameter integer EDGE_NUM = 176468;
+// parameter integer EDGE_NUM_0 = 89116;
+// parameter integer EDGE_NUM_1 = 87352;
+// string file_location = "/data/zz_data/projects/SparseMatrixAcclerator_pr_acc/acc/data/facebook/";
+parameter integer VERTEX_NUM = 10;
+parameter integer EDGE_NUM = 26;
+parameter integer EDGE_NUM_0 = 26;
+parameter integer EDGE_NUM_1 = 0;
+string file_location = "/data/zz_data/projects/SparseMatrixAcclerator_pr_acc/acc/data/v_10_e_26/";
 // parameter integer VERTEX_NUM = 1048576;
 // parameter integer EDGE_NUM = 31399374;
 // parameter integer EDGE_NUM_0 = 15894273;
@@ -44,6 +50,18 @@ parameter integer C_M02_AXI_ADDR_WIDTH = 64;
 parameter integer C_M02_AXI_DATA_WIDTH = 512;
 parameter integer C_M03_AXI_ADDR_WIDTH = 64;
 parameter integer C_M03_AXI_DATA_WIDTH = 1024;
+parameter integer C_M04_AXI_ADDR_WIDTH = 64;
+parameter integer C_M04_AXI_DATA_WIDTH = 512;
+parameter integer C_M05_AXI_ADDR_WIDTH = 64;
+parameter integer C_M05_AXI_DATA_WIDTH = 512;
+parameter integer C_M06_AXI_ADDR_WIDTH = 64;
+parameter integer C_M06_AXI_DATA_WIDTH = 512;
+parameter integer C_M07_AXI_ADDR_WIDTH = 64;
+parameter integer C_M07_AXI_DATA_WIDTH = 512;
+parameter integer C_M08_AXI_ADDR_WIDTH = 64;
+parameter integer C_M08_AXI_DATA_WIDTH = 512;
+parameter integer C_M09_AXI_ADDR_WIDTH = 64;
+parameter integer C_M09_AXI_DATA_WIDTH = 512;
 
 // Control Register
 parameter KRNL_CTRL_REG_ADDR     = 32'h00000000;
@@ -174,6 +192,126 @@ wire [1-1:0] m03_axi_rvalid;
 wire [1-1:0] m03_axi_rready;
 wire [C_M03_AXI_DATA_WIDTH-1:0] m03_axi_rdata;
 wire [1-1:0] m03_axi_rlast;
+//AXI4 master interface m04_axi
+wire [1-1:0] m04_axi_awvalid;
+wire [1-1:0] m04_axi_awready;
+wire [C_M04_AXI_ADDR_WIDTH-1:0] m04_axi_awaddr;
+wire [8-1:0] m04_axi_awlen;
+wire [1-1:0] m04_axi_wvalid;
+wire [1-1:0] m04_axi_wready;
+wire [C_M04_AXI_DATA_WIDTH-1:0] m04_axi_wdata;
+wire [C_M04_AXI_DATA_WIDTH/8-1:0] m04_axi_wstrb;
+wire [1-1:0] m04_axi_wlast;
+wire [1-1:0] m04_axi_bvalid;
+wire [1-1:0] m04_axi_bready;
+wire [1-1:0] m04_axi_arvalid;
+wire [1-1:0] m04_axi_arready;
+wire [C_M04_AXI_ADDR_WIDTH-1:0] m04_axi_araddr;
+wire [8-1:0] m04_axi_arlen;
+wire [1-1:0] m04_axi_rvalid;
+wire [1-1:0] m04_axi_rready;
+wire [C_M04_AXI_DATA_WIDTH-1:0] m04_axi_rdata;
+wire [1-1:0] m04_axi_rlast;
+//AXI4 master interface m05_axi
+wire [1-1:0] m05_axi_awvalid;
+wire [1-1:0] m05_axi_awready;
+wire [C_M05_AXI_ADDR_WIDTH-1:0] m05_axi_awaddr;
+wire [8-1:0] m05_axi_awlen;
+wire [1-1:0] m05_axi_wvalid;
+wire [1-1:0] m05_axi_wready;
+wire [C_M05_AXI_DATA_WIDTH-1:0] m05_axi_wdata;
+wire [C_M05_AXI_DATA_WIDTH/8-1:0] m05_axi_wstrb;
+wire [1-1:0] m05_axi_wlast;
+wire [1-1:0] m05_axi_bvalid;
+wire [1-1:0] m05_axi_bready;
+wire [1-1:0] m05_axi_arvalid;
+wire [1-1:0] m05_axi_arready;
+wire [C_M05_AXI_ADDR_WIDTH-1:0] m05_axi_araddr;
+wire [8-1:0] m05_axi_arlen;
+wire [1-1:0] m05_axi_rvalid;
+wire [1-1:0] m05_axi_rready;
+wire [C_M05_AXI_DATA_WIDTH-1:0] m05_axi_rdata;
+wire [1-1:0] m05_axi_rlast;
+//AXI4 master interface m06_axi
+wire [1-1:0] m06_axi_awvalid;
+wire [1-1:0] m06_axi_awready;
+wire [C_M06_AXI_ADDR_WIDTH-1:0] m06_axi_awaddr;
+wire [8-1:0] m06_axi_awlen;
+wire [1-1:0] m06_axi_wvalid;
+wire [1-1:0] m06_axi_wready;
+wire [C_M06_AXI_DATA_WIDTH-1:0] m06_axi_wdata;
+wire [C_M06_AXI_DATA_WIDTH/8-1:0] m06_axi_wstrb;
+wire [1-1:0] m06_axi_wlast;
+wire [1-1:0] m06_axi_bvalid;
+wire [1-1:0] m06_axi_bready;
+wire [1-1:0] m06_axi_arvalid;
+wire [1-1:0] m06_axi_arready;
+wire [C_M06_AXI_ADDR_WIDTH-1:0] m06_axi_araddr;
+wire [8-1:0] m06_axi_arlen;
+wire [1-1:0] m06_axi_rvalid;
+wire [1-1:0] m06_axi_rready;
+wire [C_M06_AXI_DATA_WIDTH-1:0] m06_axi_rdata;
+wire [1-1:0] m06_axi_rlast;
+//AXI4 master interface m07_axi
+wire [1-1:0] m07_axi_awvalid;
+wire [1-1:0] m07_axi_awready;
+wire [C_M07_AXI_ADDR_WIDTH-1:0] m07_axi_awaddr;
+wire [8-1:0] m07_axi_awlen;
+wire [1-1:0] m07_axi_wvalid;
+wire [1-1:0] m07_axi_wready;
+wire [C_M07_AXI_DATA_WIDTH-1:0] m07_axi_wdata;
+wire [C_M07_AXI_DATA_WIDTH/8-1:0] m07_axi_wstrb;
+wire [1-1:0] m07_axi_wlast;
+wire [1-1:0] m07_axi_bvalid;
+wire [1-1:0] m07_axi_bready;
+wire [1-1:0] m07_axi_arvalid;
+wire [1-1:0] m07_axi_arready;
+wire [C_M07_AXI_ADDR_WIDTH-1:0] m07_axi_araddr;
+wire [8-1:0] m07_axi_arlen;
+wire [1-1:0] m07_axi_rvalid;
+wire [1-1:0] m07_axi_rready;
+wire [C_M07_AXI_DATA_WIDTH-1:0] m07_axi_rdata;
+wire [1-1:0] m07_axi_rlast;
+//AXI4 master interface m08_axi
+wire [1-1:0] m08_axi_awvalid;
+wire [1-1:0] m08_axi_awready;
+wire [C_M08_AXI_ADDR_WIDTH-1:0] m08_axi_awaddr;
+wire [8-1:0] m08_axi_awlen;
+wire [1-1:0] m08_axi_wvalid;
+wire [1-1:0] m08_axi_wready;
+wire [C_M08_AXI_DATA_WIDTH-1:0] m08_axi_wdata;
+wire [C_M08_AXI_DATA_WIDTH/8-1:0] m08_axi_wstrb;
+wire [1-1:0] m08_axi_wlast;
+wire [1-1:0] m08_axi_bvalid;
+wire [1-1:0] m08_axi_bready;
+wire [1-1:0] m08_axi_arvalid;
+wire [1-1:0] m08_axi_arready;
+wire [C_M08_AXI_ADDR_WIDTH-1:0] m08_axi_araddr;
+wire [8-1:0] m08_axi_arlen;
+wire [1-1:0] m08_axi_rvalid;
+wire [1-1:0] m08_axi_rready;
+wire [C_M08_AXI_DATA_WIDTH-1:0] m08_axi_rdata;
+wire [1-1:0] m08_axi_rlast;
+//AXI4 master interface m09_axi
+wire [1-1:0] m09_axi_awvalid;
+wire [1-1:0] m09_axi_awready;
+wire [C_M09_AXI_ADDR_WIDTH-1:0] m09_axi_awaddr;
+wire [8-1:0] m09_axi_awlen;
+wire [1-1:0] m09_axi_wvalid;
+wire [1-1:0] m09_axi_wready;
+wire [C_M09_AXI_DATA_WIDTH-1:0] m09_axi_wdata;
+wire [C_M09_AXI_DATA_WIDTH/8-1:0] m09_axi_wstrb;
+wire [1-1:0] m09_axi_wlast;
+wire [1-1:0] m09_axi_bvalid;
+wire [1-1:0] m09_axi_bready;
+wire [1-1:0] m09_axi_arvalid;
+wire [1-1:0] m09_axi_arready;
+wire [C_M09_AXI_ADDR_WIDTH-1:0] m09_axi_araddr;
+wire [8-1:0] m09_axi_arlen;
+wire [1-1:0] m09_axi_rvalid;
+wire [1-1:0] m09_axi_rready;
+wire [C_M09_AXI_DATA_WIDTH-1:0] m09_axi_rdata;
+wire [1-1:0] m09_axi_rlast;
 //AXI4LITE control signals
 wire [1-1:0] s_axi_control_awvalid;
 wire [1-1:0] s_axi_control_awready;
@@ -205,7 +343,19 @@ delta_pr_accelerator #(
   .C_M02_AXI_ADDR_WIDTH       ( C_M02_AXI_ADDR_WIDTH       ),
   .C_M02_AXI_DATA_WIDTH       ( C_M02_AXI_DATA_WIDTH       ),
   .C_M03_AXI_ADDR_WIDTH       ( C_M03_AXI_ADDR_WIDTH       ),
-  .C_M03_AXI_DATA_WIDTH       ( C_M03_AXI_DATA_WIDTH       )
+  .C_M03_AXI_DATA_WIDTH       ( C_M03_AXI_DATA_WIDTH       ),
+  .C_M04_AXI_ADDR_WIDTH       ( C_M04_AXI_ADDR_WIDTH       ),
+  .C_M04_AXI_DATA_WIDTH       ( C_M04_AXI_DATA_WIDTH       ),
+  .C_M05_AXI_ADDR_WIDTH       ( C_M05_AXI_ADDR_WIDTH       ),
+  .C_M05_AXI_DATA_WIDTH       ( C_M05_AXI_DATA_WIDTH       ),
+  .C_M06_AXI_ADDR_WIDTH       ( C_M06_AXI_ADDR_WIDTH       ),
+  .C_M06_AXI_DATA_WIDTH       ( C_M06_AXI_DATA_WIDTH       ),
+  .C_M07_AXI_ADDR_WIDTH       ( C_M07_AXI_ADDR_WIDTH       ),
+  .C_M07_AXI_DATA_WIDTH       ( C_M07_AXI_DATA_WIDTH       ),
+  .C_M08_AXI_ADDR_WIDTH       ( C_M08_AXI_ADDR_WIDTH       ),
+  .C_M08_AXI_DATA_WIDTH       ( C_M08_AXI_DATA_WIDTH       ),
+  .C_M09_AXI_ADDR_WIDTH       ( C_M09_AXI_ADDR_WIDTH       ),
+  .C_M09_AXI_DATA_WIDTH       ( C_M09_AXI_DATA_WIDTH       )
 )
 inst_dut (
   .ap_clk                ( ap_clk                ),
@@ -286,6 +436,120 @@ inst_dut (
   .m03_axi_rready        ( m03_axi_rready        ),
   .m03_axi_rdata         ( m03_axi_rdata         ),
   .m03_axi_rlast         ( m03_axi_rlast         ),
+  .m04_axi_awvalid       ( m04_axi_awvalid       ),
+  .m04_axi_awready       ( m04_axi_awready       ),
+  .m04_axi_awaddr        ( m04_axi_awaddr        ),
+  .m04_axi_awlen         ( m04_axi_awlen         ),
+  .m04_axi_wvalid        ( m04_axi_wvalid        ),
+  .m04_axi_wready        ( m04_axi_wready        ),
+  .m04_axi_wdata         ( m04_axi_wdata         ),
+  .m04_axi_wstrb         ( m04_axi_wstrb         ),
+  .m04_axi_wlast         ( m04_axi_wlast         ),
+  .m04_axi_bvalid        ( m04_axi_bvalid        ),
+  .m04_axi_bready        ( m04_axi_bready        ),
+  .m04_axi_arvalid       ( m04_axi_arvalid       ),
+  .m04_axi_arready       ( m04_axi_arready       ),
+  .m04_axi_araddr        ( m04_axi_araddr        ),
+  .m04_axi_arlen         ( m04_axi_arlen         ),
+  .m04_axi_rvalid        ( m04_axi_rvalid        ),
+  .m04_axi_rready        ( m04_axi_rready        ),
+  .m04_axi_rdata         ( m04_axi_rdata         ),
+  .m04_axi_rlast         ( m04_axi_rlast         ),
+  .m05_axi_awvalid       ( m05_axi_awvalid       ),
+  .m05_axi_awready       ( m05_axi_awready       ),
+  .m05_axi_awaddr        ( m05_axi_awaddr        ),
+  .m05_axi_awlen         ( m05_axi_awlen         ),
+  .m05_axi_wvalid        ( m05_axi_wvalid        ),
+  .m05_axi_wready        ( m05_axi_wready        ),
+  .m05_axi_wdata         ( m05_axi_wdata         ),
+  .m05_axi_wstrb         ( m05_axi_wstrb         ),
+  .m05_axi_wlast         ( m05_axi_wlast         ),
+  .m05_axi_bvalid        ( m05_axi_bvalid        ),
+  .m05_axi_bready        ( m05_axi_bready        ),
+  .m05_axi_arvalid       ( m05_axi_arvalid       ),
+  .m05_axi_arready       ( m05_axi_arready       ),
+  .m05_axi_araddr        ( m05_axi_araddr        ),
+  .m05_axi_arlen         ( m05_axi_arlen         ),
+  .m05_axi_rvalid        ( m05_axi_rvalid        ),
+  .m05_axi_rready        ( m05_axi_rready        ),
+  .m05_axi_rdata         ( m05_axi_rdata         ),
+  .m05_axi_rlast         ( m05_axi_rlast         ),
+  .m06_axi_awvalid       ( m06_axi_awvalid       ),
+  .m06_axi_awready       ( m06_axi_awready       ),
+  .m06_axi_awaddr        ( m06_axi_awaddr        ),
+  .m06_axi_awlen         ( m06_axi_awlen         ),
+  .m06_axi_wvalid        ( m06_axi_wvalid        ),
+  .m06_axi_wready        ( m06_axi_wready        ),
+  .m06_axi_wdata         ( m06_axi_wdata         ),
+  .m06_axi_wstrb         ( m06_axi_wstrb         ),
+  .m06_axi_wlast         ( m06_axi_wlast         ),
+  .m06_axi_bvalid        ( m06_axi_bvalid        ),
+  .m06_axi_bready        ( m06_axi_bready        ),
+  .m06_axi_arvalid       ( m06_axi_arvalid       ),
+  .m06_axi_arready       ( m06_axi_arready       ),
+  .m06_axi_araddr        ( m06_axi_araddr        ),
+  .m06_axi_arlen         ( m06_axi_arlen         ),
+  .m06_axi_rvalid        ( m06_axi_rvalid        ),
+  .m06_axi_rready        ( m06_axi_rready        ),
+  .m06_axi_rdata         ( m06_axi_rdata         ),
+  .m06_axi_rlast         ( m06_axi_rlast         ),
+  .m07_axi_awvalid       ( m07_axi_awvalid       ),
+  .m07_axi_awready       ( m07_axi_awready       ),
+  .m07_axi_awaddr        ( m07_axi_awaddr        ),
+  .m07_axi_awlen         ( m07_axi_awlen         ),
+  .m07_axi_wvalid        ( m07_axi_wvalid        ),
+  .m07_axi_wready        ( m07_axi_wready        ),
+  .m07_axi_wdata         ( m07_axi_wdata         ),
+  .m07_axi_wstrb         ( m07_axi_wstrb         ),
+  .m07_axi_wlast         ( m07_axi_wlast         ),
+  .m07_axi_bvalid        ( m07_axi_bvalid        ),
+  .m07_axi_bready        ( m07_axi_bready        ),
+  .m07_axi_arvalid       ( m07_axi_arvalid       ),
+  .m07_axi_arready       ( m07_axi_arready       ),
+  .m07_axi_araddr        ( m07_axi_araddr        ),
+  .m07_axi_arlen         ( m07_axi_arlen         ),
+  .m07_axi_rvalid        ( m07_axi_rvalid        ),
+  .m07_axi_rready        ( m07_axi_rready        ),
+  .m07_axi_rdata         ( m07_axi_rdata         ),
+  .m07_axi_rlast         ( m07_axi_rlast         ),
+  .m08_axi_awvalid       ( m08_axi_awvalid       ),
+  .m08_axi_awready       ( m08_axi_awready       ),
+  .m08_axi_awaddr        ( m08_axi_awaddr        ),
+  .m08_axi_awlen         ( m08_axi_awlen         ),
+  .m08_axi_wvalid        ( m08_axi_wvalid        ),
+  .m08_axi_wready        ( m08_axi_wready        ),
+  .m08_axi_wdata         ( m08_axi_wdata         ),
+  .m08_axi_wstrb         ( m08_axi_wstrb         ),
+  .m08_axi_wlast         ( m08_axi_wlast         ),
+  .m08_axi_bvalid        ( m08_axi_bvalid        ),
+  .m08_axi_bready        ( m08_axi_bready        ),
+  .m08_axi_arvalid       ( m08_axi_arvalid       ),
+  .m08_axi_arready       ( m08_axi_arready       ),
+  .m08_axi_araddr        ( m08_axi_araddr        ),
+  .m08_axi_arlen         ( m08_axi_arlen         ),
+  .m08_axi_rvalid        ( m08_axi_rvalid        ),
+  .m08_axi_rready        ( m08_axi_rready        ),
+  .m08_axi_rdata         ( m08_axi_rdata         ),
+  .m08_axi_rlast         ( m08_axi_rlast         ),
+  .m09_axi_awvalid       ( m09_axi_awvalid       ),
+  .m09_axi_awready       ( m09_axi_awready       ),
+  .m09_axi_awaddr        ( m09_axi_awaddr        ),
+  .m09_axi_awlen         ( m09_axi_awlen         ),
+  .m09_axi_wvalid        ( m09_axi_wvalid        ),
+  .m09_axi_wready        ( m09_axi_wready        ),
+  .m09_axi_wdata         ( m09_axi_wdata         ),
+  .m09_axi_wstrb         ( m09_axi_wstrb         ),
+  .m09_axi_wlast         ( m09_axi_wlast         ),
+  .m09_axi_bvalid        ( m09_axi_bvalid        ),
+  .m09_axi_bready        ( m09_axi_bready        ),
+  .m09_axi_arvalid       ( m09_axi_arvalid       ),
+  .m09_axi_arready       ( m09_axi_arready       ),
+  .m09_axi_araddr        ( m09_axi_araddr        ),
+  .m09_axi_arlen         ( m09_axi_arlen         ),
+  .m09_axi_rvalid        ( m09_axi_rvalid        ),
+  .m09_axi_rready        ( m09_axi_rready        ),
+  .m09_axi_rdata         ( m09_axi_rdata         ),
+  .m09_axi_rlast         ( m09_axi_rlast         ),
   .s_axi_control_awvalid ( s_axi_control_awvalid ),
   .s_axi_control_awready ( s_axi_control_awready ),
   .s_axi_control_awaddr  ( s_axi_control_awaddr  ),
@@ -447,6 +711,180 @@ slv_m03_axi_vip inst_slv_m03_axi_vip (
 slv_m03_axi_vip_slv_mem_t   m03_axi;
 slv_m03_axi_vip_slv_t   m03_axi_slv;
 
+// Slave MM VIP instantiation
+slv_m04_axi_vip inst_slv_m04_axi_vip (
+  .aclk          ( ap_clk          ),
+  .aresetn       ( ap_rst_n        ),
+  .s_axi_awvalid ( m04_axi_awvalid ),
+  .s_axi_awready ( m04_axi_awready ),
+  .s_axi_awaddr  ( m04_axi_awaddr  ),
+  .s_axi_awlen   ( m04_axi_awlen   ),
+  .s_axi_wvalid  ( m04_axi_wvalid  ),
+  .s_axi_wready  ( m04_axi_wready  ),
+  .s_axi_wdata   ( m04_axi_wdata   ),
+  .s_axi_wstrb   ( m04_axi_wstrb   ),
+  .s_axi_wlast   ( m04_axi_wlast   ),
+  .s_axi_bvalid  ( m04_axi_bvalid  ),
+  .s_axi_bready  ( m04_axi_bready  ),
+  .s_axi_arvalid ( m04_axi_arvalid ),
+  .s_axi_arready ( m04_axi_arready ),
+  .s_axi_araddr  ( m04_axi_araddr  ),
+  .s_axi_arlen   ( m04_axi_arlen   ),
+  .s_axi_rvalid  ( m04_axi_rvalid  ),
+  .s_axi_rready  ( m04_axi_rready  ),
+  .s_axi_rdata   ( m04_axi_rdata   ),
+  .s_axi_rlast   ( m04_axi_rlast   )
+);
+
+
+slv_m04_axi_vip_slv_mem_t   m04_axi;
+slv_m04_axi_vip_slv_t   m04_axi_slv;
+
+// Slave MM VIP instantiation
+slv_m05_axi_vip inst_slv_m05_axi_vip (
+  .aclk          ( ap_clk          ),
+  .aresetn       ( ap_rst_n        ),
+  .s_axi_awvalid ( m05_axi_awvalid ),
+  .s_axi_awready ( m05_axi_awready ),
+  .s_axi_awaddr  ( m05_axi_awaddr  ),
+  .s_axi_awlen   ( m05_axi_awlen   ),
+  .s_axi_wvalid  ( m05_axi_wvalid  ),
+  .s_axi_wready  ( m05_axi_wready  ),
+  .s_axi_wdata   ( m05_axi_wdata   ),
+  .s_axi_wstrb   ( m05_axi_wstrb   ),
+  .s_axi_wlast   ( m05_axi_wlast   ),
+  .s_axi_bvalid  ( m05_axi_bvalid  ),
+  .s_axi_bready  ( m05_axi_bready  ),
+  .s_axi_arvalid ( m05_axi_arvalid ),
+  .s_axi_arready ( m05_axi_arready ),
+  .s_axi_araddr  ( m05_axi_araddr  ),
+  .s_axi_arlen   ( m05_axi_arlen   ),
+  .s_axi_rvalid  ( m05_axi_rvalid  ),
+  .s_axi_rready  ( m05_axi_rready  ),
+  .s_axi_rdata   ( m05_axi_rdata   ),
+  .s_axi_rlast   ( m05_axi_rlast   )
+);
+
+
+slv_m05_axi_vip_slv_mem_t   m05_axi;
+slv_m05_axi_vip_slv_t   m05_axi_slv;
+
+// Slave MM VIP instantiation
+slv_m06_axi_vip inst_slv_m06_axi_vip (
+  .aclk          ( ap_clk          ),
+  .aresetn       ( ap_rst_n        ),
+  .s_axi_awvalid ( m06_axi_awvalid ),
+  .s_axi_awready ( m06_axi_awready ),
+  .s_axi_awaddr  ( m06_axi_awaddr  ),
+  .s_axi_awlen   ( m06_axi_awlen   ),
+  .s_axi_wvalid  ( m06_axi_wvalid  ),
+  .s_axi_wready  ( m06_axi_wready  ),
+  .s_axi_wdata   ( m06_axi_wdata   ),
+  .s_axi_wstrb   ( m06_axi_wstrb   ),
+  .s_axi_wlast   ( m06_axi_wlast   ),
+  .s_axi_bvalid  ( m06_axi_bvalid  ),
+  .s_axi_bready  ( m06_axi_bready  ),
+  .s_axi_arvalid ( m06_axi_arvalid ),
+  .s_axi_arready ( m06_axi_arready ),
+  .s_axi_araddr  ( m06_axi_araddr  ),
+  .s_axi_arlen   ( m06_axi_arlen   ),
+  .s_axi_rvalid  ( m06_axi_rvalid  ),
+  .s_axi_rready  ( m06_axi_rready  ),
+  .s_axi_rdata   ( m06_axi_rdata   ),
+  .s_axi_rlast   ( m06_axi_rlast   )
+);
+
+
+slv_m06_axi_vip_slv_mem_t   m06_axi;
+slv_m06_axi_vip_slv_t   m06_axi_slv;
+
+// Slave MM VIP instantiation
+slv_m07_axi_vip inst_slv_m07_axi_vip (
+  .aclk          ( ap_clk          ),
+  .aresetn       ( ap_rst_n        ),
+  .s_axi_awvalid ( m07_axi_awvalid ),
+  .s_axi_awready ( m07_axi_awready ),
+  .s_axi_awaddr  ( m07_axi_awaddr  ),
+  .s_axi_awlen   ( m07_axi_awlen   ),
+  .s_axi_wvalid  ( m07_axi_wvalid  ),
+  .s_axi_wready  ( m07_axi_wready  ),
+  .s_axi_wdata   ( m07_axi_wdata   ),
+  .s_axi_wstrb   ( m07_axi_wstrb   ),
+  .s_axi_wlast   ( m07_axi_wlast   ),
+  .s_axi_bvalid  ( m07_axi_bvalid  ),
+  .s_axi_bready  ( m07_axi_bready  ),
+  .s_axi_arvalid ( m07_axi_arvalid ),
+  .s_axi_arready ( m07_axi_arready ),
+  .s_axi_araddr  ( m07_axi_araddr  ),
+  .s_axi_arlen   ( m07_axi_arlen   ),
+  .s_axi_rvalid  ( m07_axi_rvalid  ),
+  .s_axi_rready  ( m07_axi_rready  ),
+  .s_axi_rdata   ( m07_axi_rdata   ),
+  .s_axi_rlast   ( m07_axi_rlast   )
+);
+
+
+slv_m07_axi_vip_slv_mem_t   m07_axi;
+slv_m07_axi_vip_slv_t   m07_axi_slv;
+
+// Slave MM VIP instantiation
+slv_m08_axi_vip inst_slv_m08_axi_vip (
+  .aclk          ( ap_clk          ),
+  .aresetn       ( ap_rst_n        ),
+  .s_axi_awvalid ( m08_axi_awvalid ),
+  .s_axi_awready ( m08_axi_awready ),
+  .s_axi_awaddr  ( m08_axi_awaddr  ),
+  .s_axi_awlen   ( m08_axi_awlen   ),
+  .s_axi_wvalid  ( m08_axi_wvalid  ),
+  .s_axi_wready  ( m08_axi_wready  ),
+  .s_axi_wdata   ( m08_axi_wdata   ),
+  .s_axi_wstrb   ( m08_axi_wstrb   ),
+  .s_axi_wlast   ( m08_axi_wlast   ),
+  .s_axi_bvalid  ( m08_axi_bvalid  ),
+  .s_axi_bready  ( m08_axi_bready  ),
+  .s_axi_arvalid ( m08_axi_arvalid ),
+  .s_axi_arready ( m08_axi_arready ),
+  .s_axi_araddr  ( m08_axi_araddr  ),
+  .s_axi_arlen   ( m08_axi_arlen   ),
+  .s_axi_rvalid  ( m08_axi_rvalid  ),
+  .s_axi_rready  ( m08_axi_rready  ),
+  .s_axi_rdata   ( m08_axi_rdata   ),
+  .s_axi_rlast   ( m08_axi_rlast   )
+);
+
+
+slv_m08_axi_vip_slv_mem_t   m08_axi;
+slv_m08_axi_vip_slv_t   m08_axi_slv;
+
+// Slave MM VIP instantiation
+slv_m09_axi_vip inst_slv_m09_axi_vip (
+  .aclk          ( ap_clk          ),
+  .aresetn       ( ap_rst_n        ),
+  .s_axi_awvalid ( m09_axi_awvalid ),
+  .s_axi_awready ( m09_axi_awready ),
+  .s_axi_awaddr  ( m09_axi_awaddr  ),
+  .s_axi_awlen   ( m09_axi_awlen   ),
+  .s_axi_wvalid  ( m09_axi_wvalid  ),
+  .s_axi_wready  ( m09_axi_wready  ),
+  .s_axi_wdata   ( m09_axi_wdata   ),
+  .s_axi_wstrb   ( m09_axi_wstrb   ),
+  .s_axi_wlast   ( m09_axi_wlast   ),
+  .s_axi_bvalid  ( m09_axi_bvalid  ),
+  .s_axi_bready  ( m09_axi_bready  ),
+  .s_axi_arvalid ( m09_axi_arvalid ),
+  .s_axi_arready ( m09_axi_arready ),
+  .s_axi_araddr  ( m09_axi_araddr  ),
+  .s_axi_arlen   ( m09_axi_arlen   ),
+  .s_axi_rvalid  ( m09_axi_rvalid  ),
+  .s_axi_rready  ( m09_axi_rready  ),
+  .s_axi_rdata   ( m09_axi_rdata   ),
+  .s_axi_rlast   ( m09_axi_rlast   )
+);
+
+
+slv_m09_axi_vip_slv_mem_t   m09_axi;
+slv_m09_axi_vip_slv_t   m09_axi_slv;
+
 parameter NUM_AXIS_MST = 0;
 parameter NUM_AXIS_SLV = 0;
 parameter NUM_AXIS_PAIRS = 0;
@@ -467,6 +905,30 @@ bit [63:0] axi02_ptr0_ptr = 64'h0;
 ///////////////////////////////////////////////////////////////////////////
 // Pointer for interface : m03_axi
 bit [63:0] axi03_ptr0_ptr = 64'h0;
+
+///////////////////////////////////////////////////////////////////////////
+// Pointer for interface : m04_axi
+bit [63:0] axi04_ptr0_ptr = 64'h0;
+
+///////////////////////////////////////////////////////////////////////////
+// Pointer for interface : m05_axi
+bit [63:0] axi05_ptr0_ptr = 64'h0;
+
+///////////////////////////////////////////////////////////////////////////
+// Pointer for interface : m06_axi
+bit [63:0] axi06_ptr0_ptr = 64'h0;
+
+///////////////////////////////////////////////////////////////////////////
+// Pointer for interface : m07_axi
+bit [63:0] axi07_ptr0_ptr = 64'h0;
+
+///////////////////////////////////////////////////////////////////////////
+// Pointer for interface : m08_axi
+bit [63:0] axi08_ptr0_ptr = 64'h0;
+
+///////////////////////////////////////////////////////////////////////////
+// Pointer for interface : m09_axi
+bit [63:0] axi09_ptr0_ptr = 64'h0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // Backdoor fill the m00_axi memory.
@@ -530,6 +992,114 @@ function void m03_axi_fill_memory(
 );
   for (longint unsigned slot = 0; slot < length; slot++) begin
     m03_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), slot);
+  end
+endfunction
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Backdoor fill the m04_axi memory.
+function void m04_axi_fill_memory(
+  input bit [63:0] ptr,
+  input integer    length
+);
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "edge_0.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
+  for (longint unsigned slot = 0; slot < length; slot++) begin
+    $fscanf(fd, "%d", data);
+    m04_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
+  end
+endfunction
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Backdoor fill the m05_axi memory.
+function void m05_axi_fill_memory(
+  input bit [63:0] ptr,
+  input integer    length
+);
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "edge_1.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
+  for (longint unsigned slot = 0; slot < length; slot++) begin
+    $fscanf(fd, "%d", data);
+    m05_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
+  end
+endfunction
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Backdoor fill the m06_axi memory.
+function void m06_axi_fill_memory(
+  input bit [63:0] ptr,
+  input integer    length
+);
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "edge_0.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
+  for (longint unsigned slot = 0; slot < length; slot++) begin
+    $fscanf(fd, "%d", data);
+    m06_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
+  end
+endfunction
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Backdoor fill the m07_axi memory.
+function void m07_axi_fill_memory(
+  input bit [63:0] ptr,
+  input integer    length
+);
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "edge_1.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
+  for (longint unsigned slot = 0; slot < length; slot++) begin
+    $fscanf(fd, "%d", data);
+    m07_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
+  end
+endfunction
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Backdoor fill the m08_axi memory.
+function void m08_axi_fill_memory(
+  input bit [63:0] ptr,
+  input integer    length
+);
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "edge_0.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
+  for (longint unsigned slot = 0; slot < length; slot++) begin
+    $fscanf(fd, "%d", data);
+    m08_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
+  end
+endfunction
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Backdoor fill the m09_axi memory.
+function void m09_axi_fill_memory(
+  input bit [63:0] ptr,
+  input integer    length
+);
+  integer fd;
+  reg [31 : 0] data;
+  fd = $fopen({file_location, "edge_1.txt"}, "r");
+  if (!fd && length) begin
+    $finish();
+  end
+  for (longint unsigned slot = 0; slot < length; slot++) begin
+    $fscanf(fd, "%d", data);
+    m09_axi.mem_model.backdoor_memory_write_4byte(ptr + (slot * 4), data);
   end
 endfunction
 
@@ -689,6 +1259,36 @@ task automatic start_vips();
   m03_axi = new("m03_axi", delta_pr_accelerator_tb.inst_slv_m03_axi_vip.inst.IF);
   m03_axi.start_slave();
 
+  $display("///////////////////////////////////////////////////////////////////////////");
+  $display("Starting Memory slave: m04_axi");
+  m04_axi = new("m04_axi", delta_pr_accelerator_tb.inst_slv_m04_axi_vip.inst.IF);
+  m04_axi.start_slave();
+
+  $display("///////////////////////////////////////////////////////////////////////////");
+  $display("Starting Memory slave: m05_axi");
+  m05_axi = new("m05_axi", delta_pr_accelerator_tb.inst_slv_m05_axi_vip.inst.IF);
+  m05_axi.start_slave();
+
+  $display("///////////////////////////////////////////////////////////////////////////");
+  $display("Starting Memory slave: m06_axi");
+  m06_axi = new("m06_axi", delta_pr_accelerator_tb.inst_slv_m06_axi_vip.inst.IF);
+  m06_axi.start_slave();
+
+  $display("///////////////////////////////////////////////////////////////////////////");
+  $display("Starting Memory slave: m07_axi");
+  m07_axi = new("m07_axi", delta_pr_accelerator_tb.inst_slv_m07_axi_vip.inst.IF);
+  m07_axi.start_slave();
+
+  $display("///////////////////////////////////////////////////////////////////////////");
+  $display("Starting Memory slave: m08_axi");
+  m08_axi = new("m08_axi", delta_pr_accelerator_tb.inst_slv_m08_axi_vip.inst.IF);
+  m08_axi.start_slave();
+
+  $display("///////////////////////////////////////////////////////////////////////////");
+  $display("Starting Memory slave: m09_axi");
+  m09_axi = new("m09_axi", delta_pr_accelerator_tb.inst_slv_m09_axi_vip.inst.IF);
+  m09_axi.start_slave();
+
 endtask
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -713,6 +1313,30 @@ task automatic slv_no_backpressure_wready();
   rgen = new("m03_axi_no_backpressure_wready");
   rgen.set_ready_policy(XIL_AXI_READY_GEN_NO_BACKPRESSURE);
   m03_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m04_axi_no_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_NO_BACKPRESSURE);
+  m04_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m05_axi_no_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_NO_BACKPRESSURE);
+  m05_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m06_axi_no_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_NO_BACKPRESSURE);
+  m06_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m07_axi_no_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_NO_BACKPRESSURE);
+  m07_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m08_axi_no_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_NO_BACKPRESSURE);
+  m08_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m09_axi_no_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_NO_BACKPRESSURE);
+  m09_axi.wr_driver.set_wready_gen(rgen);
 
 endtask
 
@@ -752,6 +1376,48 @@ task automatic slv_random_backpressure_wready();
   rgen.set_event_count_range(3,5);
   m03_axi.wr_driver.set_wready_gen(rgen);
 
+  rgen = new("m04_axi_random_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_RANDOM);
+  rgen.set_low_time_range(0,12);
+  rgen.set_high_time_range(1,12);
+  rgen.set_event_count_range(3,5);
+  m04_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m05_axi_random_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_RANDOM);
+  rgen.set_low_time_range(0,12);
+  rgen.set_high_time_range(1,12);
+  rgen.set_event_count_range(3,5);
+  m05_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m06_axi_random_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_RANDOM);
+  rgen.set_low_time_range(0,12);
+  rgen.set_high_time_range(1,12);
+  rgen.set_event_count_range(3,5);
+  m06_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m07_axi_random_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_RANDOM);
+  rgen.set_low_time_range(0,12);
+  rgen.set_high_time_range(1,12);
+  rgen.set_event_count_range(3,5);
+  m07_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m08_axi_random_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_RANDOM);
+  rgen.set_low_time_range(0,12);
+  rgen.set_high_time_range(1,12);
+  rgen.set_event_count_range(3,5);
+  m08_axi.wr_driver.set_wready_gen(rgen);
+
+  rgen = new("m09_axi_random_backpressure_wready");
+  rgen.set_ready_policy(XIL_AXI_READY_GEN_RANDOM);
+  rgen.set_low_time_range(0,12);
+  rgen.set_high_time_range(1,12);
+  rgen.set_event_count_range(3,5);
+  m09_axi.wr_driver.set_wready_gen(rgen);
+
 endtask
 
 
@@ -773,6 +1439,24 @@ task automatic slv_no_delay_rvalid();
   m03_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_FIXED);
   m03_axi.mem_model.set_inter_beat_gap(0);
 
+  m04_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_FIXED);
+  m04_axi.mem_model.set_inter_beat_gap(0);
+
+  m05_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_FIXED);
+  m05_axi.mem_model.set_inter_beat_gap(0);
+
+  m06_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_FIXED);
+  m06_axi.mem_model.set_inter_beat_gap(0);
+
+  m07_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_FIXED);
+  m07_axi.mem_model.set_inter_beat_gap(0);
+
+  m08_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_FIXED);
+  m08_axi.mem_model.set_inter_beat_gap(0);
+
+  m09_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_FIXED);
+  m09_axi.mem_model.set_inter_beat_gap(0);
+
 endtask
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -792,6 +1476,24 @@ task automatic slv_random_delay_rvalid();
 
   m03_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_RANDOM);
   m03_axi.mem_model.set_inter_beat_gap_range(0,10);
+
+  m04_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_RANDOM);
+  m04_axi.mem_model.set_inter_beat_gap_range(0,10);
+
+  m05_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_RANDOM);
+  m05_axi.mem_model.set_inter_beat_gap_range(0,10);
+
+  m06_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_RANDOM);
+  m06_axi.mem_model.set_inter_beat_gap_range(0,10);
+
+  m07_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_RANDOM);
+  m07_axi.mem_model.set_inter_beat_gap_range(0,10);
+
+  m08_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_RANDOM);
+  m08_axi.mem_model.set_inter_beat_gap_range(0,10);
+
+  m09_axi.mem_model.set_inter_beat_gap_delay_policy(XIL_AXI_MEMORY_DELAY_RANDOM);
+  m09_axi.mem_model.set_inter_beat_gap_range(0,10);
 
 endtask
 
@@ -910,16 +1612,81 @@ task automatic check_pointer_registers(output bit error_found);
   check_register_value(32'h050, 32, tmp_error_found);
   error_found |= tmp_error_found;
 
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 7: axi04_ptr0 (0x058)
+  check_register_value(32'h058, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 7: axi04_ptr0 (0x05c)
+  check_register_value(32'h05c, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 8: axi05_ptr0 (0x064)
+  check_register_value(32'h064, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 8: axi05_ptr0 (0x068)
+  check_register_value(32'h068, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 9: axi06_ptr0 (0x070)
+  check_register_value(32'h070, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 9: axi06_ptr0 (0x074)
+  check_register_value(32'h074, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 10: axi07_ptr0 (0x07c)
+  check_register_value(32'h07c, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 10: axi07_ptr0 (0x080)
+  check_register_value(32'h080, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 11: axi08_ptr0 (0x088)
+  check_register_value(32'h088, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 11: axi08_ptr0 (0x08c)
+  check_register_value(32'h08c, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 12: axi09_ptr0 (0x094)
+  check_register_value(32'h094, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 12: axi09_ptr0 (0x098)
+  check_register_value(32'h098, 32, tmp_error_found);
+  error_found |= tmp_error_found;
+
 endtask
 
 task automatic set_memory_pointers();
   ///////////////////////////////////////////////////////////////////////////
   //Randomly generate memory pointers.
-  $display("%t : Setting Memory Pointer", $time);
   axi00_ptr0_ptr = get_random_ptr();
   axi01_ptr0_ptr = get_random_ptr();
   axi02_ptr0_ptr = get_random_ptr();
   axi03_ptr0_ptr = get_random_ptr();
+  axi04_ptr0_ptr = get_random_ptr();
+  axi05_ptr0_ptr = get_random_ptr();
+  axi06_ptr0_ptr = get_random_ptr();
+  axi07_ptr0_ptr = get_random_ptr();
+  axi08_ptr0_ptr = get_random_ptr();
+  axi09_ptr0_ptr = get_random_ptr();
 
   ///////////////////////////////////////////////////////////////////////////
   //Write ID 3: axi00_ptr0 (0x028) -> Randomized 4k aligned address (Global memory, lower 32 bits)
@@ -953,6 +1720,54 @@ task automatic set_memory_pointers();
   //Write ID 6: axi03_ptr0 (0x050) -> Randomized 4k aligned address (Global memory, upper 32 bits)
   write_register(32'h050, axi03_ptr0_ptr[63:32]);
 
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 7: axi04_ptr0 (0x058) -> Randomized 4k aligned address (Global memory, lower 32 bits)
+  write_register(32'h058, axi04_ptr0_ptr[31:0]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 7: axi04_ptr0 (0x05c) -> Randomized 4k aligned address (Global memory, upper 32 bits)
+  write_register(32'h05c, axi04_ptr0_ptr[63:32]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 8: axi05_ptr0 (0x064) -> Randomized 4k aligned address (Global memory, lower 32 bits)
+  write_register(32'h064, axi05_ptr0_ptr[31:0]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 8: axi05_ptr0 (0x068) -> Randomized 4k aligned address (Global memory, upper 32 bits)
+  write_register(32'h068, axi05_ptr0_ptr[63:32]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 9: axi06_ptr0 (0x070) -> Randomized 4k aligned address (Global memory, lower 32 bits)
+  write_register(32'h070, axi06_ptr0_ptr[31:0]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 9: axi06_ptr0 (0x074) -> Randomized 4k aligned address (Global memory, upper 32 bits)
+  write_register(32'h074, axi06_ptr0_ptr[63:32]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 10: axi07_ptr0 (0x07c) -> Randomized 4k aligned address (Global memory, lower 32 bits)
+  write_register(32'h07c, axi07_ptr0_ptr[31:0]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 10: axi07_ptr0 (0x080) -> Randomized 4k aligned address (Global memory, upper 32 bits)
+  write_register(32'h080, axi07_ptr0_ptr[63:32]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 11: axi08_ptr0 (0x088) -> Randomized 4k aligned address (Global memory, lower 32 bits)
+  write_register(32'h088, axi08_ptr0_ptr[31:0]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 11: axi08_ptr0 (0x08c) -> Randomized 4k aligned address (Global memory, upper 32 bits)
+  write_register(32'h08c, axi08_ptr0_ptr[63:32]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 12: axi09_ptr0 (0x094) -> Randomized 4k aligned address (Global memory, lower 32 bits)
+  write_register(32'h094, axi09_ptr0_ptr[31:0]);
+
+  ///////////////////////////////////////////////////////////////////////////
+  //Write ID 12: axi09_ptr0 (0x098) -> Randomized 4k aligned address (Global memory, upper 32 bits)
+  write_register(32'h098, axi09_ptr0_ptr[63:32]);
+
 endtask
 
 task automatic backdoor_fill_memories();
@@ -972,6 +1787,30 @@ task automatic backdoor_fill_memories();
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Backdoor fill the memory with the content.
   m03_axi_fill_memory(axi03_ptr0_ptr, VERTEX_NUM);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Backdoor fill the memory with the content.
+  m04_axi_fill_memory(axi04_ptr0_ptr, EDGE_NUM_0);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Backdoor fill the memory with the content.
+  m05_axi_fill_memory(axi05_ptr0_ptr, EDGE_NUM_1);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Backdoor fill the memory with the content.
+  m06_axi_fill_memory(axi06_ptr0_ptr, EDGE_NUM_0);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Backdoor fill the memory with the content.
+  m07_axi_fill_memory(axi07_ptr0_ptr, EDGE_NUM_1);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Backdoor fill the memory with the content.
+  m08_axi_fill_memory(axi08_ptr0_ptr, EDGE_NUM_0);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////
+  // Backdoor fill the memory with the content.
+  m09_axi_fill_memory(axi09_ptr0_ptr, EDGE_NUM_1);
 
 endtask
 
@@ -1025,6 +1864,7 @@ function automatic bit check_kernel_result();
 endfunction
 
 bit choose_pressure_type = 0;
+bit axis_choose_pressure_type = 0;
 bit [0-1:0] axis_tlast_received;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1095,7 +1935,6 @@ initial begin : STIMULUS
   enable_interrupts();
 
   multiple_iteration(1, error_found);
-  // error_found |= check_kernel_result()   ;
 
   if (error_found == 1) begin
     $display( "Test Failed!");

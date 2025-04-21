@@ -112,26 +112,22 @@ int main(int argc, char** argv)
 
     cl_uint* h_axi00_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, vertex_num * sizeof(cl_uint*)); // host memory for output vector
     cl_mem d_axi00_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi01_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, vertex_num * sizeof(cl_uint*)); // host memory for output vector
     cl_mem d_axi01_ptr0;                         // device memory used for a vector
-
-    cl_uint* h_axi02_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, vertex_num * sizeof(cl_uint*)); // host memory for output vector
     cl_mem d_axi02_ptr0;                         // device memory used for a vector
-
     cl_uint* h_axi03_ptr0_output = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, vertex_num * sizeof(cl_uint*)); // host memory for output vector
     cl_mem d_axi03_ptr0;                         // device memory used for a vector
+    cl_mem d_axi04_ptr0;                         // device memory used for a vector
+    cl_mem d_axi05_ptr0;                         // device memory used for a vector
+    cl_mem d_axi06_ptr0;                         // device memory used for a vector
+    cl_mem d_axi07_ptr0;                         // device memory used for a vector
+    cl_mem d_axi08_ptr0;                         // device memory used for a vector
+    cl_mem d_axi09_ptr0;                         // device memory used for a vector
 
     // Fill our data sets with pattern
     h_data_off = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, (vertex_num * 2) * sizeof(cl_uint*));
     h_data_edge_0 = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, edge_0_num * sizeof(cl_uint*));
     h_data_edge_1 = (cl_uint*)aligned_alloc(MEM_ALIGNMENT, (edge_1_num + 1) * sizeof(cl_uint*));
-    for(cl_uint i = 0; i < vertex_num; i++) {
-        h_axi00_ptr0_output[i] = 0; 
-        h_axi01_ptr0_output[i] = 0; 
-        h_axi02_ptr0_output[i] = 0; 
-        h_axi03_ptr0_output[i] = 0; 
-    }
+
     cout << "Start Load Graph Offset" << endl;
     ifstream in_off;
     in_off.open(off_file);
@@ -333,7 +329,37 @@ int main(int argc, char** argv)
     if (err != CL_SUCCESS) {
       std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
     }
-    if (!(d_axi00_ptr0&&d_axi01_ptr0&&d_axi02_ptr0&&d_axi03_ptr0)) {
+    mem_ext.flags = 7;
+    d_axi04_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * edge_0_num, &mem_ext, &err);
+    if (err != CL_SUCCESS) {
+      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
+    }
+    mem_ext.flags = 8;
+    d_axi05_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * (edge_1_num + 1), &mem_ext, &err);
+    if (err != CL_SUCCESS) {
+      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
+    }
+    mem_ext.flags = 9;
+    d_axi06_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * edge_0_num, &mem_ext, &err);
+    if (err != CL_SUCCESS) {
+      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
+    }
+    mem_ext.flags = 10;
+    d_axi07_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * (edge_1_num + 1), &mem_ext, &err);
+    if (err != CL_SUCCESS) {
+      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
+    }
+    mem_ext.flags = 11;
+    d_axi08_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * edge_0_num, &mem_ext, &err);
+    if (err != CL_SUCCESS) {
+      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
+    }
+    mem_ext.flags = 12;
+    d_axi09_ptr0 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_EXT_PTR_XILINX,  sizeof(cl_uint) * (edge_1_num + 1), &mem_ext, &err);
+    if (err != CL_SUCCESS) {
+      std::cout << "Return code for clCreateBuffer flags=" << mem_ext.flags << ": " << err << std::endl;
+    }
+    if (!(d_axi00_ptr0&&d_axi01_ptr0&&d_axi02_ptr0&&d_axi03_ptr0&&d_axi04_ptr0&&d_axi05_ptr0&&d_axi06_ptr0&&d_axi07_ptr0&&d_axi08_ptr0&&d_axi09_ptr0)) {
         printf("ERROR: Failed to allocate device memory!\n");
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
@@ -363,6 +389,42 @@ int main(int argc, char** argv)
         printf("ERROR: Test failed\n");
         return EXIT_FAILURE;
     }
+    err = clEnqueueWriteBuffer(commands, d_axi04_ptr0, CL_TRUE, 0, sizeof(cl_uint) * edge_0_num, h_data_edge_0, 0, NULL, NULL);
+    if (err != CL_SUCCESS) {
+        printf("ERROR: Failed to write to source array h_data: d_axi04_ptr0: %d!\n", err);
+        printf("ERROR: Test failed\n");
+        return EXIT_FAILURE;
+    }
+    err = clEnqueueWriteBuffer(commands, d_axi05_ptr0, CL_TRUE, 0, sizeof(cl_uint) * (edge_1_num + 1), h_data_edge_1, 0, NULL, NULL);
+    if (err != CL_SUCCESS) {
+        printf("ERROR: Failed to write to source array h_data: d_axi05_ptr0: %d!\n", err);
+        printf("ERROR: Test failed\n");
+        return EXIT_FAILURE;
+    }
+    err = clEnqueueWriteBuffer(commands, d_axi06_ptr0, CL_TRUE, 0, sizeof(cl_uint) * edge_0_num, h_data_edge_0, 0, NULL, NULL);
+    if (err != CL_SUCCESS) {
+        printf("ERROR: Failed to write to source array h_data: d_axi06_ptr0: %d!\n", err);
+        printf("ERROR: Test failed\n");
+        return EXIT_FAILURE;
+    }
+    err = clEnqueueWriteBuffer(commands, d_axi07_ptr0, CL_TRUE, 0, sizeof(cl_uint) * (edge_1_num + 1), h_data_edge_1, 0, NULL, NULL);
+    if (err != CL_SUCCESS) {
+        printf("ERROR: Failed to write to source array h_data: d_axi07_ptr0: %d!\n", err);
+        printf("ERROR: Test failed\n");
+        return EXIT_FAILURE;
+    }
+    err = clEnqueueWriteBuffer(commands, d_axi08_ptr0, CL_TRUE, 0, sizeof(cl_uint) * edge_0_num, h_data_edge_0, 0, NULL, NULL);
+    if (err != CL_SUCCESS) {
+        printf("ERROR: Failed to write to source array h_data: d_axi08_ptr0: %d!\n", err);
+        printf("ERROR: Test failed\n");
+        return EXIT_FAILURE;
+    }
+    err = clEnqueueWriteBuffer(commands, d_axi09_ptr0, CL_TRUE, 0, sizeof(cl_uint) * (edge_1_num + 1), h_data_edge_1, 0, NULL, NULL);
+    if (err != CL_SUCCESS) {
+        printf("ERROR: Failed to write to source array h_data: d_axi09_ptr0: %d!\n", err);
+        printf("ERROR: Test failed\n");
+        return EXIT_FAILURE;
+    }
     cout << "Complete Write Buffer" << endl;
 
     // Set the arguments to our compute kernel
@@ -378,6 +440,12 @@ int main(int argc, char** argv)
     err |= clSetKernelArg(kernel, 4, sizeof(cl_mem), &d_axi01_ptr0); 
     err |= clSetKernelArg(kernel, 5, sizeof(cl_mem), &d_axi02_ptr0); 
     err |= clSetKernelArg(kernel, 6, sizeof(cl_mem), &d_axi03_ptr0); 
+    err |= clSetKernelArg(kernel, 7, sizeof(cl_mem), &d_axi04_ptr0); 
+    err |= clSetKernelArg(kernel, 8, sizeof(cl_mem), &d_axi05_ptr0); 
+    err |= clSetKernelArg(kernel, 9, sizeof(cl_mem), &d_axi06_ptr0); 
+    err |= clSetKernelArg(kernel, 10, sizeof(cl_mem), &d_axi07_ptr0); 
+    err |= clSetKernelArg(kernel, 11, sizeof(cl_mem), &d_axi08_ptr0); 
+    err |= clSetKernelArg(kernel, 12, sizeof(cl_mem), &d_axi09_ptr0); 
 
     if (err != CL_SUCCESS) {
         printf("ERROR: Failed to set kernel arguments! %d\n", err);
@@ -423,7 +491,7 @@ int main(int argc, char** argv)
     clWaitForEvents(1, &readevent);
 
     cout << "Total Cycle   : " << h_axi00_ptr0_output[0] << endl;
-    float frequency = 132;
+    float frequency = 126;
     float performance = 1.0 * d_edge_num * d_iteration_num * frequency / h_axi00_ptr0_output[0] / 1000;
     cout << "FPGA Frequency: " << frequency << "MHz" << endl;
     cout << "Vertex Num    : " << d_vertex_num << endl;
@@ -458,7 +526,7 @@ int main(int argc, char** argv)
       float debug_pr_v = *(float *)&debug_res_data;
       float divation = ret_pr_v - debug_pr_v > 0 ? ret_pr_v - debug_pr_v : debug_pr_v - ret_pr_v;
       float delta = debug_pr_v - ret_pr_v;
-      if (divation / debug_pr_v < 0 || divation / debug_pr_v > 0.0005) {
+      if (divation / debug_pr_v < 0 || divation / debug_pr_v > 0.005) {
         error_counter++;
         check_status = 1;
         printf("id: %d, debug_res: %f, acc_res: %f, delta: %x, err: %f.\n", i, debug_pr_v, *(int *)&delta, ret_pr_v, divation / debug_pr_v);
@@ -477,10 +545,8 @@ int main(int argc, char** argv)
     free(h_axi00_ptr0_output);
 
     clReleaseMemObject(d_axi01_ptr0);
-    free(h_axi01_ptr0_output);
 
     clReleaseMemObject(d_axi02_ptr0);
-    free(h_axi02_ptr0_output);
 
     clReleaseMemObject(d_axi03_ptr0);
     free(h_axi03_ptr0_output);

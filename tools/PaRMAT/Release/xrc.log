@@ -1,0 +1,17 @@
+Mon Jan  6 18:00:25 2020: Server was asked to start on port: '36965'
+Mon Jan  6 18:00:25 2020: Attempting to start server on port '36965'
+Mon Jan  6 18:00:25 2020: XRC main fifo: created main fifo '/tmp/xrcmain36965', fd read = 11
+Mon Jan  6 18:00:25 2020: Running Rule Check Server
+Mon Jan  6 18:00:25 2020: Version 1.4.0
+Mon Jan  6 18:00:26 2020: Rule Check Server: Accepted socket connection from client
+Mon Jan  6 18:00:27 2020: EXCHANGE_TOKEN received, server token: d198487d-5239-41ec-b652-ee9503276200, passed token: d198487d-5239-41ec-b652-ee9503276200
+Mon Jan  6 19:00:25 2020: Rule Check Server timeout; shutting down.
+Mon Jan  6 19:00:25 2020: Rule Check Server: do_await_stop
+Mon Jan  6 19:00:25 2020: Rule Check Server: stopping mainFifo_
+Mon Jan  6 19:00:25 2020: On server, in MainFifo::stop() 
+Mon Jan  6 19:00:25 2020: XRC main fifo: do_read error code: Operation canceled
+XRC main fifo: bytes_transferred: 0
+Mon Jan  6 19:00:25 2020: SERVER: destructor for server bound to port 36965
+Mon Jan  6 19:00:25 2020: XRC main fifo: Good unlink on server: /tmp/xrcmain36965
+Mon Jan  6 19:00:25 2020: Server exiting with status 0.
+Mon Jan  6 19:00:25 2020: Closing log file.

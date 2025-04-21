@@ -1,0 +1,67 @@
+/*
+
+Xilinx SDx v2019.1 (64-bit) [Major: 2019, Minor: 1]
+SW Build: 2552052 on Fri May 24 14:48:04 MDT 2019
+
+Process ID (PID): 8739
+License: Customer
+
+Current time: 	Mon Jan 06 18:00:34 CST 2020
+Time zone: 	China Standard Time (Asia/Shanghai)
+
+OS: Ubuntu
+OS Version: 4.15.0-72-generic
+OS Architecture: amd64
+Available processors (cores): 24
+
+Display: :50
+Screen size: 1920x1017
+Screen resolution (DPI): 100
+Available screens: 1
+Available disk space: 52 GB
+
+Java version: 	9.0.4 64-bit
+Java home: 	/opt/Xilinx/SDx/2019.1/tps/lnx64/jre9.0.4
+Java executable location: 	/opt/Xilinx/SDx/2019.1/tps/lnx64/jre9.0.4/bin/java
+Java initial memory (-Xms): 	64 MB
+Java maximum memory (-Xmx):	 4 GB
+
+Java library paths: /opt/Xilinx/SDx/2019.1/lib/lnx64.o/Ubuntu:/opt/Xilinx/SDx/2019.1/lib/lnx64.o:/opt/Xilinx/SDx/2019.1/tps/lnx64/jre9.0.4/lib/:/opt/Xilinx/SDx/2019.1/tps/lnx64/jre9.0.4/lib//server:/opt/Xilinx/SDK/2019.1/lib/lnx64.o:/opt/Xilinx/SDx/2019.1/lib/lnx64.o/Ubuntu:/opt/Xilinx/SDx/2019.1/lib/lnx64.o:/opt/xilinx/xrt/lib:/opt/Xilinx/SDx/2019.1/lib/lnx64.o/Ubuntu:/opt/Xilinx/SDx/2019.1/lib/lnx64.o:/opt/Xilinx/SDx/2019.1/runtime/lib/x86_64:/opt/Xilinx/SDx/2019.1/bin/../lnx64/tools/dot/lib:/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib
+
+Java class paths: /opt/Xilinx/SDx/2019.1/eclipse/lnx64.o//plugins/org.eclipse.equinox.launcher_1.4.0.v20161219-1356.jar
+LD_LIBRARY_PATH: /opt/Xilinx/SDx
+
+User name: 	liao
+User home directory: /home/liao
+User working directory: /home/liao/Documents/Accelerator_Final/tools/PaRMAT/Release
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: /opt/Xilinx/SDx
+HDI_APPROOT: /opt/Xilinx/SDx/2019.1
+RDI_DATADIR: /opt/Xilinx/SDx/2019.1/data
+RDI_BINDIR: /opt/Xilinx/SDx/2019.1/bin
+
+SDx preferences directory: /home/liao/.Xilinx/SDx/2019.1/
+SDx workspace directory: /home/liao/workspace
+SDx workspace log file location: /home/liao/workspace/.metadata/.log
+Engine tmp dir: 	./.Xil/sdx-8739-liao
+
+Xilinx Environment Variables
+----------------------------
+XILINX_DSP: 
+XILINX_PLANAHEAD: /opt/Xilinx/SDx/2019.1
+XILINX_SDK: /opt/Xilinx/SDK/2019.1
+XILINX_SDX: /opt/Xilinx/SDx/2019.1
+XILINX_VIVADO: /opt/Xilinx/Vivado/2019.1
+XILINX_VIVADO_HLS: /opt/Xilinx/Vivado/2019.1
+XILINX_XRT: /opt/xilinx/xrt
+_RDI_DONT_SET_XILINX_AS_PATH: True
+
+
+Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+selectButton("OK", "License Error", "MessageDialog", "Button.OK");

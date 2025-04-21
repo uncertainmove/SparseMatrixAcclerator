@@ -124,7 +124,7 @@ module scheduler_single #(parameter
         .valid      ()
     );
 
-    active_v_id_fifo_ft ACTIVE_V_ID_FIFO_FT (
+    active_v_id_fifo_big_ft ACTIVE_V_ID_FIFO_FT (
         .clk        (clk),
         .srst       (rst),
         .din        (front_active_v_id),
@@ -137,7 +137,7 @@ module scheduler_single #(parameter
         .valid      ()
     );
 
-    active_v_value_fifo_ft ACTIVE_V_VALUE_FIFO_FT (
+    active_v_value_fifo_big_ft ACTIVE_V_VALUE_FIFO_FT (
         .clk        (clk),
         .srst       (rst),
         .din        (front_active_v_value),

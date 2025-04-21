@@ -6,7 +6,7 @@
 `timescale 1ns/1ps
 module delta_pr_accelerator_control_s_axi
 #(parameter
-    C_S_AXI_ADDR_WIDTH = 7,
+    C_S_AXI_ADDR_WIDTH = 8,
     C_S_AXI_DATA_WIDTH = 32
 )(
     input  wire                          ACLK,
@@ -37,6 +37,12 @@ module delta_pr_accelerator_control_s_axi
     output wire [63:0]                   axi01_ptr0,
     output wire [63:0]                   axi02_ptr0,
     output wire [63:0]                   axi03_ptr0,
+    output wire [63:0]                   axi04_ptr0,
+    output wire [63:0]                   axi05_ptr0,
+    output wire [63:0]                   axi06_ptr0,
+    output wire [63:0]                   axi07_ptr0,
+    output wire [63:0]                   axi08_ptr0,
+    output wire [63:0]                   axi09_ptr0,
     output wire                          ap_start,
     input  wire                          ap_done,
     input  wire                          ap_ready,
@@ -91,32 +97,80 @@ module delta_pr_accelerator_control_s_axi
 // 0x50 : Data signal of axi03_ptr0
 //        bit 31~0 - axi03_ptr0[63:32] (Read/Write)
 // 0x54 : reserved
+// 0x58 : Data signal of axi04_ptr0
+//        bit 31~0 - axi04_ptr0[31:0] (Read/Write)
+// 0x5c : Data signal of axi04_ptr0
+//        bit 31~0 - axi04_ptr0[63:32] (Read/Write)
+// 0x60 : reserved
+// 0x64 : Data signal of axi05_ptr0
+//        bit 31~0 - axi05_ptr0[31:0] (Read/Write)
+// 0x68 : Data signal of axi05_ptr0
+//        bit 31~0 - axi05_ptr0[63:32] (Read/Write)
+// 0x6c : reserved
+// 0x70 : Data signal of axi06_ptr0
+//        bit 31~0 - axi06_ptr0[31:0] (Read/Write)
+// 0x74 : Data signal of axi06_ptr0
+//        bit 31~0 - axi06_ptr0[63:32] (Read/Write)
+// 0x78 : reserved
+// 0x7c : Data signal of axi07_ptr0
+//        bit 31~0 - axi07_ptr0[31:0] (Read/Write)
+// 0x80 : Data signal of axi07_ptr0
+//        bit 31~0 - axi07_ptr0[63:32] (Read/Write)
+// 0x84 : reserved
+// 0x88 : Data signal of axi08_ptr0
+//        bit 31~0 - axi08_ptr0[31:0] (Read/Write)
+// 0x8c : Data signal of axi08_ptr0
+//        bit 31~0 - axi08_ptr0[63:32] (Read/Write)
+// 0x90 : reserved
+// 0x94 : Data signal of axi09_ptr0
+//        bit 31~0 - axi09_ptr0[31:0] (Read/Write)
+// 0x98 : Data signal of axi09_ptr0
+//        bit 31~0 - axi09_ptr0[63:32] (Read/Write)
+// 0x9c : reserved
 // (SC = Self Clear, COR = Clear on Read, TOW = Toggle on Write, COH = Clear on Handshake)
 
 //------------------------Parameter----------------------
 localparam
-    ADDR_AP_CTRL              = 7'h00,
-    ADDR_GIE                  = 7'h04,
-    ADDR_IER                  = 7'h08,
-    ADDR_ISR                  = 7'h0c,
-    ADDR_ITERATION_NUM_DATA_0 = 7'h10,
-    ADDR_ITERATION_NUM_CTRL   = 7'h14,
-    ADDR_VERTEX_NUM_DATA_0    = 7'h18,
-    ADDR_VERTEX_NUM_CTRL      = 7'h1c,
-    ADDR_EDGE_NUM_DATA_0      = 7'h20,
-    ADDR_EDGE_NUM_CTRL        = 7'h24,
-    ADDR_AXI00_PTR0_DATA_0    = 7'h28,
-    ADDR_AXI00_PTR0_DATA_1    = 7'h2c,
-    ADDR_AXI00_PTR0_CTRL      = 7'h30,
-    ADDR_AXI01_PTR0_DATA_0    = 7'h34,
-    ADDR_AXI01_PTR0_DATA_1    = 7'h38,
-    ADDR_AXI01_PTR0_CTRL      = 7'h3c,
-    ADDR_AXI02_PTR0_DATA_0    = 7'h40,
-    ADDR_AXI02_PTR0_DATA_1    = 7'h44,
-    ADDR_AXI02_PTR0_CTRL      = 7'h48,
-    ADDR_AXI03_PTR0_DATA_0    = 7'h4c,
-    ADDR_AXI03_PTR0_DATA_1    = 7'h50,
-    ADDR_AXI03_PTR0_CTRL      = 7'h54,
+    ADDR_AP_CTRL              = 8'h00,
+    ADDR_GIE                  = 8'h04,
+    ADDR_IER                  = 8'h08,
+    ADDR_ISR                  = 8'h0c,
+    ADDR_ITERATION_NUM_DATA_0 = 8'h10,
+    ADDR_ITERATION_NUM_CTRL   = 8'h14,
+    ADDR_VERTEX_NUM_DATA_0    = 8'h18,
+    ADDR_VERTEX_NUM_CTRL      = 8'h1c,
+    ADDR_EDGE_NUM_DATA_0      = 8'h20,
+    ADDR_EDGE_NUM_CTRL        = 8'h24,
+    ADDR_AXI00_PTR0_DATA_0    = 8'h28,
+    ADDR_AXI00_PTR0_DATA_1    = 8'h2c,
+    ADDR_AXI00_PTR0_CTRL      = 8'h30,
+    ADDR_AXI01_PTR0_DATA_0    = 8'h34,
+    ADDR_AXI01_PTR0_DATA_1    = 8'h38,
+    ADDR_AXI01_PTR0_CTRL      = 8'h3c,
+    ADDR_AXI02_PTR0_DATA_0    = 8'h40,
+    ADDR_AXI02_PTR0_DATA_1    = 8'h44,
+    ADDR_AXI02_PTR0_CTRL      = 8'h48,
+    ADDR_AXI03_PTR0_DATA_0    = 8'h4c,
+    ADDR_AXI03_PTR0_DATA_1    = 8'h50,
+    ADDR_AXI03_PTR0_CTRL      = 8'h54,
+    ADDR_AXI04_PTR0_DATA_0    = 8'h58,
+    ADDR_AXI04_PTR0_DATA_1    = 8'h5c,
+    ADDR_AXI04_PTR0_CTRL      = 8'h60,
+    ADDR_AXI05_PTR0_DATA_0    = 8'h64,
+    ADDR_AXI05_PTR0_DATA_1    = 8'h68,
+    ADDR_AXI05_PTR0_CTRL      = 8'h6c,
+    ADDR_AXI06_PTR0_DATA_0    = 8'h70,
+    ADDR_AXI06_PTR0_DATA_1    = 8'h74,
+    ADDR_AXI06_PTR0_CTRL      = 8'h78,
+    ADDR_AXI07_PTR0_DATA_0    = 8'h7c,
+    ADDR_AXI07_PTR0_DATA_1    = 8'h80,
+    ADDR_AXI07_PTR0_CTRL      = 8'h84,
+    ADDR_AXI08_PTR0_DATA_0    = 8'h88,
+    ADDR_AXI08_PTR0_DATA_1    = 8'h8c,
+    ADDR_AXI08_PTR0_CTRL      = 8'h90,
+    ADDR_AXI09_PTR0_DATA_0    = 8'h94,
+    ADDR_AXI09_PTR0_DATA_1    = 8'h98,
+    ADDR_AXI09_PTR0_CTRL      = 8'h9c,
     WRIDLE                    = 2'd0,
     WRDATA                    = 2'd1,
     WRRESP                    = 2'd2,
@@ -124,7 +178,7 @@ localparam
     RDIDLE                    = 2'd0,
     RDDATA                    = 2'd1,
     RDRESET                   = 2'd2,
-    ADDR_BITS                = 7;
+    ADDR_BITS                = 8;
 
 //------------------------Local signal-------------------
     reg  [1:0]                    wstate = WRRESET;
@@ -160,6 +214,12 @@ localparam
     reg  [63:0]                   int_axi01_ptr0 = 'b0;
     reg  [63:0]                   int_axi02_ptr0 = 'b0;
     reg  [63:0]                   int_axi03_ptr0 = 'b0;
+    reg  [63:0]                   int_axi04_ptr0 = 'b0;
+    reg  [63:0]                   int_axi05_ptr0 = 'b0;
+    reg  [63:0]                   int_axi06_ptr0 = 'b0;
+    reg  [63:0]                   int_axi07_ptr0 = 'b0;
+    reg  [63:0]                   int_axi08_ptr0 = 'b0;
+    reg  [63:0]                   int_axi09_ptr0 = 'b0;
 
 //------------------------Instantiation------------------
 
@@ -302,6 +362,42 @@ always @(posedge ACLK) begin
                 ADDR_AXI03_PTR0_DATA_1: begin
                     rdata <= int_axi03_ptr0[63:32];
                 end
+                ADDR_AXI04_PTR0_DATA_0: begin
+                    rdata <= int_axi04_ptr0[31:0];
+                end
+                ADDR_AXI04_PTR0_DATA_1: begin
+                    rdata <= int_axi04_ptr0[63:32];
+                end
+                ADDR_AXI05_PTR0_DATA_0: begin
+                    rdata <= int_axi05_ptr0[31:0];
+                end
+                ADDR_AXI05_PTR0_DATA_1: begin
+                    rdata <= int_axi05_ptr0[63:32];
+                end
+                ADDR_AXI06_PTR0_DATA_0: begin
+                    rdata <= int_axi06_ptr0[31:0];
+                end
+                ADDR_AXI06_PTR0_DATA_1: begin
+                    rdata <= int_axi06_ptr0[63:32];
+                end
+                ADDR_AXI07_PTR0_DATA_0: begin
+                    rdata <= int_axi07_ptr0[31:0];
+                end
+                ADDR_AXI07_PTR0_DATA_1: begin
+                    rdata <= int_axi07_ptr0[63:32];
+                end
+                ADDR_AXI08_PTR0_DATA_0: begin
+                    rdata <= int_axi08_ptr0[31:0];
+                end
+                ADDR_AXI08_PTR0_DATA_1: begin
+                    rdata <= int_axi08_ptr0[63:32];
+                end
+                ADDR_AXI09_PTR0_DATA_0: begin
+                    rdata <= int_axi09_ptr0[31:0];
+                end
+                ADDR_AXI09_PTR0_DATA_1: begin
+                    rdata <= int_axi09_ptr0[63:32];
+                end
             endcase
         end
     end
@@ -321,6 +417,12 @@ assign axi00_ptr0        = int_axi00_ptr0;
 assign axi01_ptr0        = int_axi01_ptr0;
 assign axi02_ptr0        = int_axi02_ptr0;
 assign axi03_ptr0        = int_axi03_ptr0;
+assign axi04_ptr0        = int_axi04_ptr0;
+assign axi05_ptr0        = int_axi05_ptr0;
+assign axi06_ptr0        = int_axi06_ptr0;
+assign axi07_ptr0        = int_axi07_ptr0;
+assign axi08_ptr0        = int_axi08_ptr0;
+assign axi09_ptr0        = int_axi09_ptr0;
 // int_interrupt
 always @(posedge ACLK) begin
     if (ARESET)
@@ -560,6 +662,126 @@ always @(posedge ACLK) begin
     else if (ACLK_EN) begin
         if (w_hs && waddr == ADDR_AXI03_PTR0_DATA_1)
             int_axi03_ptr0[63:32] <= (WDATA[31:0] & wmask) | (int_axi03_ptr0[63:32] & ~wmask);
+    end
+end
+
+// int_axi04_ptr0[31:0]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi04_ptr0[31:0] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI04_PTR0_DATA_0)
+            int_axi04_ptr0[31:0] <= (WDATA[31:0] & wmask) | (int_axi04_ptr0[31:0] & ~wmask);
+    end
+end
+
+// int_axi04_ptr0[63:32]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi04_ptr0[63:32] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI04_PTR0_DATA_1)
+            int_axi04_ptr0[63:32] <= (WDATA[31:0] & wmask) | (int_axi04_ptr0[63:32] & ~wmask);
+    end
+end
+
+// int_axi05_ptr0[31:0]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi05_ptr0[31:0] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI05_PTR0_DATA_0)
+            int_axi05_ptr0[31:0] <= (WDATA[31:0] & wmask) | (int_axi05_ptr0[31:0] & ~wmask);
+    end
+end
+
+// int_axi05_ptr0[63:32]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi05_ptr0[63:32] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI05_PTR0_DATA_1)
+            int_axi05_ptr0[63:32] <= (WDATA[31:0] & wmask) | (int_axi05_ptr0[63:32] & ~wmask);
+    end
+end
+
+// int_axi06_ptr0[31:0]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi06_ptr0[31:0] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI06_PTR0_DATA_0)
+            int_axi06_ptr0[31:0] <= (WDATA[31:0] & wmask) | (int_axi06_ptr0[31:0] & ~wmask);
+    end
+end
+
+// int_axi06_ptr0[63:32]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi06_ptr0[63:32] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI06_PTR0_DATA_1)
+            int_axi06_ptr0[63:32] <= (WDATA[31:0] & wmask) | (int_axi06_ptr0[63:32] & ~wmask);
+    end
+end
+
+// int_axi07_ptr0[31:0]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi07_ptr0[31:0] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI07_PTR0_DATA_0)
+            int_axi07_ptr0[31:0] <= (WDATA[31:0] & wmask) | (int_axi07_ptr0[31:0] & ~wmask);
+    end
+end
+
+// int_axi07_ptr0[63:32]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi07_ptr0[63:32] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI07_PTR0_DATA_1)
+            int_axi07_ptr0[63:32] <= (WDATA[31:0] & wmask) | (int_axi07_ptr0[63:32] & ~wmask);
+    end
+end
+
+// int_axi08_ptr0[31:0]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi08_ptr0[31:0] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI08_PTR0_DATA_0)
+            int_axi08_ptr0[31:0] <= (WDATA[31:0] & wmask) | (int_axi08_ptr0[31:0] & ~wmask);
+    end
+end
+
+// int_axi08_ptr0[63:32]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi08_ptr0[63:32] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI08_PTR0_DATA_1)
+            int_axi08_ptr0[63:32] <= (WDATA[31:0] & wmask) | (int_axi08_ptr0[63:32] & ~wmask);
+    end
+end
+
+// int_axi09_ptr0[31:0]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi09_ptr0[31:0] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI09_PTR0_DATA_0)
+            int_axi09_ptr0[31:0] <= (WDATA[31:0] & wmask) | (int_axi09_ptr0[31:0] & ~wmask);
+    end
+end
+
+// int_axi09_ptr0[63:32]
+always @(posedge ACLK) begin
+    if (ARESET)
+        int_axi09_ptr0[63:32] <= 0;
+    else if (ACLK_EN) begin
+        if (w_hs && waddr == ADDR_AXI09_PTR0_DATA_1)
+            int_axi09_ptr0[63:32] <= (WDATA[31:0] & wmask) | (int_axi09_ptr0[63:32] & ~wmask);
     end
 end
 
