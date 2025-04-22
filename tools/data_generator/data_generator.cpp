@@ -35,8 +35,8 @@ void data_generator(const char *filename, const char *offset_filename, const cha
     }
     cout << "[INFO] Open file " << filename << endl;
 
-    if (directed) edge_list = (struct Edge *) calloc (vertex_num + edge_num, sizeof(Edge));
-    else edge_list = (struct Edge *) calloc (vertex_num + edge_num * 2, sizeof(Edge));
+    if (directed) edge_list = (struct Edge *) calloc (2 * vertex_num + edge_num, sizeof(Edge));
+    else edge_list = (struct Edge *) calloc (2 * vertex_num + edge_num * 2, sizeof(Edge));
 
     // 读入所有边
     if (is_from_snap) {
